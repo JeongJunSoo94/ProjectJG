@@ -18,6 +18,11 @@ protected:
 		TArray<int32> weaponBoneIdexs;
 	UPROPERTY(BlueprintReadOnly,VisibleDefaultsOnly, Category = "equipedWeaponIdex")
 		int32 equipedWeaponIdex;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+		TSubclassOf<class UUserWidget_CrossHair> CrossHairClass;
+
+	class UUserWidget_CrossHair* CrossHair;
 public:
 	ACBaseCharacter();
 

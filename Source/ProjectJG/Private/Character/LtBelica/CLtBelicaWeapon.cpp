@@ -37,7 +37,7 @@ void UCLtBelicaWeapon::OnHitPaticle(UPrimitiveComponent* HitComponent, AActor* O
 {
 	FRotator rotator = Hit.ImpactNormal.Rotation();
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, Hit.Location, rotator, true, EPSCPoolMethod::AutoRelease);
-	//UGameplayStatics::SpawnDecalAtLocation(GetWorld(), DecalMaterial, FVector(5), Hit.Location, rotator, 10.0f);
+	UGameplayStatics::SpawnDecalAtLocation(GetWorld(), DecalMaterial, FVector(5), Hit.Location, rotator, 10.0f);
 }
 
 void UCLtBelicaWeapon::BeginPlay()
@@ -93,6 +93,10 @@ void UCLtBelicaWeapon::Firing()
 		ACBullet* bullet;
 		bullet = Cast<ACBullet>(ObjectPoolFactory->SpawnObject());
 		bullet->TeleportTo(muzzleLocation, direction.Rotation());
+		FTransform Transform = bullet->GetTransform();
+		Transform.SetLocation(muzzleLocation);
+		Transform.SetRotation(FQuat(direction.Rotation()));
+		bullet->SetActorTransform(Transform);
 		bullet->SetActorLifeTime(3.0f);
 		if (!(bullet->bInitailized))
 		{
@@ -105,7 +109,6 @@ void UCLtBelicaWeapon::Firing()
 		//bullet->GetMesh()->OnComponentHit.AddDynamic(this, &UCLtBelicaWeapon::OnHitPaticle);
 	}
 	//direction = OwnerCharacter->GetMesh()->GetSocketTransform("SMG_Barrel").GetRotation();
-
 
 }
 

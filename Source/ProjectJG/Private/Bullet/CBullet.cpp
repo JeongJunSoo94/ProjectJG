@@ -32,7 +32,7 @@ ACBullet::ACBullet()
 
 void ACBullet::Init()
 {
-	Projectile->Velocity.X = Projectile->InitialSpeed;
+    Projectile->Velocity = FQuat(GetActorRotation()).GetForwardVector()* Projectile->InitialSpeed;
     Projectile->SetUpdatedComponent(Mesh);
 }
 

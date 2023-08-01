@@ -1,11 +1,12 @@
 #include "Character/CBaseCharacter.h"
 #include "Global.h"
 #include "Character/Animation/CCharacterAnimInstance.h"
-//#include "GameFramework/Character.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Widgets/UserWidget_CrossHair.h"
 
 ACBaseCharacter::ACBaseCharacter()
 {
@@ -30,12 +31,19 @@ ACBaseCharacter::ACBaseCharacter()
 
 	equipedWeaponIdex = 0;
 	weaponBoneIdexs.Add(0);
+
+	CHelpers::GetClass<UUserWidget_CrossHair>(&CrossHairClass, "WidgetBlueprint'/Game/Developers/USER/Character/WB_CrossHair.WB_CrossHair_C'");
+
 }
 
 void ACBaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	CHelpers::CheckNullComponent<UCameraComponent>(this,&PlayerMainCamera);
+
+	CrossHair = CreateWidget<UUserWidget_CrossHair, APlayerController>(GetController<APlayerController>(), CrossHairClass);
+	CrossHair->AddToViewport();
+	CrossHair->SetVisibility(ESlateVisibility::Visible);
 }
 
 void ACBaseCharacter::Tick(float DeltaTime)
