@@ -11,7 +11,8 @@ class PROJECTJG_API ACLtBelica : public ACBaseCharacter
 private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class UCLtBelicaWeapon* LtBelicaWeapon;
-
+	UPROPERTY(VisibleDefaultsOnly)
+		class UCQAbliltyActionComponent* LtBelicaQAbility;
 public:
 	ACLtBelica();
 
@@ -26,4 +27,8 @@ public:
 private:
 	void OnFire();
 	void OffFire();
+	void OnQAbility();
+public:
+	bool GetLtBelicaWeaponIsFiring();
+	bool GetLtBelicaIsAbiliting();
 };

@@ -1,11 +1,11 @@
 #include "Character/CBaseCharacter.h"
 #include "Global.h"
 #include "Character/Animation/CCharacterAnimInstance.h"
-#include "GameFramework/Character.h"
+//#include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 ACBaseCharacter::ACBaseCharacter()
 {
@@ -35,7 +35,7 @@ ACBaseCharacter::ACBaseCharacter()
 void ACBaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	CHelpers::CheckNullComponent<UCameraComponent>(this,&PlayerMainCamera);
 }
 
 void ACBaseCharacter::Tick(float DeltaTime)
@@ -113,4 +113,18 @@ void ACBaseCharacter::UnEquip()
 		GetMesh()->HideBone(weaponBoneIdexs[equipedWeaponIdex], PBO_None);
 		equipedWeaponIdex = 0;
 	}
+
+
+}
+void ACBaseCharacter::GetLocationAndDirection(FVector& OutStart, FVector& OutEnd, FVector& OutDirection)
+{
+	OutDirection = PlayerMainCamera->GetForwardVector();
+	FTransform transform = PlayerMainCamera->GetComponentToWorld();
+	FVector cameraLocation = transform.GetLocation();
+	OutStart = cameraLocation + OutDirection;
+
+	FVector conDirection = UKismetMathLibrary::RandomUnitVectorInEllipticalConeInDegrees(OutDirection, 0.3f, 0.4f);
+
+	conDirection *= 3000.0f;
+	OutEnd = cameraLocation + conDirection;
 }

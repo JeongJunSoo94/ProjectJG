@@ -1,6 +1,8 @@
 #include "Character/LtBelica/CLtBelica.h"
 #include "Global.h"
 #include "Character/LtBelica/CLtBelicaWeapon.h"
+#include "Camera/CameraComponent.h"
+#include "Character/LtBelica/CQAbliltyActionComponent.h"
 
 ACLtBelica::ACLtBelica()
 {
@@ -14,6 +16,9 @@ ACLtBelica::ACLtBelica()
 	CHelpers::CreateActorComponent<UCLtBelicaWeapon>(this, &LtBelicaWeapon,"LtBelicaWeapon");
 	LtBelicaWeapon->SetOwnerCharacter(this);
 
+	CHelpers::CreateActorComponent<UCQAbliltyActionComponent>(this, &LtBelicaQAbility, "LtBelicaQAbility");
+	LtBelicaQAbility->SetOwnerCharacter(this);
+
 }
 
 void ACLtBelica::BeginPlay()
@@ -25,7 +30,7 @@ void ACLtBelica::BeginPlay()
 void ACLtBelica::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 }
 
 void ACLtBelica::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -34,6 +39,8 @@ void ACLtBelica::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Pressed, this, &ACLtBelica::OnFire);
 	PlayerInputComponent->BindAction("Fire", EInputEvent::IE_Released, this, &ACLtBelica::OffFire);
+
+	PlayerInputComponent->BindAction("Q", EInputEvent::IE_Pressed, this, &ACLtBelica::OnQAbility);
 }
 
 void ACLtBelica::OnFire()
@@ -44,4 +51,19 @@ void ACLtBelica::OnFire()
 void ACLtBelica::OffFire()
 {
 	LtBelicaWeapon->End_Fire();
+}
+
+void ACLtBelica::OnQAbility()
+{
+	LtBelicaQAbility->OnAction();
+}
+
+bool ACLtBelica::GetLtBelicaWeaponIsFiring()
+{
+	return LtBelicaWeapon->GetIsFiring();
+}
+
+bool ACLtBelica::GetLtBelicaIsAbiliting()
+{
+	return LtBelicaQAbility->GetIsAbiliting();
 }

@@ -13,6 +13,7 @@ public:
 		//verifyf(asset.Succeeded(), L"asset.Succeeded()");
 		*outObject = asset.Object;
 	}
+
 	template<typename T> static void GetAssetDynamic(T** outObject, FString inPath)
 	{
 		T* obj = Cast<T>(StaticLoadObject(T::StaticClass(), NULL, *inPath));
@@ -51,5 +52,18 @@ public:
 	template<typename T> static void CreateActorComponent(AActor* inActor, T** inComponent, FName inName)
 	{
 		*inComponent = inActor->CreateDefaultSubobject<T>(inName);
+	}
+
+	template<typename T> static void CheckNullComponent(AActor* inActor, T** inComponent)
+	{
+		if (*inComponent ==NULL)
+		{
+			*inComponent = Cast<T>(inActor->GetComponentByClass(T::StaticClass()));
+		}
+	}
+
+	template<typename T> static T* GetComponent(AActor* inActor)
+	{
+		return Cast<T>(inActor->GetComponentByClass(T::StaticClass()));
 	}
 };

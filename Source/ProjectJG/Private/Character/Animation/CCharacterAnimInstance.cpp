@@ -24,12 +24,4 @@ void UCCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	Direction = CalculateDirection(OwnerCharacter->GetVelocity(), OwnerCharacter->GetControlRotation());
 	Pitch = OwnerCharacter->GetBaseAimRotation().Pitch;
-
-	//IIRifle* rifle = Cast<IIRifle>(OwnerCharacter);
-	//if (!!rifle)
-	//{
-	//	bEquipped = rifle->GetRifle()->GetEquipped();
-	//	bAiming = rifle->GetRifle()->GetAiming();
-	//}
-
 }

@@ -12,7 +12,7 @@ private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class USpringArmComponent* SpringArm;
 protected:
-	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Camera")
 		class UCameraComponent* PlayerMainCamera;
 	UPROPERTY(VisibleDefaultsOnly)
 		TArray<int32> weaponBoneIdexs;
@@ -37,4 +37,6 @@ private:
 	void OnEquipNum1();
 	void OnEquipNum2();
 	void OnUnEquip();
+public:
+	void GetLocationAndDirection(FVector& OutStart, FVector& OutEnd, FVector& OutDirectiron);
 };

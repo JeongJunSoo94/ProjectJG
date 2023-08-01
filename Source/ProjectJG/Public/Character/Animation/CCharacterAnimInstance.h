@@ -26,9 +26,6 @@ protected:
 		float YawDelta;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
 		bool IsAccelerating;
-	//
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
-		float PistolHolster;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
 		bool FullBody;
@@ -42,7 +39,7 @@ public:
 	virtual void NativeBeginPlay() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
-private:
+protected:
 	class ACharacter* OwnerCharacter;
 
 };
