@@ -23,13 +23,28 @@ protected:
 		TSubclassOf<class UUserWidget_CrossHair> CrossHairClass;
 
 	class UUserWidget_CrossHair* CrossHair;
+
+	UPROPERTY(VisibleDefaultsOnly)
+		class UStatusComponent* Status;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+		TSubclassOf<class UStatusUserWidget> StatusClass;
+
+	class UStatusUserWidget* StatusUI;
+
+	UPROPERTY(VisibleDefaultsOnly)
+		class UWidgetComponent* HealthWidget;
 public:
 	ACBaseCharacter();
+	//float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	float TakeDamage(float Damage);
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void Equip(int32 weaponIndex);
 	virtual void UnEquip();
+	virtual void Damaged(float totalAmount);
+
 public:	
 	virtual void Tick(float DeltaTime) override;
 
@@ -44,4 +59,7 @@ private:
 	void OnUnEquip();
 public:
 	void GetLocationAndDirection(FVector& OutStart, FVector& OutEnd, FVector& OutDirectiron);
+
+private:
+	float DamageValue;
 };
