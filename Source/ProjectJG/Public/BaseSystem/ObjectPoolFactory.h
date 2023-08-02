@@ -27,6 +27,8 @@ public:
 		void OnReturnedToPool(ABasePooledObject* PoolActor);
 	UFUNCTION()
 		void Initialized();
+	UFUNCTION()
+		void CreateObject(UWorld* const World, int idx);
 protected:
 	virtual void BeginPlay() override;
 

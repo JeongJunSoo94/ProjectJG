@@ -15,19 +15,16 @@ void ABasePooledObject::SetActive(bool IsActive)
 	{
 		GetWorldTimerManager().SetTimer(LifeTimer, this, &ABasePooledObject::Deactive, ActorLifeTime, false);
 		Init();
-		Clog::Log("start");
-		Clog::Log(PoolObjectIndex);
 	}
 	else
 	{
 		Clog::Log("end");
+		GetWorldTimerManager().ClearAllTimersForObject(this);
 	}
 }
 
 void ABasePooledObject::Deactive()
 {
-	SetActive(false);
-	GetWorldTimerManager().ClearAllTimersForObject(this);
 	OnReturnedToPool.Execute(this);
 }
 
