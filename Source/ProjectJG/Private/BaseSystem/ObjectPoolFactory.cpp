@@ -42,8 +42,8 @@ void UObjectPoolFactory::Initialized()
 
 ABasePooledObject* UObjectPoolFactory::SpawnObject()
 {
-	ABasePooledObject* PooledObject = *(AvailableObjectPool.Peek());
-	if (PooledObject == nullptr)
+	ABasePooledObject* PooledObject;
+	if (AvailableObjectPool.IsEmpty())
 	{
 		UWorld* const World = GetWorld();
 		if (World != nullptr)

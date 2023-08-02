@@ -6,13 +6,18 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Character/Components/StatusComponent.h"
 #include "Widgets/UserWidget_CrossHair.h"
+#include "Widgets/StatusUserWidget.h"
 
 ACBaseCharacter::ACBaseCharacter()
 {
  	PrimaryActorTick.bCanEverTick = true;
 	CHelpers::CreateComponent<USpringArmComponent>(this, &SpringArm, "SpringArm",GetCapsuleComponent());
 	CHelpers::CreateComponent<UCameraComponent>(this, &PlayerMainCamera, "Camera", SpringArm);
+	
+	CHelpers::CreateActorComponent<UStatusComponent>(this, &Status, "Status");
+	//CHelpers::CreateComponent<UWidgetComponent>(this, &HealthWidget, "HealthWidget", GetMesh());
 
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -33,6 +38,8 @@ ACBaseCharacter::ACBaseCharacter()
 	weaponBoneIdexs.Add(0);
 
 	CHelpers::GetClass<UUserWidget_CrossHair>(&CrossHairClass, "WidgetBlueprint'/Game/Developers/USER/Character/WB_CrossHair.WB_CrossHair_C'");
+	CHelpers::GetClass<UStatusUserWidget>(&StatusClass, "WidgetBlueprint'/Game/Developers/USER/Character/WB_Status.WB_Status_C'");
+
 
 }
 
@@ -44,12 +51,21 @@ void ACBaseCharacter::BeginPlay()
 	CrossHair = CreateWidget<UUserWidget_CrossHair, APlayerController>(GetController<APlayerController>(), CrossHairClass);
 	CrossHair->AddToViewport();
 	CrossHair->SetVisibility(ESlateVisibility::Visible);
+
+	//player ¿œ∂ß
+	StatusUI = CreateWidget<UStatusUserWidget, APlayerController>(GetController<APlayerController>(), StatusClass);
+	StatusUI->AddToViewport();
+	StatusUI->SetVisibility(ESlateVisibility::Visible);
+
+	StatusUI->Update(Status->GetHealth(), Status->GetMaxHealth());
+
 }
 
 void ACBaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	if(DamageValue>0)
+		Damaged(DamageValue);
 }
 
 void ACBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -121,9 +137,20 @@ void ACBaseCharacter::UnEquip()
 		GetMesh()->HideBone(weaponBoneIdexs[equipedWeaponIdex], PBO_None);
 		equipedWeaponIdex = 0;
 	}
-
-
 }
+
+float ACBaseCharacter::TakeDamage(float Damage)
+{
+	DamageValue += Damage;
+	return DamageValue;
+
+	//DamageInstigator = EventInstigator;
+	//DamageValue = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+
+	//State->SetHittedMode();
+	//return Status->GetHealth();
+}
+
 void ACBaseCharacter::GetLocationAndDirection(FVector& OutStart, FVector& OutEnd, FVector& OutDirection)
 {
 	OutDirection = PlayerMainCamera->GetForwardVector();
@@ -135,4 +162,13 @@ void ACBaseCharacter::GetLocationAndDirection(FVector& OutStart, FVector& OutEnd
 
 	conDirection *= 3000.0f;
 	OutEnd = cameraLocation + conDirection;
+}
+
+void ACBaseCharacter::Damaged(float totalAmount)
+{
+	Status->SubHealth(totalAmount);
+
+	StatusUI->Update(Status->GetHealth(), Status->GetMaxHealth());
+
+	DamageValue = 0;
 }
