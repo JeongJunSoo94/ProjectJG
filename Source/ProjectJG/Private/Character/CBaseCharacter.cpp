@@ -9,6 +9,8 @@
 #include "Character/Components/StatusComponent.h"
 #include "Widgets/UserWidget_CrossHair.h"
 #include "Widgets/StatusUserWidget.h"
+#include "Widgets/HealthWidget.h"
+#include "Components/WidgetComponent.h"
 
 ACBaseCharacter::ACBaseCharacter()
 {
@@ -40,6 +42,14 @@ ACBaseCharacter::ACBaseCharacter()
 	CHelpers::GetClass<UUserWidget_CrossHair>(&CrossHairClass, "WidgetBlueprint'/Game/Developers/USER/Character/WB_CrossHair.WB_CrossHair_C'");
 	CHelpers::GetClass<UStatusUserWidget>(&StatusClass, "WidgetBlueprint'/Game/Developers/USER/Character/WB_Status.WB_Status_C'");
 
+	CHelpers::CreateComponent<UWidgetComponent>(this, &HealthWidget, "HealthWidget", GetMesh());
+	
+	TSubclassOf<UHealthWidget> healthClass;
+	CHelpers::GetClass<UHealthWidget>(&healthClass, "WidgetBlueprint'/Game/Developers/USER/Character/WB_Health.WB_Health_C'");
+	HealthWidget->SetWidgetClass(healthClass);
+	HealthWidget->SetRelativeLocation(FVector(0, 0, 200));
+	HealthWidget->SetDrawSize(FVector2D(120, 20));
+	HealthWidget->SetWidgetSpace(EWidgetSpace::Screen);
 
 }
 
@@ -58,6 +68,10 @@ void ACBaseCharacter::BeginPlay()
 	StatusUI->SetVisibility(ESlateVisibility::Visible);
 
 	StatusUI->Update(Status->GetHealth(), Status->GetMaxHealth());
+
+	HealthWidget->InitWidget();
+	Cast<UHealthWidget>(HealthWidget->GetUserWidgetObject())->Update(Status->GetHealth(), Status->GetMaxHealth());
+
 
 }
 
@@ -169,6 +183,8 @@ void ACBaseCharacter::Damaged(float totalAmount)
 	Status->SubHealth(totalAmount);
 
 	StatusUI->Update(Status->GetHealth(), Status->GetMaxHealth());
+
+	Cast<UHealthWidget>(HealthWidget->GetUserWidgetObject())->Update(Status->GetHealth(), Status->GetMaxHealth());
 
 	DamageValue = 0;
 }
