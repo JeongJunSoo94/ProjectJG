@@ -9,7 +9,7 @@ UCLASS()
 class PROJECTJG_API ACBullet : public ABasePooledObject
 {
     GENERATED_BODY()
-private:
+protected:
     UPROPERTY(VisibleDefaultsOnly)
         class UStaticMeshComponent* Mesh;
     UPROPERTY(VisibleDefaultsOnly)
@@ -20,11 +20,12 @@ private:
             const FHitResult& Hit);
 public:
     ACBullet();
-    UStaticMeshComponent* GetMesh() { return Mesh; }
+    virtual UStaticMeshComponent* GetMesh() { return Mesh; }
 
 protected:
     virtual void BeginPlay() override;
     virtual void Init()override;
 public:
     bool bInitailized;
+
 };

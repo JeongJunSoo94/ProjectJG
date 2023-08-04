@@ -22,6 +22,8 @@ ACBaseCharacter::ACBaseCharacter()
 	//CHelpers::CreateComponent<UWidgetComponent>(this, &HealthWidget, "HealthWidget", GetMesh());
 
 	bUseControllerRotationYaw = false;
+	
+
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxWalkSpeed = 400.0f;
 

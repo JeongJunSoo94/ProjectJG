@@ -19,6 +19,7 @@ UCQAbliltyActionComponent::UCQAbliltyActionComponent()
 
 void UCQAbliltyActionComponent::BeginPlay()
 {
+	UParticleSystemComponent* par = UGameplayStatics::SpawnEmitterAttached(ImpactParticle, OwnerCharacter->GetMesh(), "hologramSocket", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true, EPSCPoolMethod::AutoRelease);
 
 }
 

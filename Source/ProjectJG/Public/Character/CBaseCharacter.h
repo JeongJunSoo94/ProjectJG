@@ -36,7 +36,7 @@ protected:
 		class UWidgetComponent* HealthWidget;
 public:
 	ACBaseCharacter();
-	//float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	
 	float TakeDamage(float Damage);
 
 protected:

@@ -34,6 +34,7 @@ void ACBullet::Init()
 {
     Projectile->Velocity = FQuat(GetActorRotation()).GetForwardVector()* Projectile->InitialSpeed;
     Projectile->SetUpdatedComponent(Mesh);
+ 
 }
 
 void ACBullet::BeginPlay()
@@ -48,3 +49,4 @@ void ACBullet::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPri
     OnReturnedToPool.Execute(this);
     //Destroy();
 }
+

@@ -18,7 +18,6 @@ void ABasePooledObject::SetActive(bool IsActive)
 	}
 	else
 	{
-		Clog::Log("end");
 		GetWorldTimerManager().ClearAllTimersForObject(this);
 	}
 }
