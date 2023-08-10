@@ -60,6 +60,11 @@ private:
 public:
 	void GetLocationAndDirection(FVector& OutStart, FVector& OutEnd, FVector& OutDirectiron);
 
+	void Stop();
+	void SolveStop();
+
+	float GetLookYaw();
 private:
+	bool bMove = true;
 	float DamageValue;
 };

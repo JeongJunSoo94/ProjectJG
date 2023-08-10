@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Character/Murdock/Murdock.h"
 #include "CoreMinimal.h"
 #include "Character/Animation/CCharacterAnimInstance.h"
 #include "MurdockAnimInstance.generated.h"
@@ -16,6 +17,12 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
 		float PistolHolster;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
+		MurdockBehaviorState behaviorState;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
+		float LookAtYaw;
 
 public:
 	virtual void NativeBeginPlay() override;

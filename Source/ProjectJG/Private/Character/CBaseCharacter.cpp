@@ -12,6 +12,7 @@
 #include "Widgets/HealthWidget.h"
 #include "Components/WidgetComponent.h"
 
+
 ACBaseCharacter::ACBaseCharacter()
 {
  	PrimaryActorTick.bCanEverTick = true;
@@ -22,7 +23,6 @@ ACBaseCharacter::ACBaseCharacter()
 	//CHelpers::CreateComponent<UWidgetComponent>(this, &HealthWidget, "HealthWidget", GetMesh());
 
 	bUseControllerRotationYaw = false;
-	
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxWalkSpeed = 400.0f;
@@ -99,16 +99,20 @@ void ACBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void ACBaseCharacter::OnMoveForward(float Axis)
 {
+	CheckFalse(bMove);
 	FRotator rotator = FRotator(0, GetControlRotation().Yaw, 0);
 	FVector direction = FQuat(rotator).GetForwardVector().GetSafeNormal2D();
 	AddMovementInput(direction, Axis);
+	
 }
 
 void ACBaseCharacter::OnMoveRight(float Axis)
 {
+	CheckFalse(bMove);
 	FRotator rotator = FRotator(0, GetControlRotation().Yaw, 0);
 	FVector direction = FQuat(rotator).GetRightVector().GetSafeNormal2D();
 	AddMovementInput(direction, Axis);
+	
 
 }
 
@@ -189,4 +193,31 @@ void ACBaseCharacter::Damaged(float totalAmount)
 	Cast<UHealthWidget>(HealthWidget->GetUserWidgetObject())->Update(Status->GetHealth(), Status->GetMaxHealth());
 
 	DamageValue = 0;
+}
+
+void ACBaseCharacter::Stop()
+{
+	bMove = false;
+}
+void ACBaseCharacter::SolveStop()
+{
+	bMove = true;
+}
+
+float ACBaseCharacter::GetLookYaw()
+{
+	// 카메라의 시선 벡터 얻기
+	FVector CameraForward = PlayerMainCamera->GetForwardVector();
+
+	// 액터의 시선 벡터 얻기 (예시로 액터의 앞 방향 벡터로 가정)
+	FVector ActorForward = GetActorForwardVector();
+
+	// 카메라와 액터의 시선 각도 계산
+	FRotator CameraRot = UKismetMathLibrary::MakeRotFromX(CameraForward);
+	FRotator ActorRot = UKismetMathLibrary::MakeRotFromX(ActorForward);
+
+	// Yaw 각도 계산
+	float YawDifference = UKismetMathLibrary::NormalizedDeltaRotator(CameraRot, ActorRot).Yaw;
+
+	return YawDifference;
 }

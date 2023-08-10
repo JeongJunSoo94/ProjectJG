@@ -33,7 +33,7 @@ AMurdockBullet::AMurdockBullet()
     bInitailized = false;
 
 
-    CHelpers::GetAsset<UParticleSystem>(&BulletParticle, "ParticleSystem'/Game/ParagonMurdock/FX/Particles/Abilities/Primary/FX/P_Murdock_Bullet_Trail_Smoke_Spline.P_Murdock_Bullet_Trail_Smoke_Spline'");
+    CHelpers::GetAsset<UParticleSystem>(&BulletParticle, "ParticleSystem'/Game/ParagonMurdock/FX/Particles/Abilities/Primary/FX/P_PlasmaShot_Projectile_Trail_2.P_PlasmaShot_Projectile_Trail_2'");
 }
 
 void AMurdockBullet::BeginPlay()
@@ -44,7 +44,7 @@ void AMurdockBullet::BeginPlay()
 void AMurdockBullet::Init()
 {
     Super::Init();
-    
-    UGameplayStatics::SpawnEmitterAttached(BulletParticle, GetMesh(), "Mesh", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true, EPSCPoolMethod::AutoRelease);
+    FVector forwardVector(200.0f, 0.0f, 0.0f);
+    UGameplayStatics::SpawnEmitterAttached(BulletParticle, GetMesh(), "Mesh", forwardVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true, EPSCPoolMethod::AutoRelease);
 
 }

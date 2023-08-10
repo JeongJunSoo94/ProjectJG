@@ -31,12 +31,12 @@ UMurdockWeapon::UMurdockWeapon()
 
 	CHelpers::GetAsset<UMaterialInstanceConstant>(&DecalMaterial, "MaterialInstanceConstant'/Game/Materials/M_Decal_Inst.M_Decal_Inst'");
 	
+	
 }
 
 
 void UMurdockWeapon::OnHitPaticle(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	Clog::Log("Hit");
 	FRotator rotator = Hit.ImpactNormal.Rotation();
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, Hit.Location, rotator, true, EPSCPoolMethod::AutoRelease);
 	UGameplayStatics::SpawnDecalAtLocation(GetWorld(), DecalMaterial, FVector(5), Hit.Location, rotator, 10.0f);
@@ -51,10 +51,11 @@ void UMurdockWeapon::BeginPlay()
 
 void UMurdockWeapon::SetOwnerCharacter(ACBaseCharacter* character)
 {
-	OwnerCharacter = character;
+	OwnerCharacter = Cast<ACBaseCharacter>(GetOwner());
 	MuzzleIndex = OwnerCharacter->GetMesh()->GetBoneIndex("Muzzle");
 	CHelpers::CreateActorComponent<UObjectPoolFactory>(OwnerCharacter, &ObjectPoolFactory, "ObjectPoolFactory");
 	ObjectPoolFactory->PoolSize = 20;
+	
 	ObjectPoolFactory->PooledObjectSubclass = BulletClass;
 	ObjectPoolFactory->Initialized();
 
@@ -68,8 +69,8 @@ void UMurdockWeapon::Begin_Fire()
 {
 	CheckTrue(IsFiring);
 
-	//OwnerCharacter->bUseControllerRotationYaw = true;
-	//OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
+	OwnerCharacter->bUseControllerRotationYaw = true;
+	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 	IsFiring = true;
 	Firing();
 }
@@ -108,7 +109,7 @@ void UMurdockWeapon::Firing()
 		
 		if (!(bullet->bInitailized))
 		{
-			Clog::Log("Bind");
+			//Clog::Log("Bind");
 			bullet->bInitailized = true;
 			bullet->GetMesh()->OnComponentHit.AddDynamic(this, &UMurdockWeapon::OnHitPaticle);
 		}
@@ -123,8 +124,8 @@ void UMurdockWeapon::Firing()
 
 void UMurdockWeapon::End_Fire()
 {
-	//OwnerCharacter->bUseControllerRotationYaw = false;
-	//OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
+	OwnerCharacter->bUseControllerRotationYaw = false;
+	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 	IsFiring = false;
 	OwnerCharacter->StopAnimMontage(FireMontage);
 }
