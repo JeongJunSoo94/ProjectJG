@@ -18,13 +18,23 @@ private:
 
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Ultimate")
-		class UParticleSystem* UltimateShoot;
+		class UParticleSystem* UltimateLoop;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Ultimate")
+		class UParticleSystem* UltimateBeginShot;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Ultimate")
+		class UParticleSystem* UltimateMuzzleShot;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Ultimate")
+		class UParticleSystem* UltimateLaser;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Ultimate")
+		class UParticleSystem* UltimateLaserSight;
+	UPROPERTY(VisibleDefaultsOnly, Category = "Ultimate")
+		class UParticleSystem* UltimateLaserImpact;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Ultimate")
 		class UParticleSystemComponent* UltimateParticle;
 
 	UPROPERTY(VisibleDefaultsOnly)
-		class ACBaseCharacter* Ownercharacter;
+		class AMurdock* OwnerCharacter;
 public:	
 	UMurdockUltimateSkillComponent();
 
@@ -32,7 +42,8 @@ public:
 	void LoopUltimate();
 	void EndUltimate();
 
-	
+	void ShotLaser();
+	void ChargeLaser();
 protected:
 	virtual void BeginPlay() override;
 		

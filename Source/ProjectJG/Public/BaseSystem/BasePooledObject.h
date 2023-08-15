@@ -31,9 +31,10 @@ protected:
 
 public:	
 	virtual void Tick(float DeltaTime) override;
+	float GetCurrentLifeTime();
 protected:
 	bool bPooledObjectActive;
 	int PoolObjectIndex;
 	float ActorLifeTime = 0.0f;
-	FTimerHandle LifeTimer;
+	FTimerHandle LifeTimer; 
 };

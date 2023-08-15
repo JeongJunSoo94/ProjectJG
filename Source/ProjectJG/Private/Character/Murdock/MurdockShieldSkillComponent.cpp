@@ -36,14 +36,17 @@ void UMurdockShieldSkillComponent::BeginPlay()
 
 void UMurdockShieldSkillComponent::BeginShield()
 {
+	
 	Ownercharacter->PlayAnimMontage(ShieldAnim);
 	UGameplayStatics::SpawnEmitterAttached(Shield, Ownercharacter->GetMesh(), "Shield", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true, EPSCPoolMethod::AutoRelease);
 	
 	Ownercharacter->bUseControllerRotationYaw = true;
 	Ownercharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
+	
 }
 void UMurdockShieldSkillComponent::BreakShield()
 { 
+
 	Ownercharacter->PlayAnimMontage(ShieldAnim,1.0f,"EndLoop");
 	ShieldParticle->Deactivate();
 	UGameplayStatics::SpawnEmitterAttached(ShieldBreak, Ownercharacter->GetMesh(), "Shield", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true, EPSCPoolMethod::AutoRelease);

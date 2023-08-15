@@ -60,3 +60,8 @@ void ABasePooledObject::Tick(float DeltaTime)
 {
 }
 
+float ABasePooledObject::GetCurrentLifeTime()
+{
+	return GetWorldTimerManager().GetTimerElapsed(LifeTimer);
+}
+

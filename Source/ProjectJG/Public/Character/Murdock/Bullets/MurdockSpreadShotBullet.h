@@ -29,6 +29,8 @@ public:
 protected:
     virtual void BeginPlay() override;
     virtual void Init()override;
+    float HitTime;
 public:
+    float GetHitTime() { return HitTime; }
     bool bInitailized;
 };

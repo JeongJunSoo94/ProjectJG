@@ -8,10 +8,10 @@ UCLASS()
 class PROJECTJG_API ACBaseCharacter : public ACharacter
 {
 	GENERATED_BODY()
-private:
+
+protected:
 	UPROPERTY(VisibleDefaultsOnly)
 		class USpringArmComponent* SpringArm;
-protected:
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Camera")
 		class UCameraComponent* PlayerMainCamera;
 	UPROPERTY(VisibleDefaultsOnly)

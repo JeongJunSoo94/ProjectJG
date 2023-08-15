@@ -4,6 +4,7 @@
 #include "Character/CBaseCharacter.h"
 #include "Character/Murdock/MurdockWeapon.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Character/LtBelica/CQAbliltyActionComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -11,6 +12,10 @@
 #include "Character/Murdock/MurdockTazerTrapSkillComponent.h"
 #include "Character/Murdock/MurdockSpreadShotSkillComponent.h"
 #include "Character/Murdock/MurdockUltimateSkillComponent.h"
+
+#include "Curves/CurveFloat.h"
+
+
 
 AMurdock::AMurdock()
 {
@@ -27,22 +32,39 @@ AMurdock::AMurdock()
 
 	CHelpers::CreateActorComponent<UMurdockUltimateSkillComponent>(this, &UltimateSkill, "ElevenSkill");
 	CHelpers::CreateActorComponent<UMurdockShieldSkillComponent>(this, &ShieldSkill, "ShieldSkill");
-	CHelpers::CreateActorComponent<UMurdockSpreadShotSkillComponent>(this, &SpreadShotSkill, "SpreadShotSkill");
 	CHelpers::CreateActorComponent<UMurdockTazerTrapSkillComponent>(this, &TazerTrapSkill, "TazerTrapSkill");
 
+	CHelpers::CreateActorComponent<UMurdockSpreadShotSkillComponent>(this, &SpreadShotSkill, "SpreadShotSkill");
+
+	//CHelpers::GetAsset<UCurveFloat>(&ZoomCurveFloat, "CurveFloat'/Game/Developers/GohyeongJu/Characters/Murdock/ZoomCurveBase.ZoomCurveBase'");
+	
+	ConstructorHelpers::FObjectFinder<UCurveFloat> ZoomCurve(TEXT("CurveFloat'/Game/Developers/GohyeongJu/Characters/Murdock/ZoomCurveBase.ZoomCurveBase'"));
+	
+	ZoomCurveFloat = ZoomCurve.Object;
+	
 	SpreadShotSkill->CreateObjectPool();
 }
+
+
+
 
 void AMurdock::BeginPlay()
 {
 	Super::BeginPlay();
-
+	CHelpers::CheckNullComponent<UMurdockSpreadShotSkillComponent>(this, &SpreadShotSkill);
+	CHelpers::CheckNullComponent<UMurdockUltimateSkillComponent>(this, &UltimateSkill);
+	currentFOV = PlayerMainCamera->FieldOfView;
+	
 }
 
 void AMurdock::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
+
+	if (isChangeFOV)
+	{
+		DoZoom(DeltaTime);
+	}
 }
 
 void AMurdock::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -68,13 +90,20 @@ void AMurdock::OnFire()
 		MurdockWeapon->Begin_Fire();
 		BehaviorState = MurdockBehaviorState::EFire;
 	}
+	else if (BehaviorState == MurdockBehaviorState::EUltimate)
+	{
+		UltimateSkill->ShotLaser();
+	}
 
 }
 
 void AMurdock::OffFire()
 {
-	MurdockWeapon->End_Fire();
-	BehaviorState = MurdockBehaviorState::EIdle;
+	if (BehaviorState == MurdockBehaviorState::EFire)
+	{
+		MurdockWeapon->End_Fire();
+		BehaviorState = MurdockBehaviorState::EIdle;
+	}
 }
 
 void AMurdock::OnAlt()
@@ -98,8 +127,11 @@ void AMurdock::OnShield()
 }
 void AMurdock::OffShield()
 {
-	ShieldSkill->BreakShield();
-	BehaviorState = MurdockBehaviorState::EIdle;
+	if (BehaviorState == MurdockBehaviorState::EShield)
+	{
+		ShieldSkill->BreakShield();
+		BehaviorState = MurdockBehaviorState::EIdle;
+	}
 }
 void AMurdock::LoopShield()
 {
@@ -110,14 +142,18 @@ void AMurdock::OnSpreadShot()
 {
 	if (BehaviorState == MurdockBehaviorState::EIdle)
 	{
+		//Clog::Log(SpreadShotSkill);
 		SpreadShotSkill->ZoomInSpreadShot();
 		BehaviorState = MurdockBehaviorState::ESpreadShot;
 	}
 }
 void AMurdock::OffSpreadShot()
 {
-	SpreadShotSkill->ShootSpreadShot();
-	BehaviorState = MurdockBehaviorState::EIdle;
+	if (BehaviorState == MurdockBehaviorState::ESpreadShot)
+	{
+		SpreadShotSkill->ShootSpreadShot();
+		BehaviorState = MurdockBehaviorState::EIdle;
+	}
 }
 
 void AMurdock::LoopSpreadShotZoom()
@@ -163,5 +199,72 @@ void AMurdock::OffUltimate()
 
 void AMurdock::EndUltimateToIdle()
 {
-	BehaviorState = MurdockBehaviorState::EIdle;
+	if (BehaviorState == MurdockBehaviorState::EUltimate)
+	{
+		BehaviorState = MurdockBehaviorState::EIdle;
+	}
+}
+
+void AMurdock::CameraLag(bool Active, float CameraLagSpeed)
+{
+	SpringArm->bEnableCameraLag = Active;
+	SpringArm->CameraLagSpeed = CameraLagSpeed;
+}
+
+void AMurdock::MoveCamera(FVector socketOffset, FVector tragetOffset,FVector location, FRotator rotation, float targetArmLength)
+{
+	SpringArm->SetRelativeLocation(location);
+
+	SpringArm->SetRelativeRotation(rotation);
+
+	SpringArm->TargetArmLength = targetArmLength;
+
+	SpringArm->SocketOffset = socketOffset;
+
+	SpringArm->TargetOffset = tragetOffset;
+}
+
+void AMurdock::MoveCamera(FName targetName)
+{
+	
+
+	FTransform Muzzle_3_transform = GetMesh()->GetSocketTransform(targetName, ERelativeTransformSpace::RTS_Actor);
+	FVector Muzzle_3_vector;
+
+	Muzzle_3_transform.TransformVector(Muzzle_3_vector);
+
+
+
+	//SpringArm->SetRelativeLocation(FVector(0, 0, 60));
+	SpringArm->TargetArmLength = 0.0f;
+	//SpringArm->bDoCollisionTest = false;
+	//SpringArm->bUsePawnControlRotation = true;
+
+	SpringArm->SocketOffset = FVector(0, 0, 0);
+
+
+}
+
+
+void AMurdock::StartCameraFOV(float IncreaseFOV,float DuringTime)
+{
+	increaseFOV = IncreaseFOV;
+	currentFOV = PlayerMainCamera->FieldOfView;
+	isChangeFOV = true;
+	duringTime = DuringTime;
+	ZoomTime = 0.0f;
+}
+
+void AMurdock::DoZoom(float DeltaTime)
+{
+	if (ZoomTime <= duringTime)
+	{
+		PlayerMainCamera->FieldOfView = currentFOV + ZoomCurveFloat->GetFloatValue(ZoomTime / duringTime) * increaseFOV;
+		ZoomTime += DeltaTime;
+	}
+	else
+	{
+		PlayerMainCamera->FieldOfView = currentFOV + increaseFOV;
+		isChangeFOV = false;
+	}
 }

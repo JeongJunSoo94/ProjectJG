@@ -27,7 +27,12 @@ private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class UObjectPoolFactory* ObjectPoolFactory;
 	UPROPERTY(VisibleDefaultsOnly)
-		class ACBaseCharacter* OwnerCharacter;
+		class AMurdock* OwnerCharacter;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "ShotGun")
+		class USoundCue* FireSoundCue;
+	UPROPERTY(VisibleDefaultsOnly, Category = "ShotGun")
+		class USoundCue* ExplosionSoundCue;
 
 	UFUNCTION()
 		void OnHitPaticle(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);

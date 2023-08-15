@@ -48,7 +48,7 @@ void AMurdockSpreadShotBullet::BeginPlay()
 
 void AMurdockSpreadShotBullet::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-
+    HitTime = GetCurrentLifeTime();
     OnReturnedToPool.Execute(this);
     //Destroy();
 }

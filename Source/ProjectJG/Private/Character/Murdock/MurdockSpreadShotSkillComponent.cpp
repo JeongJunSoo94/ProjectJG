@@ -2,6 +2,7 @@
 
 #include "Character/Murdock/MurdockSpreadShotSkillComponent.h"
 #include "Global.h"
+#include "Character/Murdock/Murdock.h"
 #include "Character/CBaseCharacter.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -12,8 +13,12 @@
 #include "Components/StaticMeshComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 
+//#include "BaseSystem/BasePooledObject.h"
+#include "Sound/SoundCue.h"
 #include "BaseSystem/ObjectPoolFactory.h"
 #include "Character/Murdock/Bullets/MurdockSpreadShotBullet.h"
+#include "Particles/Size/ParticleModuleSize.h"
+
 
 UMurdockSpreadShotSkillComponent::UMurdockSpreadShotSkillComponent()
 {
@@ -24,19 +29,33 @@ UMurdockSpreadShotSkillComponent::UMurdockSpreadShotSkillComponent()
 
 	CHelpers::GetClass<AMurdockSpreadShotBullet>(&BulletClass, "Blueprint'/Game/Developers/GohyeongJu/Characters/Murdock/Bullets/BP_MurdockSpreadShotBullet.BP_MurdockSpreadShotBullet_C'");
 
+	CHelpers::GetAsset<USoundCue>(&FireSoundCue, "SoundCue'/Game/Developers/GohyeongJu/Characters/Murdock/Sounds/SpreadShot_Fire_Cue.SpreadShot_Fire_Cue'");
+	CHelpers::GetAsset<USoundCue>(&ExplosionSoundCue, "SoundCue'/Game/Developers/GohyeongJu/Characters/Murdock/Sounds/SpreadShot_Explosion_Cue.SpreadShot_Explosion_Cue'");
+
+	
 	
 }
 
 void UMurdockSpreadShotSkillComponent::OnHitPaticle(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	Clog::Log("SpawnEmitter SpreadShotImpact");
+	
 	FRotator rotator = Hit.ImpactNormal.Rotation();
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SpreadShotImpact, Hit.Location, rotator, true, EPSCPoolMethod::AutoRelease);
+	float currentLifeTime = Cast<AMurdockSpreadShotBullet>(HitComponent->GetOwner())->GetHitTime();
+	Clog::Log(currentLifeTime);
+	//UParticleSystemComponent* ParticleSystem = 
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionSoundCue, Hit.Location);
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SpreadShotImpact, Hit.Location, rotator,(FVector3d)((currentLifeTime*10.0f)), true, EPSCPoolMethod::AutoRelease);
+
+
+
+
+	//ParticleSystem->SetRelativeScale3D(ParticleSystem->GetRelativeScale3D() * currentLifeTime);
+
 }
 
 void UMurdockSpreadShotSkillComponent::CreateObjectPool()
 {
-	OwnerCharacter = Cast<ACBaseCharacter>(GetOwner());
+	OwnerCharacter = Cast<AMurdock>(GetOwner());
 
 	CHelpers::CreateActorComponent<UObjectPoolFactory>(OwnerCharacter, &ObjectPoolFactory, "SpreadShotSkillObjectFactory");
 	ObjectPoolFactory->PoolSize = 20;
@@ -50,7 +69,7 @@ void UMurdockSpreadShotSkillComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (OwnerCharacter == Cast<ACBaseCharacter>(GetOwner()))
+	if (OwnerCharacter == Cast<AMurdock>(GetOwner()))
 	{
 		Clog::Log("SameOwner");
 
@@ -58,7 +77,7 @@ void UMurdockSpreadShotSkillComponent::BeginPlay()
 	else
 	{
 		Clog::Log("OtherOwner");
-		OwnerCharacter = Cast<ACBaseCharacter>(GetOwner());
+		OwnerCharacter = Cast<AMurdock>(GetOwner());
 
 	}
 
@@ -68,19 +87,27 @@ void UMurdockSpreadShotSkillComponent::BeginPlay()
 
 void UMurdockSpreadShotSkillComponent::ZoomInSpreadShot()
 {
+	
 	OwnerCharacter->bUseControllerRotationYaw = true;
 	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 
 	OwnerCharacter->PlayAnimMontage(SpreadShotAnim);
+
+	OwnerCharacter->StartCameraFOV(-30.0f,1.0f);
 }
 
 void UMurdockSpreadShotSkillComponent::LoopZoomMontage()
 {
+
+	
 	OwnerCharacter->PlayAnimMontage(SpreadShotAnim,1.0f,"BeginLoop");
 }
 
 void UMurdockSpreadShotSkillComponent::ShootSpreadShot()
 {
+	OwnerCharacter->StartCameraFOV(30.0f, 1.0f);
+
+
 	OwnerCharacter->bUseControllerRotationYaw = false;
 	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 
@@ -90,8 +117,8 @@ void UMurdockSpreadShotSkillComponent::ShootSpreadShot()
 	OwnerCharacter->GetLocationAndDirection(start, end, direction);
 	FVector muzzleLocation = OwnerCharacter->GetMesh()->GetSocketLocation("Muzzle_03");
 
-
 	UGameplayStatics::SpawnEmitterAttached(SpreadShotFlash, OwnerCharacter->GetMesh(), "Muzzle_03", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true, EPSCPoolMethod::AutoRelease);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSoundCue, muzzleLocation);
 	if (!!BulletClass)
 	{
 		AMurdockSpreadShotBullet* bullet;
@@ -118,4 +145,5 @@ void UMurdockSpreadShotSkillComponent::ShootSpreadShot()
 	// << Fire
 
 	OwnerCharacter->PlayAnimMontage(SpreadShotAnim,1.0f,"EndLoop");
+	
 }
