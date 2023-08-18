@@ -19,6 +19,9 @@
 
 AMurdock::AMurdock()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
+	isChangeFOV = false;
 	USkeletalMesh* mesh;
 	CHelpers::GetAsset<USkeletalMesh>(&mesh, "SkeletalMesh'/Game/ParagonMurdock/Characters/Heroes/Murdock/Meshes/Murdock.Murdock'");
 	GetMesh()->SetSkeletalMesh(mesh);
@@ -39,7 +42,6 @@ AMurdock::AMurdock()
 	//CHelpers::GetAsset<UCurveFloat>(&ZoomCurveFloat, "CurveFloat'/Game/Developers/GohyeongJu/Characters/Murdock/ZoomCurveBase.ZoomCurveBase'");
 	
 	ConstructorHelpers::FObjectFinder<UCurveFloat> ZoomCurve(TEXT("CurveFloat'/Game/Developers/GohyeongJu/Characters/Murdock/ZoomCurveBase.ZoomCurveBase'"));
-	
 	ZoomCurveFloat = ZoomCurve.Object;
 	
 	SpreadShotSkill->CreateObjectPool();
@@ -65,6 +67,10 @@ void AMurdock::Tick(float DeltaTime)
 	{
 		DoZoom(DeltaTime);
 	}
+	else
+	{
+		//Clog::Log("NotZoom");
+	}
 }
 
 void AMurdock::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -80,7 +86,7 @@ void AMurdock::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("E", EInputEvent::IE_Pressed, this, &AMurdock::OnSpreadShot);
 	PlayerInputComponent->BindAction("E", EInputEvent::IE_Released, this, &AMurdock::OffSpreadShot);
 	PlayerInputComponent->BindAction("R", EInputEvent::IE_Pressed, this, &AMurdock::OnUltimate);
-	PlayerInputComponent->BindAction("R", EInputEvent::IE_Released, this, &AMurdock::OffUltimate);
+	//PlayerInputComponent->BindAction("R", EInputEvent::IE_Released, this, &AMurdock::OffUltimate);
 }
 
 void AMurdock::OnFire()
@@ -165,8 +171,17 @@ void AMurdock::LoopUltimate()
 {
 	if (BehaviorState == MurdockBehaviorState::EUltimate)
 	{
-		UltimateSkill->LoopUltimate();
-		Stop();
+		if (UltimateSkill->IsStopSkill)
+		{
+			GetCharacterMovement()->bOrientRotationToMovement = true;
+			UltimateSkill->EndUltimate();
+			SolveStop();
+		}
+		else
+		{
+			UltimateSkill->LoopUltimate();
+			Stop();
+		}
 	}
 }
 
@@ -185,6 +200,12 @@ void AMurdock::OnUltimate()
 		UltimateSkill->BeginUltimate();
 		BehaviorState = MurdockBehaviorState::EUltimate;
 		
+	}
+	else if (BehaviorState == MurdockBehaviorState::EUltimate && !UltimateSkill->IsStopSkill)
+	{
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+		UltimateSkill->EndUltimate();
+		SolveStop();
 	}
 }
 void AMurdock::OffUltimate()
@@ -245,26 +266,44 @@ void AMurdock::MoveCamera(FName targetName)
 
 }
 
+template<typename T>
+void AMurdock::StartCameraFOV(float IncreaseFOV,float DuringTime, T* OtherClass, const FName FunctionName)
+{
+	StartCameraFOV(IncreaseFOV, DuringTime);
 
-void AMurdock::StartCameraFOV(float IncreaseFOV,float DuringTime)
+	EndZoomFunc.BindUFunction(OtherClass, FunctionName);
+
+}
+
+void AMurdock::StartCameraFOV(float IncreaseFOV, float DuringTime)
 {
 	increaseFOV = IncreaseFOV;
 	currentFOV = PlayerMainCamera->FieldOfView;
 	isChangeFOV = true;
 	duringTime = DuringTime;
+	reverseDuringTime = 1.0f / DuringTime;
 	ZoomTime = 0.0f;
+	EndZoomFunc.Clear();
 }
 
 void AMurdock::DoZoom(float DeltaTime)
 {
 	if (ZoomTime <= duringTime)
 	{
-		PlayerMainCamera->FieldOfView = currentFOV + ZoomCurveFloat->GetFloatValue(ZoomTime / duringTime) * increaseFOV;
+		
+		float Fov = currentFOV + ZoomCurveFloat->GetFloatValue(ZoomTime * reverseDuringTime) * increaseFOV;
+		PlayerMainCamera->FieldOfView = Fov;
 		ZoomTime += DeltaTime;
 	}
 	else
 	{
 		PlayerMainCamera->FieldOfView = currentFOV + increaseFOV;
 		isChangeFOV = false;
+		if (EndZoomFunc.IsBound())
+		{
+			EndZoomFunc.Execute();
+		}
 	}
+
 }
+

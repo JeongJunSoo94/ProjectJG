@@ -33,6 +33,10 @@ private:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Ultimate")
 		class UParticleSystemComponent* UltimateParticle;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "Ultimate")
+		class USoundCue* FireSoundCue;
+
+
 	UPROPERTY(VisibleDefaultsOnly)
 		class AMurdock* OwnerCharacter;
 public:	
@@ -44,7 +48,14 @@ public:
 
 	void ShotLaser();
 	void ChargeLaser();
+	UFUNCTION()
+		void EndZoomLag();
+
+	bool IsStopSkill;
 protected:
 	virtual void BeginPlay() override;
-		
+
+private:
+	int maxLaserCount = 3;
+	int currentLaserCount = 0;
 };

@@ -6,6 +6,7 @@
 #include "Character/CBaseCharacter.h"
 #include "Murdock.generated.h"
 
+DECLARE_DYNAMIC_DELEGATE(FZoomDelegate);
 
 UENUM(BlueprintType)
 enum class MurdockBehaviorState : uint8
@@ -17,6 +18,7 @@ enum class MurdockBehaviorState : uint8
 	EUltimate		UMETA(DisplayName = "Ultimate"),
 	EMAX			UMETA(DisplayName = "Max")
 };
+
 
 UCLASS()
 class PROJECTJG_API AMurdock : public ACBaseCharacter
@@ -51,7 +53,6 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
-
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
@@ -75,10 +76,13 @@ private:
 	float currentFOV;
 	bool isChangeFOV = false;
 	float duringTime = 0.0f;
+	float reverseDuringTime = 0.0f;
 	float ZoomTime = 0.0f;
 	void DoZoom(float DeltaTime);
 
+
 public:
+	FZoomDelegate EndZoomFunc;
 	void LoopShield();
 	void LoopSpreadShotZoom();
 	void LoopUltimate();
@@ -86,10 +90,13 @@ public:
 	MurdockBehaviorState GetBehaviorState() { return BehaviorState; }
 
 	void CameraLag(bool Active, float CameraLagSpeed);
+	template<typename T>
+	void StartCameraFOV(float IncreaseFOV, float DuringTime, T* OtherClass ,const FName FunctionName);
 	void StartCameraFOV(float IncreaseFOV, float DuringTime);
-	
+
 	void MoveCamera(FVector socketOffset = FVector(0, 60, 0), FVector tragetOffset = FVector::ZeroVector, FVector location = FVector(0, 0, 60), FRotator rotation = FRotator::ZeroRotator, float targetArmLength = 200.0f);
 	void MoveCamera(FName targetName);
 
 	float GetFrontYaw() { return FrontYaw; }
+
 };

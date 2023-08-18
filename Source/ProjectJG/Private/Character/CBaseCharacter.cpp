@@ -79,7 +79,7 @@ void ACBaseCharacter::BeginPlay()
 
 void ACBaseCharacter::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+	//Super::Tick(DeltaTime);
 	if(DamageValue>0)
 		Damaged(DamageValue);
 }
@@ -178,8 +178,8 @@ void ACBaseCharacter::GetLocationAndDirection(FVector& OutStart, FVector& OutEnd
 	FVector cameraLocation = transform.GetLocation();
 	OutStart = cameraLocation + OutDirection;
 
-	FVector conDirection = UKismetMathLibrary::RandomUnitVectorInEllipticalConeInDegrees(OutDirection, 0.3f, 0.4f);
-
+	//FVector conDirection = UKismetMathLibrary::RandomUnitVectorInEllipticalConeInDegrees(OutDirection, 0.3f, 0.4f);
+	FVector conDirection = OutDirection;
 	conDirection *= 3000.0f;
 	OutEnd = cameraLocation + conDirection;
 }

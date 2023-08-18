@@ -133,7 +133,6 @@ void UMurdockSpreadShotSkillComponent::ShootSpreadShot()
 
 		if (!(bullet->bInitailized))
 		{
-			Clog::Log("Bind_SpreadBullet");
 			bullet->bInitailized = true;
 			bullet->GetMesh()->OnComponentHit.AddDynamic(this, &UMurdockSpreadShotSkillComponent::OnHitPaticle);
 		}
