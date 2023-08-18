@@ -4,6 +4,15 @@
 #include "Character/CBaseCharacter.h"
 #include "CLtBelica.generated.h"
 
+UENUM(BlueprintType)
+enum class EBelicaAbilityState : uint8
+{
+	None =0,
+	QAbliity =1,
+	EAbliity =2,
+	RAbliity =3,
+};
+
 UCLASS()
 class PROJECTJG_API ACLtBelica : public ACBaseCharacter
 {
@@ -13,6 +22,14 @@ private:
 		class UCLtBelicaWeapon* LtBelicaWeapon;
 	UPROPERTY(VisibleDefaultsOnly)
 		class UCQAbliltyActionComponent* LtBelicaQAbility;
+	UPROPERTY(VisibleDefaultsOnly)
+		class UEAbliltyActionComponent* LtBelicaEAbility;
+	UPROPERTY(EditAnywhere)
+		EBelicaAbilityState eBelicaAbilityState;
+protected:
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "equipedSubWeaponIdex")
+		int32 equipedSubWeaponIdex;
+
 public:
 	ACLtBelica();
 
@@ -28,6 +45,7 @@ private:
 	void OnFire();
 	void OffFire();
 	void OnQAbility();
+	void OnEAbility();
 public:
 	bool GetLtBelicaWeaponIsFiring();
 	bool GetLtBelicaIsAbiliting();
