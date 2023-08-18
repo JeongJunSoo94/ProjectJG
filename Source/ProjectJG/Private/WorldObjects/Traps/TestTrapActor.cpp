@@ -33,7 +33,6 @@ void ATestTrapActor::OnHitPlayer(UPrimitiveComponent* HitComponent, AActor* Othe
 
 void ATestTrapActor::Fire()
 {
-	Clog::Log("Fire");
 	FVector muzzleLocation = GetActorLocation();
 	FRotator direction = GetActorRotation();
 	if (!!BulletClass)

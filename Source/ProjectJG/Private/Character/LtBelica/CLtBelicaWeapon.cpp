@@ -13,6 +13,7 @@
 #include "Materials/MaterialInstanceConstant.h"
 #include "BaseSystem/ObjectPoolFactory.h"
 
+
 UCLtBelicaWeapon::UCLtBelicaWeapon()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -78,7 +79,7 @@ void UCLtBelicaWeapon::Firing()
 	OwnerCharacter->PlayAnimMontage(FireMontage);
 
 	FVector start, end, direction;
-	OwnerCharacter->GetLocationAndDirection(start, end, direction);
+	OwnerCharacter->GetLocationAndDirection(start, end, direction,true,0.3f,0.4f);
 
 	UGameplayStatics::SpawnEmitterAttached(FlashParticle, OwnerCharacter->GetMesh(), "SMG_Barrel", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true, EPSCPoolMethod::AutoRelease);
 	//UGameplayStatics::SpawnEmitterAttached(EjectParticle, OwnerCharacter->GetMesh(), "SMG_Barrel", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset);
@@ -92,9 +93,10 @@ void UCLtBelicaWeapon::Firing()
 	{
 		ACBullet* bullet;
 		bullet = Cast<ACBullet>(ObjectPoolFactory->SpawnObject());
-		bullet->TeleportTo(muzzleLocation, direction.Rotation());
+
 		FTransform Transform = bullet->GetTransform();
 		Transform.SetLocation(muzzleLocation);
+		direction = UKismetMathLibrary::GetDirectionUnitVector(muzzleLocation,end);
 		Transform.SetRotation(FQuat(direction.Rotation()));
 		bullet->SetActorTransform(Transform);
 		bullet->SetActorLifeTime(3.0f);

@@ -40,6 +40,7 @@ void ACBullet::BeginPlay()
 {
     Super::BeginPlay();
     Mesh->OnComponentHit.AddDynamic(this, &ACBullet::OnHit);
+    Projectile->Velocity = FVector::ZeroVector;
 }
 
 void ACBullet::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)

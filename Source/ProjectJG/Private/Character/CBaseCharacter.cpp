@@ -165,17 +165,40 @@ float ACBaseCharacter::TakeDamage(float Damage)
 	//return Status->GetHealth();
 }
 
-void ACBaseCharacter::GetLocationAndDirection(FVector& OutStart, FVector& OutEnd, FVector& OutDirection)
+void ACBaseCharacter::GetLocationAndDirection(FVector& OutStart, FVector& OutEnd, FVector& OutDirection, bool IsRandom, float MaxYawInDegrees, float MaxPitchInDegrees)
 {
 	OutDirection = PlayerMainCamera->GetForwardVector();
 	FTransform transform = PlayerMainCamera->GetComponentToWorld();
 	FVector cameraLocation = transform.GetLocation();
 	OutStart = cameraLocation + OutDirection;
 
-	FVector conDirection = UKismetMathLibrary::RandomUnitVectorInEllipticalConeInDegrees(OutDirection, 0.3f, 0.4f);
-
+	FVector conDirection;
+	if (IsRandom)
+	{
+		conDirection = UKismetMathLibrary::RandomUnitVectorInEllipticalConeInDegrees(OutDirection, MaxYawInDegrees, MaxPitchInDegrees);
+	}
+	else
+	{
+		conDirection = OutDirection;
+	}
 	conDirection *= 3000.0f;
 	OutEnd = cameraLocation + conDirection;
+
+	FHitResult OutHit;
+
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(this->GetOwner());
+
+
+	//DrawDebugLine(GetWorld(), OutStart, OutEnd, FColor::Red, false, 1, 0, 1);
+
+	bool IsHit = GetWorld()->LineTraceSingleByChannel(OutHit, OutStart, OutEnd, ECC_Visibility,CollisionParams);
+	
+	if (IsHit)
+	{
+		OutEnd = OutHit.ImpactPoint;
+		//DrawDebugLine(GetWorld(), OutStart, OutEnd, FColor::Blue, false, 1, 0, 1);
+	}
 }
 
 void ACBaseCharacter::Damaged(float totalAmount)
