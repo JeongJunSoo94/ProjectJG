@@ -12,7 +12,6 @@
 #include "Widgets/HealthWidget.h"
 #include "Components/WidgetComponent.h"
 
-
 ACBaseCharacter::ACBaseCharacter()
 {
  	PrimaryActorTick.bCanEverTick = true;
@@ -23,7 +22,6 @@ ACBaseCharacter::ACBaseCharacter()
 	//CHelpers::CreateComponent<UWidgetComponent>(this, &HealthWidget, "HealthWidget", GetMesh());
 
 	bUseControllerRotationYaw = false;
-
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxWalkSpeed = 400.0f;
 
@@ -79,7 +77,7 @@ void ACBaseCharacter::BeginPlay()
 
 void ACBaseCharacter::Tick(float DeltaTime)
 {
-	//Super::Tick(DeltaTime);
+	Super::Tick(DeltaTime);
 	if(DamageValue>0)
 		Damaged(DamageValue);
 }
@@ -99,20 +97,16 @@ void ACBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 void ACBaseCharacter::OnMoveForward(float Axis)
 {
-	CheckFalse(bMove);
 	FRotator rotator = FRotator(0, GetControlRotation().Yaw, 0);
 	FVector direction = FQuat(rotator).GetForwardVector().GetSafeNormal2D();
 	AddMovementInput(direction, Axis);
-	
 }
 
 void ACBaseCharacter::OnMoveRight(float Axis)
 {
-	CheckFalse(bMove);
 	FRotator rotator = FRotator(0, GetControlRotation().Yaw, 0);
 	FVector direction = FQuat(rotator).GetRightVector().GetSafeNormal2D();
 	AddMovementInput(direction, Axis);
-	
 
 }
 
@@ -171,17 +165,40 @@ float ACBaseCharacter::TakeDamage(float Damage)
 	//return Status->GetHealth();
 }
 
-void ACBaseCharacter::GetLocationAndDirection(FVector& OutStart, FVector& OutEnd, FVector& OutDirection)
+void ACBaseCharacter::GetLocationAndDirection(FVector& OutStart, FVector& OutEnd, FVector& OutDirection, bool IsRandom, float MaxYawInDegrees, float MaxPitchInDegrees)
 {
 	OutDirection = PlayerMainCamera->GetForwardVector();
 	FTransform transform = PlayerMainCamera->GetComponentToWorld();
 	FVector cameraLocation = transform.GetLocation();
 	OutStart = cameraLocation + OutDirection;
 
-	//FVector conDirection = UKismetMathLibrary::RandomUnitVectorInEllipticalConeInDegrees(OutDirection, 0.3f, 0.4f);
-	FVector conDirection = OutDirection;
+	FVector conDirection;
+	if (IsRandom)
+	{
+		conDirection = UKismetMathLibrary::RandomUnitVectorInEllipticalConeInDegrees(OutDirection, MaxYawInDegrees, MaxPitchInDegrees);
+	}
+	else
+	{
+		conDirection = OutDirection;
+	}
 	conDirection *= 3000.0f;
 	OutEnd = cameraLocation + conDirection;
+
+	FHitResult OutHit;
+
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(this->GetOwner());
+
+
+	//DrawDebugLine(GetWorld(), OutStart, OutEnd, FColor::Red, false, 1, 0, 1);
+
+	bool IsHit = GetWorld()->LineTraceSingleByChannel(OutHit, OutStart, OutEnd, ECC_Visibility,CollisionParams);
+	
+	if (IsHit)
+	{
+		OutEnd = OutHit.ImpactPoint;
+		//DrawDebugLine(GetWorld(), OutStart, OutEnd, FColor::Blue, false, 1, 0, 1);
+	}
 }
 
 void ACBaseCharacter::Damaged(float totalAmount)
@@ -193,31 +210,4 @@ void ACBaseCharacter::Damaged(float totalAmount)
 	Cast<UHealthWidget>(HealthWidget->GetUserWidgetObject())->Update(Status->GetHealth(), Status->GetMaxHealth());
 
 	DamageValue = 0;
-}
-
-void ACBaseCharacter::Stop()
-{
-	bMove = false;
-}
-void ACBaseCharacter::SolveStop()
-{
-	bMove = true;
-}
-
-float ACBaseCharacter::GetLookYaw()
-{
-	// 카메라의 시선 벡터 얻기
-	FVector CameraForward = PlayerMainCamera->GetForwardVector();
-
-	// 액터의 시선 벡터 얻기 (예시로 액터의 앞 방향 벡터로 가정)
-	FVector ActorForward = GetActorForwardVector();
-
-	// 카메라와 액터의 시선 각도 계산
-	FRotator CameraRot = UKismetMathLibrary::MakeRotFromX(CameraForward);
-	FRotator ActorRot = UKismetMathLibrary::MakeRotFromX(ActorForward);
-
-	// Yaw 각도 계산
-	float YawDifference = UKismetMathLibrary::NormalizedDeltaRotator(CameraRot, ActorRot).Yaw;
-
-	return YawDifference;
 }

@@ -8,10 +8,10 @@ ABasePooledObject::ABasePooledObject()
 void ABasePooledObject::SetActive(bool IsActive)
 {
 	bPooledObjectActive = IsActive;
-	SetActorHiddenInGame(!IsActive);
+	SetActorHiddenInGame(!bPooledObjectActive);
 	SetActorEnableCollision(bPooledObjectActive);
 	SetActorTickEnabled(bPooledObjectActive);
-	if (IsActive)
+	if (bPooledObjectActive)
 	{
 		GetWorldTimerManager().SetTimer(LifeTimer, this, &ABasePooledObject::Deactive, ActorLifeTime, false);
 		Init();

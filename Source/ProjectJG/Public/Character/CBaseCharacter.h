@@ -8,10 +8,10 @@ UCLASS()
 class PROJECTJG_API ACBaseCharacter : public ACharacter
 {
 	GENERATED_BODY()
-
-protected:
+private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class USpringArmComponent* SpringArm;
+protected:
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = "Camera")
 		class UCameraComponent* PlayerMainCamera;
 	UPROPERTY(VisibleDefaultsOnly)
@@ -36,7 +36,7 @@ protected:
 		class UWidgetComponent* HealthWidget;
 public:
 	ACBaseCharacter();
-	
+	//float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	float TakeDamage(float Damage);
 
 protected:
@@ -58,13 +58,7 @@ private:
 	void OnEquipNum2();
 	void OnUnEquip();
 public:
-	void GetLocationAndDirection(FVector& OutStart, FVector& OutEnd, FVector& OutDirectiron);
-
-	void Stop();
-	void SolveStop();
-
-	float GetLookYaw();
+	void GetLocationAndDirection(FVector& OutStart, FVector& OutEnd, FVector& OutDirection,bool IsRandom, float MaxYawInDegrees, float MaxPitchInDegrees);
 private:
-	bool bMove = true;
 	float DamageValue;
 };
