@@ -58,7 +58,7 @@ private:
 	void OnEquipNum2();
 	void OnUnEquip();
 public:
-	void GetLocationAndDirection(FVector& OutStart, FVector& OutEnd, FVector& OutDirection,bool IsRandom, float MaxYawInDegrees, float MaxPitchInDegrees);
+	void GetLocationAndDirection(FVector& OutStart, FVector& OutEnd, FVector& OutDirection,bool IsRandom = false, float MaxYawInDegrees = 0.0f, float MaxPitchInDegrees = 0.0f);
 private:
 	float DamageValue;
 };
