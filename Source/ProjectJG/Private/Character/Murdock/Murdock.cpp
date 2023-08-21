@@ -181,6 +181,7 @@ void AMurdock::LoopUltimate()
 		{
 			UltimateSkill->LoopUltimate();
 			Stop();
+			//commit
 		}
 	}
 }
