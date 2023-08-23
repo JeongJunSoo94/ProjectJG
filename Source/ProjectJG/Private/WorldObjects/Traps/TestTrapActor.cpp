@@ -3,11 +3,17 @@
 #include "BaseSystem/ObjectPoolFactory.h"
 #include "Bullet/CBullet.h"
 #include "Character/CBaseCharacter.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
 
 ATestTrapActor::ATestTrapActor()
 {
 	CHelpers::GetClass<ACBullet>(&BulletClass, "Blueprint'/Game/Developers/USER/Bullet/BP_CTrapBullet.BP_CTrapBullet_C'");
 	CHelpers::CreateActorComponent<UObjectPoolFactory>(this, &ObjectPoolFactory, "ObjectPoolFactory");
+
+	CHelpers::CreateActorComponent<UBehaviorTreeComponent>(this, &BTComp, "BehaviorTreeComponent");
+	
+	CHelpers::GetAsset(&BT, "BehaviorTree'/Game/Developers/user/WorldObjects/TrapBehaviourTree/TrapBehaviorTree.TrapBehaviorTree'");
 }
 
 void ATestTrapActor::BeginPlay()
@@ -18,6 +24,8 @@ void ATestTrapActor::BeginPlay()
 	ObjectPoolFactory->Initialized();
 	
 	GetWorldTimerManager().SetTimer(LifeTimer, this, &ATestTrapActor::Fire, 1.0f, true);
+
+	BTComp->StartTree(*BT);
 
 }
 
