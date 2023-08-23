@@ -89,6 +89,7 @@ void UEAbliltyActionComponent::HologramAction()
 
 void UEAbliltyActionComponent::BeginAction()
 {
+	Clog::Log("E");
 }
 
 void UEAbliltyActionComponent::EndAction()

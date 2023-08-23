@@ -11,8 +11,23 @@ class PROJECTJG_API URAbilityActionComponent : public UCActionComponent
 private:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Ablilty")
 		class UAnimMontage* RAbliltyMontage;
+    UPROPERTY(VisibleDefaultsOnly, Category = "Pistol")
+        TSubclassOf<class ACBullet> BulletClass;
+    UPROPERTY(VisibleDefaultsOnly, Category = "Pistol")
+        class UMaterialInstanceConstant* DecalMaterial;
+    UPROPERTY(VisibleDefaultsOnly, Category = "Pistol")
+        int32 MuzzleIndex;
+    UPROPERTY(VisibleDefaultsOnly, Category = "Pistol")
+        class UParticleSystem* ImpactParticle;
+    UFUNCTION()
+        void OnHitPaticle(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+    UPROPERTY(VisibleDefaultsOnly)
+        class UObjectPoolFactory* ObjectPoolFactory;
 public:
 	URAbilityActionComponent();
+private:
+    class ACBaseCharacter* OwnerCharacter;
 protected:
 	virtual void BeginPlay() override;
 public:

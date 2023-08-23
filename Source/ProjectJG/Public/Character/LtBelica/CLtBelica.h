@@ -24,6 +24,8 @@ private:
 		class UCQAbliltyActionComponent* LtBelicaQAbility;
 	UPROPERTY(VisibleDefaultsOnly)
 		class UEAbliltyActionComponent* LtBelicaEAbility;
+	UPROPERTY(VisibleDefaultsOnly)
+		class URAbilityActionComponent* LtBelicaRAbility;
 	UPROPERTY(EditAnywhere)
 		EBelicaAbilityState eBelicaAbilityState;
 protected:
@@ -46,6 +48,7 @@ private:
 	void OffFire();
 	void OnQAbility();
 	void OnEAbility();
+	void OnRAbility();
 public:
 	bool GetLtBelicaWeaponIsFiring();
 	bool GetLtBelicaIsAbiliting();
