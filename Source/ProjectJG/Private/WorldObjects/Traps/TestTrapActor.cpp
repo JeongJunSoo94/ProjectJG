@@ -3,17 +3,21 @@
 #include "BaseSystem/ObjectPoolFactory.h"
 #include "Bullet/CBullet.h"
 #include "Character/CBaseCharacter.h"
-#include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardData.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 ATestTrapActor::ATestTrapActor()
 {
 	CHelpers::GetClass<ACBullet>(&BulletClass, "Blueprint'/Game/Developers/USER/Bullet/BP_CTrapBullet.BP_CTrapBullet_C'");
-	CHelpers::CreateActorComponent<UObjectPoolFactory>(this, &ObjectPoolFactory, "ObjectPoolFactory");
+	CHelpers::GetAsset<UBehaviorTree>(&BT, "BehaviorTree'/Game/Developers/USER/WorldObjects/TrapBehaviorTree.TrapBehaviorTree'");
+	CHelpers::GetAsset<UBlackboardData>(&BTData, "BlackboardData'/Game/Developers/USER/WorldObjects/TrapBlackboardData.TrapBlackboardData'");
 
-	CHelpers::CreateActorComponent<UBehaviorTreeComponent>(this, &BTComp, "BehaviorTreeComponent");
-	
-	CHelpers::GetAsset(&BT, "BehaviorTree'/Game/Developers/user/WorldObjects/TrapBehaviourTree/TrapBehaviorTree.TrapBehaviorTree'");
+	CHelpers::CreateActorComponent<UObjectPoolFactory>(this, &ObjectPoolFactory, "ObjectPoolFactory");
+	CHelpers::CreateActorComponent<UBehaviorTreeComponent>(this, &BTC, "BTC");
+	CHelpers::CreateActorComponent<UBlackboardComponent>(this, &BlC, "BlC");
+
 }
 
 void ATestTrapActor::BeginPlay()
@@ -24,9 +28,9 @@ void ATestTrapActor::BeginPlay()
 	ObjectPoolFactory->Initialized();
 	
 	GetWorldTimerManager().SetTimer(LifeTimer, this, &ATestTrapActor::Fire, 1.0f, true);
-
-	BTComp->StartTree(*BT);
-
+	BT->BlackboardAsset = BTData;
+	
+	BTC->StartTree(*BT);
 }
 
 void ATestTrapActor::OnHitPlayer(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)

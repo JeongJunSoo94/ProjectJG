@@ -22,6 +22,14 @@ private:
 		class UObjectPoolFactory* ObjectPoolFactory;
 	UFUNCTION()
 		void OnHitPlayer(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	UPROPERTY(VisibleDefaultsOnly)
+		class UBehaviorTreeComponent* BTC;
+	UPROPERTY(VisibleDefaultsOnly)
+		class UBlackboardComponent* BlC;
+	UPROPERTY(VisibleDefaultsOnly, Category = "BT")
+		class UBehaviorTree* BT;
+	UPROPERTY(VisibleDefaultsOnly, Category = "BT")
+		class UBlackboardData* BTData;
 
 public:	
 	ATestTrapActor();

@@ -18,7 +18,9 @@
 
 UEAbliltyActionComponent::UEAbliltyActionComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = true; 
+	CHelpers::GetAsset<UAnimMontage>(&EAbliltyMontage, "AnimMontage'/Game/Developers/JJS/LtBelica/Animation/E_Ability_Montage.E_Ability_Montage'");
+
 	CHelpers::GetClass<AManaBombHologram>(&ManaBombHologramClass, "Blueprint'/Game/Developers/JJS/LtBelica/Ablility/BP_ManaBombHolo.BP_ManaBombHolo_C'");
 
 	CHelpers::GetClass<AManaBombObject>(&ManaBombClass, "Blueprint'/Game/Developers/JJS/LtBelica/Ablility/BP_ManaBomb.BP_ManaBomb_C'");
@@ -55,12 +57,16 @@ void UEAbliltyActionComponent::OnAction()
 	if (!IsAbiliting)
 	{
 		IsAbiliting = true;
+		OwnerCharacter->bUseControllerRotationYaw = true;
+		OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 		SetComponentTickEnabled(true);
 		ManaBombHologramActor->SetActive(true);
 	}
 	else
 	{
 		IsAbiliting = false;
+		OwnerCharacter->bUseControllerRotationYaw = false;
+		OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 		SetComponentTickEnabled(false);
 		ManaBombHologramActor->SetActive(false);
 	}
@@ -77,12 +83,13 @@ void UEAbliltyActionComponent::HologramAction()
 	manaBomb->SetBombLocation(ManaBombHologramActor->GetActorLocation());
 	manaBomb->SetBombScale(ManaBombHologramActor->GetActorScale().X * 50.0f);
 	manaBomb->SetActorLifeTime(3.0f);
-
+	OwnerCharacter->PlayAnimMontage(EAbliltyMontage);
 	manaBomb->SetActive(true);
 }
 
 void UEAbliltyActionComponent::BeginAction()
 {
+	Clog::Log("E");
 }
 
 void UEAbliltyActionComponent::EndAction()

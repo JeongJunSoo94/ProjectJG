@@ -100,7 +100,7 @@ void UCQAbliltyActionComponent::BeginAction()
 {
 	OwnerCharacter->bUseControllerRotationYaw = false;
 	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
-	
+	Clog::Log("Q");
 }
 
 void UCQAbliltyActionComponent::EndAction()

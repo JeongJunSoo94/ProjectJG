@@ -4,6 +4,7 @@
 #include "Camera/CameraComponent.h"
 #include "Character/LtBelica/CQAbliltyActionComponent.h"
 #include "Character/LtBelica/EAbliltyActionComponent.h"
+#include "Character/LtBelica/RAbilityActionComponent.h"
 
 ACLtBelica::ACLtBelica()
 {
@@ -25,6 +26,9 @@ ACLtBelica::ACLtBelica()
 
 	CHelpers::CreateActorComponent<UEAbliltyActionComponent>(this, &LtBelicaEAbility, "LtBelicaEAbility");
 	LtBelicaEAbility->SetOwnerCharacter(this);
+
+	CHelpers::CreateActorComponent<URAbilityActionComponent>(this, &LtBelicaRAbility, "LtBelicaRAbility");
+	LtBelicaRAbility->SetOwnerCharacter(this);
 }
 
 void ACLtBelica::BeginPlay()
@@ -32,6 +36,7 @@ void ACLtBelica::BeginPlay()
 	Super::BeginPlay();
 	eBelicaAbilityState = EBelicaAbilityState::None;
 	GetMesh()->HideBone(weaponBoneIdexs[2], PBO_None);
+	
 }
 
 void ACLtBelica::Tick(float DeltaTime)
@@ -49,6 +54,7 @@ void ACLtBelica::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 	PlayerInputComponent->BindAction("Q", EInputEvent::IE_Pressed, this, &ACLtBelica::OnQAbility);
 	PlayerInputComponent->BindAction("E", EInputEvent::IE_Pressed, this, &ACLtBelica::OnEAbility);
+	PlayerInputComponent->BindAction("R", EInputEvent::IE_Pressed, this, &ACLtBelica::OnRAbility);
 }
 
 void ACLtBelica::OnFire()
@@ -82,6 +88,11 @@ void ACLtBelica::OffFire()
 			LtBelicaEAbility->HologramAction();
 		}
 		break;
+		case EBelicaAbilityState::RAbliity:
+		{
+			LtBelicaRAbility->HologramAction();
+		}
+		break;
 	}
 	eBelicaAbilityState = EBelicaAbilityState::None;
 }
@@ -96,6 +107,13 @@ void ACLtBelica::OnEAbility()
 {
 	eBelicaAbilityState = eBelicaAbilityState == EBelicaAbilityState::EAbliity? EBelicaAbilityState::None : EBelicaAbilityState::EAbliity;
 	LtBelicaEAbility->OnAction();
+}
+
+void ACLtBelica::OnRAbility()
+{
+	eBelicaAbilityState = eBelicaAbilityState == EBelicaAbilityState::RAbliity ? EBelicaAbilityState::None : EBelicaAbilityState::RAbliity;
+	GetMesh()->UnHideBone(weaponBoneIdexs[2]);
+	LtBelicaRAbility->OnAction();
 }
 
 bool ACLtBelica::GetLtBelicaWeaponIsFiring()
