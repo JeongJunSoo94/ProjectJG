@@ -8,6 +8,7 @@
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Vector.h"
+#include "Character/Ememy/MeleeEnemyCharacter.h"
 
 UFindBTTaskNode::UFindBTTaskNode()
 {
@@ -16,17 +17,15 @@ UFindBTTaskNode::UFindBTTaskNode()
 
 EBTNodeResult::Type UFindBTTaskNode::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	ATestTrapActor* cont = Cast<ATestTrapActor>(OwnerComp.GetOwner());
+	AMeleeEnemyCharacter* cont = Cast<AMeleeEnemyCharacter>(OwnerComp.GetOwner());
 
 	UBlackboardData* data = GetBlackboardAsset();
 	
-	
-
-	for (auto d : data->GetKeys())
-	{
-		Clog::Log(d.EntryName.ToString());
-		Clog::Log(d.KeyType);
-	}
+	//for (auto d : data->GetKeys())
+	//{
+	//	Clog::Log(d.EntryName.ToString());
+	//	Clog::Log(d.KeyType);
+	//}
 	if (cont!=nullptr)
 	{
 		Clog::Log(cont->GetFName().ToString());
