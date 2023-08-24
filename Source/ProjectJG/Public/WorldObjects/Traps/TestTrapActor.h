@@ -8,12 +8,6 @@ UCLASS()
 class PROJECTJG_API ATestTrapActor : public AActor
 {
 	GENERATED_BODY()
-protected:
-	UPROPERTY(VisibleDefaultsOnly, Category = "BehaviorTree")
-		class UBehaviorTreeComponent* BTComp;
-	UPROPERTY(VisibleDefaultsOnly, Category = "BehaviorTree")
-		class UBehaviorTree* BT;
-
 
 private:
 	UPROPERTY(VisibleDefaultsOnly, Category = "SMG")
