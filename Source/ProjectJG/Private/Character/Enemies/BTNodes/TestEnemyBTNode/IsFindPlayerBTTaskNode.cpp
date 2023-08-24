@@ -26,10 +26,10 @@ EBTNodeResult::Type UIsFindPlayerBTTaskNode::ExecuteTask(UBehaviorTreeComponent&
 	UBlackboardComponent* blackboardComponent = OwnerComp.GetAIOwner()->GetBlackboardComponent();
 	
 	float agrroValue = 0.0f;
-	ACBaseCharacter* priorityTarget;
+	//ACBaseCharacter* priorityTarget;
 	bool IsFindPlayer = false;
-
-	for (auto &Elem : NavActor->TargetActors)
+	/*
+	for (TPair<ACBaseCharacter*,LookPlayerState> &Elem : NavActor->TargetActors)
 	{
 		if (Elem.Value == LookPlayerState::ELook)
 		{
@@ -41,7 +41,7 @@ EBTNodeResult::Type UIsFindPlayerBTTaskNode::ExecuteTask(UBehaviorTreeComponent&
 			}
 		}
 	}
-
+	*/
 	if (IsFindPlayer)
 	{
 		//FBlackboard::FKey keyId = blackboardComponent->GetKeyID("PriorityTarget");
