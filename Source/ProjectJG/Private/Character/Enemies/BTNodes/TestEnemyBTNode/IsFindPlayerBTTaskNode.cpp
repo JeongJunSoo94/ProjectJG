@@ -20,15 +20,27 @@ UIsFindPlayerBTTaskNode::UIsFindPlayerBTTaskNode()
 
 EBTNodeResult::Type UIsFindPlayerBTTaskNode::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+
 	ANavTestCharacter* NavActor = Cast<ANavTestCharacter>(OwnerComp.GetOwner());
+
+	if(NavActor == nullptr)
+		return EBTNodeResult::Failed;
+
+
+	if (NavActor->TargetActors.Num() == 0)
+		return EBTNodeResult::Failed;
+	
 	//UBlackboardData* board = GetBlackboardAsset();
 	
-	UBlackboardComponent* blackboardComponent = OwnerComp.GetAIOwner()->GetBlackboardComponent();
+	UBlackboardComponent* blackboardComponent = OwnerComp.GetBlackboardComponent();
 	
+	
+	Clog::Log(blackboardComponent);
+
 	float agrroValue = 0.0f;
-	//ACBaseCharacter* priorityTarget;
+	ACBaseCharacter* priorityTarget = nullptr;
 	bool IsFindPlayer = false;
-	/*
+	
 	for (TPair<ACBaseCharacter*,LookPlayerState> &Elem : NavActor->TargetActors)
 	{
 		if (Elem.Value == LookPlayerState::ELook)
@@ -41,14 +53,15 @@ EBTNodeResult::Type UIsFindPlayerBTTaskNode::ExecuteTask(UBehaviorTreeComponent&
 			}
 		}
 	}
-	*/
+	
 	if (IsFindPlayer)
 	{
+		//Clog::Log(priorityTarget);
 		//FBlackboard::FKey keyId = blackboardComponent->GetKeyID("PriorityTarget");
 		//UObject* object = blackboardComponent->GetValueAsObject("PriorityTarget");
-		
+		const FName valueName = TEXT("PriorityTarget");
 		//blackboardComponent->SetValue<UBlackboardKeyType_Object>(keyId, priorityTarget);
-		//blackboardComponent->SetValueAsObject("PriorityTarget",priorityTarget);
+		blackboardComponent->SetValueAsObject(valueName,priorityTarget);
 		return EBTNodeResult::Succeeded;
 	}
 	return EBTNodeResult::Failed;

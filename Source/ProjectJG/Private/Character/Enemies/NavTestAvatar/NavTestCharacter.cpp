@@ -29,6 +29,7 @@ ANavTestCharacter::ANavTestCharacter()
 	CHelpers::CreateActorComponent<UNavMovementComponent>(this, &NavMoveComp,"NavComponent");
 
 	CHelpers::CreateComponent<USphereComponent>(this, &Sphere, "Sphere");
+	Sphere->SetSphereRadius(500.0f);
 	Sphere->bHiddenInGame = false;
 }
 
@@ -137,7 +138,7 @@ void ANavTestCharacter::UpdateAggro(float DeltaTime)
 void ANavTestCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	UpdateAggro(DeltaTime);
 }
 
 
