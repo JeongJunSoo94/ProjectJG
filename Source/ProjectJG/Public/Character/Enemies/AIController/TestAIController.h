@@ -14,7 +14,13 @@ class PROJECTJG_API ATestAIController : public AAIController
 {
 	GENERATED_BODY()
 protected:
-	UPROPERTY(VisibleDefaultsOnly)
-		class BehaviorTree BTAsset;
+	UPROPERTY(VisibleDefaultsOnly, Category = "BT")
+		class UBehaviorTree* BTAsset;
 
+
+public:
+	ATestAIController();
+
+protected:
+	virtual void BeginPlay() override;
 };

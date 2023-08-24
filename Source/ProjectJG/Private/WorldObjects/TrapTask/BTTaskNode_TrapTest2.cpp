@@ -16,8 +16,8 @@ UBTTaskNode_TrapTest2::UBTTaskNode_TrapTest2()
 
 EBTNodeResult::Type UBTTaskNode_TrapTest2::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	ATestTrapActor* Trap = Cast<ATestTrapActor>(OwnerComp.GetOwner());
-	UBlackboardData* board = GetBlackboardAsset();
+	//ATestTrapActor* Trap = Cast<ATestTrapActor>(OwnerComp.GetOwner());
+	//UBlackboardData* board = GetBlackboardAsset();
 
 	
 	
@@ -27,45 +27,13 @@ EBTNodeResult::Type UBTTaskNode_TrapTest2::ExecuteTask(UBehaviorTreeComponent& O
 	//Clog::Log(name.ToString());
 	//Clog::Log(board->GetKey(1)->KeyType);
 
+	Clog::Log("Success Task ");
+
+	//UBlackboardKeyType* key = board->GetKey(1)->KeyType;
+
+	//UBlackboardKeyType_Int* T = Cast<UBlackboardKeyType_Int>(board->GetKey(1)->KeyType);
 
 
-	UBlackboardKeyType* key = board->GetKey(1)->KeyType;
-
-	UBlackboardKeyType_Int* T = Cast<UBlackboardKeyType_Int>(board->GetKey(1)->KeyType);
-
-
-
-	
-	if (Trap->GetName() == "BP_TrapActor_C_1")
-	{
-		Clog::Log(Trap->GetName());
-		int32 num = UBlackboardKeyType_Int::GetValue(T, NodeMemory);
-		if (num == 0)
-		{
-			UBlackboardKeyType_Int::SetValue(T, NodeMemory, 1);
-			Clog::Log(num);
-		}
-		else
-		{
-			UBlackboardKeyType_Int::SetValue(T, NodeMemory, 0);
-			Clog::Log(num);
-		}
-		
-		
-
-		//T++;
-	}
-	else
-	{
-		/*
-		Clog::Log(Trap->GetName());
-		int32 num = UBlackboardKeyType_Int::GetValue(T, NodeMemory);
-		Clog::Log(num);
-		num = 1;
-		*/
-		//board->GetKey(1)
-	}
-	
 
 	
 
