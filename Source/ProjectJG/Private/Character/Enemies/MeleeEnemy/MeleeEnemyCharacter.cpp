@@ -1,6 +1,6 @@
-#include "Character/Ememy/MeleeEnemyCharacter.h"
+#include "Character/Enemies/MeleeEnemy/MeleeEnemyCharacter.h"
 #include "Global.h"
-#include "Character/Ememy/MeleeEnemyAIController.h"
+#include "Character/Enemies/MeleeEnemy/MeleeEnemyAIController.h"
 
 AMeleeEnemyCharacter::AMeleeEnemyCharacter()
 {

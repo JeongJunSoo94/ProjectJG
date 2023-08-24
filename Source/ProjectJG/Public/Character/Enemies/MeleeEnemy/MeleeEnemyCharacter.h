@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/Ememy/BaseEnemyCharacter.h"
+#include "Character/Enemies/BaseEnemyCharacter.h"
 #include "MeleeEnemyCharacter.generated.h"
 
 UCLASS()

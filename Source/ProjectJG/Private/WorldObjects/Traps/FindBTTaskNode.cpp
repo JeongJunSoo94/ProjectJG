@@ -8,7 +8,7 @@
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyType_Vector.h"
-#include "Character/Ememy/MeleeEnemyCharacter.h"
+#include "Character/Enemies/MeleeEnemy/MeleeEnemyCharacter.h"
 
 UFindBTTaskNode::UFindBTTaskNode()
 {

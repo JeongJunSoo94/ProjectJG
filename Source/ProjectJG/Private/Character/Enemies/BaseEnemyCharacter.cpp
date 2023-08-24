@@ -1,4 +1,4 @@
-#include "Character/Ememy/BaseEnemyCharacter.h"
+#include "Character/Enemies/BaseEnemyCharacter.h"
 #include "Global.h"
 #include "GameFramework/Character.h"
 #include "Character/Components/StatusComponent.h"
