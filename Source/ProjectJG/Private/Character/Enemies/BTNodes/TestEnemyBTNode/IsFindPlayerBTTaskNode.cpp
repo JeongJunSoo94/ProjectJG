@@ -5,7 +5,7 @@
 #include "Global.h"
 #include "AIController.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
-#include "Character/Enemies/NavTestAvatar/NavTestCharacter.h"
+//#include "Character/Enemies/NavTestAvatar/NavTestCharacter.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BlackboardData.h"
@@ -20,11 +20,11 @@ UIsFindPlayerBTTaskNode::UIsFindPlayerBTTaskNode()
 
 EBTNodeResult::Type UIsFindPlayerBTTaskNode::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+	/*
+	//ANavTestCharacter* NavActor = Cast<ANavTestCharacter>(OwnerComp.GetOwner());
 
-	ANavTestCharacter* NavActor = Cast<ANavTestCharacter>(OwnerComp.GetOwner());
-
-	if(NavActor == nullptr)
-		return EBTNodeResult::Failed;
+	//if(NavActor == nullptr)
+		//return EBTNodeResult::Failed;
 
 
 	if (NavActor->TargetActors.Num() == 0)
@@ -64,6 +64,7 @@ EBTNodeResult::Type UIsFindPlayerBTTaskNode::ExecuteTask(UBehaviorTreeComponent&
 		blackboardComponent->SetValueAsObject(valueName,priorityTarget);
 		return EBTNodeResult::Succeeded;
 	}
+	*/
 	return EBTNodeResult::Failed;
 }
 

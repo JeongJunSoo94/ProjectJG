@@ -13,6 +13,8 @@ class PROJECTJG_API AMurdockBullet : public ACBullet
 protected:
 	UPROPERTY(VisibleDefaultsOnly)
 		class UParticleSystem* BulletParticle;
+    //UPROPERTY(VisibleDefaultsOnly, Category = "Root")
+        //class USphereComponent* RootSphere;
 public:
     AMurdockBullet();
     virtual UStaticMeshComponent* GetMesh() override { return Mesh; }
