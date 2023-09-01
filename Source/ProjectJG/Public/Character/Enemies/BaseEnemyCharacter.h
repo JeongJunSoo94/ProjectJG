@@ -2,10 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Character/Interface/Damageable.h"
 #include "BaseEnemyCharacter.generated.h"
 
 UCLASS()
-class PROJECTJG_API ABaseEnemyCharacter : public ACharacter
+class PROJECTJG_API ABaseEnemyCharacter : public ACharacter, public IDamageable
 {
 	GENERATED_BODY()
 private:
@@ -17,7 +18,7 @@ protected:
 
 public:
 	ABaseEnemyCharacter();
-	float TakeDamage(float Damage);
+	virtual float TakeDamage(float Damage)override;
 protected:
 	virtual void BeginPlay() override;
 	void SetHealthWidgetSizeAndLocation(FVector location, FVector2D size);
