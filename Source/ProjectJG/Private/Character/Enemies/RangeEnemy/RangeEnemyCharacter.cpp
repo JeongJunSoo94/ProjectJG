@@ -14,12 +14,11 @@
 #include "Components/StaticMeshComponent.h"
 #include "Character/Enemies/RangeEnemy/Bullets/RangeEnemy_Bullet.h"
 #include "BaseSystem/ObjectPoolFactory.h"
-<<<<<<< HEAD
+
 #include "Materials/MaterialInstanceConstant.h"
 #include "Components/StaticMeshComponent.h"
 #include "Materials/MaterialInstanceConstant.h"
-=======
->>>>>>> Enemy_feature_by_GHJ
+
 
 void ARangeEnemyCharacter::OnSphereBeginOverlap( UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -68,16 +67,10 @@ ARangeEnemyCharacter::ARangeEnemyCharacter()
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 
-<<<<<<< HEAD
-	
 	CHelpers::GetAsset<UMaterialInstanceConstant>(&Hit_material, "MaterialInstanceConstant'/Game/Developers/GohyeongJu/Characters/Enemy/RangeEnemy/Materials/Hit_Material_Inst.Hit_Material_Inst'");
 
 
 	CHelpers::CreateComponent<USphereComponent>(this, &Sphere, "Sphere", GetCapsuleComponent());
-=======
-	CHelpers::CreateComponent<USphereComponent>(this, &Sphere, "Sphere", GetCapsuleComponent());
-
->>>>>>> Enemy_feature_by_GHJ
 	Sphere->bHiddenInGame = false;
 	Sphere->SetSphereRadius(2000.0f);
 	
@@ -119,11 +112,6 @@ void ARangeEnemyCharacter::BeginPlay()
 
 	Sphere->OnComponentBeginOverlap.AddDynamic(this, &ARangeEnemyCharacter::OnSphereBeginOverlap);
 	Sphere->OnComponentEndOverlap.AddDynamic(this, &ARangeEnemyCharacter::OnSphereEndOverlap);
-<<<<<<< HEAD
-	
-=======
-
->>>>>>> Enemy_feature_by_GHJ
 }
 
 void ARangeEnemyCharacter::Tick(float DeltaTime)
@@ -136,11 +124,8 @@ AActor* ARangeEnemyCharacter::GetPriorityTarget()
 {
 	if (PlayerAgrroMap.Num() <= 0)
 	{
-<<<<<<< HEAD
 		//Clog::Log("PlayerAgrroMap is Zero");
-=======
-		Clog::Log("PlayerAgrroMap is Zero");
->>>>>>> Enemy_feature_by_GHJ
+
 		return nullptr;
 	}
 
@@ -215,11 +200,11 @@ void ARangeEnemyCharacter::RayToPlayer()
 
 void ARangeEnemyCharacter::Fire()
 {
-<<<<<<< HEAD
+
 	Clog::Log("Play Fire");
 
-=======
->>>>>>> Enemy_feature_by_GHJ
+
+
 	PlayAnimMontage(FireMontage);
 
 	FVector start, end, direction;

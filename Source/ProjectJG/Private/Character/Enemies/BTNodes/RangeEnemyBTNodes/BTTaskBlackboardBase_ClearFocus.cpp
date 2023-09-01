@@ -6,11 +6,6 @@
 #include "AIController.h"
 
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> Enemy_feature_by_GHJ
 UBTTaskBlackboardBase_ClearFocus::UBTTaskBlackboardBase_ClearFocus()
 {
 	NodeName = "ClearFocus";

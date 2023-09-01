@@ -20,10 +20,9 @@ ARangeEnemyAIController::ARangeEnemyAIController()
 void ARangeEnemyAIController::BeginPlay()
 {
 	Super::BeginPlay();
-<<<<<<< HEAD
+
 	Clog::Log(GetPawn());
 	Clog::Log(BT);
-=======
->>>>>>> Enemy_feature_by_GHJ
+
 	RunBehaviorTree(BT);
 }

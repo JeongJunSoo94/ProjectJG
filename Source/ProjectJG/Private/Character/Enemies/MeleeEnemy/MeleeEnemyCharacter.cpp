@@ -26,8 +26,8 @@ AMeleeEnemyCharacter::AMeleeEnemyCharacter()
 	WeaponCollisionBox->bHiddenInGame = false;
 	
 	TSubclassOf<AMeleeEnemyAIController> aicontroller;
-	CHelpers::GetClass<AMeleeEnemyAIController>(&aicontroller, "Blueprint'/Game/Developers/JJS/Enemy/BP_MeleeEnemyAIController.BP_MeleeEnemyAIController_C'");
-	AIControllerClass = aicontroller;
+	//CHelpers::GetClass<AMeleeEnemyAIController>(&aicontroller, "Blueprint'/Game/Developers/JJS/Enemy/BP_MeleeEnemyAIController.BP_MeleeEnemyAIController_C'");
+	//AIControllerClass = aicontroller;
 
 	//CHelpers::GetAsset<UAnimMontage>(&MeleeMontage, "AnimMontage'/Game/Developers/USER/Character/Q_Ability_Montage.Q_Ability_Montage'");
 
