@@ -12,7 +12,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Materials/MaterialInstanceConstant.h"
 #include "BaseSystem/ObjectPoolFactory.h"
-
+#include "Character/Interface/Damageable.h"
 
 UCLtBelicaWeapon::UCLtBelicaWeapon()
 {
@@ -39,6 +39,10 @@ void UCLtBelicaWeapon::OnHitPaticle(UPrimitiveComponent* HitComponent, AActor* O
 	FRotator rotator = Hit.ImpactNormal.Rotation();
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, Hit.Location, rotator, true, EPSCPoolMethod::AutoRelease);
 	UGameplayStatics::SpawnDecalAtLocation(GetWorld(), DecalMaterial, FVector(5), Hit.Location, rotator, 10.0f);
+	IDamageable* character = Cast<IDamageable>(OtherActor);
+	CheckNull(character);
+	character->TakeDamage(10.0f);
+
 }
 
 void UCLtBelicaWeapon::BeginPlay()

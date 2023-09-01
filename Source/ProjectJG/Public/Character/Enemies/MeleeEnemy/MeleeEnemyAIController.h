@@ -11,8 +11,13 @@ class PROJECTJG_API AMeleeEnemyAIController : public AAIController
 protected:
 		UPROPERTY(VisibleDefaultsOnly, Category = "BT")
 			class UBehaviorTree* BT;
+		UPROPERTY()
+			class UBlackboardComponent* BlackboardComp;
+		UPROPERTY()
+			class UBlackboardData* BDAsset;
 public:
 	AMeleeEnemyAIController();
+	virtual void OnPossess(APawn* InPawn) override;
 protected:
 	virtual void BeginPlay() override;
 

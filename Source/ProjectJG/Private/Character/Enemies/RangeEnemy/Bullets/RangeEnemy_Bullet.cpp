@@ -44,7 +44,11 @@ void ARangeEnemy_Bullet::BeginPlay()
 void ARangeEnemy_Bullet::Init()
 {
     Super::Init();
+<<<<<<< HEAD
     FVector forwardVector(0.0f, 0.0f, 0.0f);
+=======
+    FVector forwardVector(200.0f, 0.0f, 0.0f);
+>>>>>>> Enemy_feature_by_GHJ
     UGameplayStatics::SpawnEmitterAttached(BulletParticle, GetMesh(), "Mesh", forwardVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true, EPSCPoolMethod::AutoRelease);
 
 }

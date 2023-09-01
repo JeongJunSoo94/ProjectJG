@@ -2,10 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Character/Interface/Damageable.h"
 #include "CBaseCharacter.generated.h"
 
 UCLASS()
-class PROJECTJG_API ACBaseCharacter : public ACharacter
+class PROJECTJG_API ACBaseCharacter : public ACharacter, public IDamageable
 {
 	GENERATED_BODY()
 protected:
@@ -36,7 +37,7 @@ protected:
 public:
 	ACBaseCharacter();
 	//float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-	float TakeDamage(float Damage);
+	virtual float TakeDamage(float Damage)override;
 
 protected:
 	virtual void BeginPlay() override;
