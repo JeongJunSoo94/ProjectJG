@@ -20,5 +20,7 @@ ARangeEnemyAIController::ARangeEnemyAIController()
 void ARangeEnemyAIController::BeginPlay()
 {
 	Super::BeginPlay();
+	Clog::Log(GetPawn());
+	Clog::Log(BT);
 	RunBehaviorTree(BT);
 }
