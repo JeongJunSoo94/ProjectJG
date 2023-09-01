@@ -4,19 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "Bullet/CBullet.h"
-#include "MurdockBullet.generated.h"
+#include "RangeEnemy_Bullet.generated.h"
 
+/**
+ * 
+ */
 UCLASS()
-class PROJECTJG_API AMurdockBullet : public ACBullet
+class PROJECTJG_API ARangeEnemy_Bullet : public ACBullet
 {
 	GENERATED_BODY()
 protected:
-	UPROPERTY(VisibleDefaultsOnly)
-		class UParticleSystem* BulletParticle;
-    //UPROPERTY(VisibleDefaultsOnly, Category = "Root")
-        //class USphereComponent* RootSphere;
+    UPROPERTY(VisibleDefaultsOnly)
+        class UParticleSystem* BulletParticle;
 public:
-    AMurdockBullet();
+    ARangeEnemy_Bullet();
     virtual UStaticMeshComponent* GetMesh() override { return Mesh; }
 
 protected:
