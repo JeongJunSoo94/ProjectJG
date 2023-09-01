@@ -6,6 +6,8 @@
 #include "AIController.h"
 
 
+
+
 UBTTaskBlackboardBase_ClearFocus::UBTTaskBlackboardBase_ClearFocus()
 {
 	NodeName = "ClearFocus";

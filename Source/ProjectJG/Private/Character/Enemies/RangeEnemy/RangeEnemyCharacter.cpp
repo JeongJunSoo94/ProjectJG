@@ -14,9 +14,6 @@
 #include "Components/StaticMeshComponent.h"
 #include "Character/Enemies/RangeEnemy/Bullets/RangeEnemy_Bullet.h"
 #include "BaseSystem/ObjectPoolFactory.h"
-#include "Materials/MaterialInstanceConstant.h"
-#include "Components/StaticMeshComponent.h"
-#include "Materials/MaterialInstanceConstant.h"
 
 void ARangeEnemyCharacter::OnSphereBeginOverlap( UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -65,11 +62,8 @@ ARangeEnemyCharacter::ARangeEnemyCharacter()
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 
-	
-	CHelpers::GetAsset<UMaterialInstanceConstant>(&Hit_material, "MaterialInstanceConstant'/Game/Developers/GohyeongJu/Characters/Enemy/RangeEnemy/Materials/Hit_Material_Inst.Hit_Material_Inst'");
-
-
 	CHelpers::CreateComponent<USphereComponent>(this, &Sphere, "Sphere", GetCapsuleComponent());
+
 	Sphere->bHiddenInGame = false;
 	Sphere->SetSphereRadius(2000.0f);
 	
@@ -111,7 +105,7 @@ void ARangeEnemyCharacter::BeginPlay()
 
 	Sphere->OnComponentBeginOverlap.AddDynamic(this, &ARangeEnemyCharacter::OnSphereBeginOverlap);
 	Sphere->OnComponentEndOverlap.AddDynamic(this, &ARangeEnemyCharacter::OnSphereEndOverlap);
-	
+
 }
 
 void ARangeEnemyCharacter::Tick(float DeltaTime)
@@ -124,7 +118,7 @@ AActor* ARangeEnemyCharacter::GetPriorityTarget()
 {
 	if (PlayerAgrroMap.Num() <= 0)
 	{
-		//Clog::Log("PlayerAgrroMap is Zero");
+		Clog::Log("PlayerAgrroMap is Zero");
 		return nullptr;
 	}
 
@@ -199,8 +193,6 @@ void ARangeEnemyCharacter::RayToPlayer()
 
 void ARangeEnemyCharacter::Fire()
 {
-	Clog::Log("Play Fire");
-
 	PlayAnimMontage(FireMontage);
 
 	FVector start, end, direction;

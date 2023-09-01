@@ -40,9 +40,6 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly)
 		class UObjectPoolFactory* ObjectPoolFactory;
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "Hit_Material")
-		class UMaterialInstanceConstant* Hit_material;
-
 public:
 	ARangeEnemyCharacter();
 
@@ -65,4 +62,5 @@ protected:
 	FTimerHandle RayTimer;
 
 	FCollisionQueryParams CollisionParams;
+	
 };
