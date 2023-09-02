@@ -2,14 +2,12 @@
 #include "Global.h"
 #include "Character/CBaseCharacter.h"
 #include "Character/Components/CActionComponent.h"
-//#include "ACtions/CDoAction.h"
-//#include "Components/CActionComponent.h"
+#include "Character/Interface/ActionNotifiable.h"
 
 FString UCAnimNotify_BeginAction::GetNotifyName_Implementation() const
 {
 	return  "BeginAction";
 }
-
 
 void UCAnimNotify_BeginAction::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
@@ -18,10 +16,11 @@ void UCAnimNotify_BeginAction::Notify(USkeletalMeshComponent* MeshComp, UAnimSeq
 	CheckNull(MeshComp);
 	CheckNull(MeshComp->GetOwner());
 
-	UCActionComponent* action = CHelpers::GetComponent<UCActionComponent>(MeshComp->GetOwner());
+	IActionNotifiable* actionNotify = Cast<IActionNotifiable>(MeshComp->GetOwner());
+	CheckNull(actionNotify);
+
+	UCActionComponent* action = actionNotify->GetActionComponent();
 
 	CheckNull(action);
 	action->BeginAction();
-	//CheckNull(action);
-	// action->GetCurrent()->GetDoAction()->Begin_DoAction();
 }

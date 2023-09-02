@@ -4,9 +4,13 @@
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Character/Interface/Damageable.h"
+#include "Character/Enemies/MeleeEnemy/MeleeAttackActionComponent.h"
 
 void AMeleeEnemyCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	CheckNull(OverlappedComponent);
+	CheckNull(OtherActor);
+	CheckNull(OtherComp);
 	IDamageable* character = Cast<IDamageable>(OtherActor);
 	CheckNull(character);
 	character->TakeDamage(10.0f);
@@ -26,11 +30,13 @@ AMeleeEnemyCharacter::AMeleeEnemyCharacter()
 	WeaponCollisionBox->bHiddenInGame = false;
 	
 	TSubclassOf<AMeleeEnemyAIController> aicontroller;
-	//CHelpers::GetClass<AMeleeEnemyAIController>(&aicontroller, "Blueprint'/Game/Developers/JJS/Enemy/BP_MeleeEnemyAIController.BP_MeleeEnemyAIController_C'");
-	//AIControllerClass = aicontroller;
+	CHelpers::GetClass<AMeleeEnemyAIController>(&aicontroller, "Blueprint'/Game/Developers/JJS/Enemy/BP_MeleeEnemyAIController.BP_MeleeEnemyAIController_C'");
+	AIControllerClass = aicontroller;
 
-	//CHelpers::GetAsset<UAnimMontage>(&MeleeMontage, "AnimMontage'/Game/Developers/USER/Character/Q_Ability_Montage.Q_Ability_Montage'");
+	CHelpers::GetAsset<UAnimMontage>(&MeleeMontage, "AnimMontage'/Game/Developers/JJS/Enemy/Montage/MeleeAttack_Montage.MeleeAttack_Montage'");
 
+	CHelpers::CreateActorComponent<UMeleeAttackActionComponent>(this, &MeleeActionComponent, "MeleeActionComponent");
+	MeleeActionComponent->SetOwnerCharacter(this);
 }
 
 void AMeleeEnemyCharacter::BeginPlay()
@@ -42,6 +48,9 @@ void AMeleeEnemyCharacter::BeginPlay()
 			FAttachmentTransformRules(EAttachmentRule::KeepRelative, true),
 		WeaponCollisionSocket);
 	WeaponCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AMeleeEnemyCharacter::OnComponentBeginOverlap);
+	CurrentActionComponent = MeleeActionComponent;
+	isFullBody = false;
+	isAttacked = false;
 }
 
 void AMeleeEnemyCharacter::Tick(float DeltaTime)
@@ -51,5 +60,14 @@ void AMeleeEnemyCharacter::Tick(float DeltaTime)
 
 void AMeleeEnemyCharacter::MeleeAttack()
 {
+	if (!isAttacked)
+	{
+		isAttacked = true;
+		PlayAnimMontage(MeleeMontage);
+	}
+}
 
+UCActionComponent* AMeleeEnemyCharacter::GetActionComponent()
+{
+	return CurrentActionComponent;
 }

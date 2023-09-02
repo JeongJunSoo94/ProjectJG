@@ -42,9 +42,9 @@ void UEAbliltyActionComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 	ManaBombHologramActor->SetHologramLocation(end);
 }
 
-void UEAbliltyActionComponent::SetOwnerCharacter(ACBaseCharacter* character)
+void UEAbliltyActionComponent::SetOwnerCharacter(ACharacter* character)
 {
-	OwnerCharacter = character;
+	OwnerCharacter = Cast<ACBaseCharacter>(character);
 	CHelpers::CreateActorComponent<UObjectPoolFactory>(OwnerCharacter, &ObjectPoolFactory, "ManaBombFactory");
 	ObjectPoolFactory->PoolSize = 5;
 	ObjectPoolFactory->PooledObjectSubclass = ManaBombClass;

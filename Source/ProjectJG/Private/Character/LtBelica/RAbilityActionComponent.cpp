@@ -53,9 +53,9 @@ void URAbilityActionComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 	CheckFalse(IsAbiliting);
 }
 
-void URAbilityActionComponent::SetOwnerCharacter(ACBaseCharacter* character)
+void URAbilityActionComponent::SetOwnerCharacter(ACharacter* character)
 {
-	OwnerCharacter = character;
+	OwnerCharacter = Cast<ACBaseCharacter>(character);
 	MuzzleIndex = OwnerCharacter->GetMesh()->GetBoneIndex("PistolBarrel");
 	CHelpers::CreateActorComponent<UObjectPoolFactory>(OwnerCharacter, &ObjectPoolFactory, "PistolPoolFactory");
 	ObjectPoolFactory->PoolSize = 20;

@@ -22,9 +22,8 @@ void UCActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 }
 
-void UCActionComponent::SetOwnerCharacter(ACBaseCharacter* character)
+void UCActionComponent::SetOwnerCharacter(ACharacter* character)
 {
-	OwnerCharacter = character;
 }
 
 void UCActionComponent::OnAction()

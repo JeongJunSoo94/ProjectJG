@@ -19,4 +19,6 @@ void UMeleeCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	//IsFiring = MeleeCharacter->GetLtBelicaWeaponIsFiring();
 
 	//IsQAbiliting = LtBelicaCharacter->GetLtBelicaIsAbiliting();
+
+	FullBody = MeleeCharacter->isFullBody;
 }

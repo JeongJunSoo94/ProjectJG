@@ -5,7 +5,7 @@
 #include "CActionComponent.generated.h"
 
 
-UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+UCLASS(abstract)
 class PROJECTJG_API UCActionComponent : public UActorComponent
 {
     GENERATED_BODY()
@@ -15,12 +15,11 @@ public:
 
 protected:
     virtual void BeginPlay() override;
-protected:
-    class ACBaseCharacter* OwnerCharacter;
+
 public:
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 public:
-    void SetOwnerCharacter(ACBaseCharacter* character);
+    virtual void SetOwnerCharacter(ACharacter* character);
     virtual void OnAction();
     virtual void BeginAction();
     virtual void EndAction();

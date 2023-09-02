@@ -28,5 +28,6 @@ public:
 
 protected:
 	float DamageValue;
-
+public:
+	bool isFullBody;
 };

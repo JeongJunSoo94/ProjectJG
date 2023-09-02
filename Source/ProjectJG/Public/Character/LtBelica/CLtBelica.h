@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/CBaseCharacter.h"
+#include "Character/Interface/ActionNotifiable.h"
 #include "CLtBelica.generated.h"
 
 UENUM(BlueprintType)
@@ -14,10 +15,12 @@ enum class EBelicaAbilityState : uint8
 };
 
 UCLASS()
-class PROJECTJG_API ACLtBelica : public ACBaseCharacter
+class PROJECTJG_API ACLtBelica : public ACBaseCharacter, public IActionNotifiable
 {
 	GENERATED_BODY()
 private:
+	UPROPERTY(VisibleDefaultsOnly)
+		class UCActionComponent* CurrentActionComponent;
 	UPROPERTY(VisibleDefaultsOnly)
 		class UCLtBelicaWeapon* LtBelicaWeapon;
 	UPROPERTY(VisibleDefaultsOnly)
@@ -42,7 +45,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	virtual UCActionComponent* GetActionComponent() override;
 private:
 	void OnFire();
 	void OffFire();

@@ -32,11 +32,11 @@ protected:
 	virtual void BeginPlay() override;
 public:
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-    void SetOwnerCharacter(ACBaseCharacter* character);
+    virtual void SetOwnerCharacter(ACharacter* character) override;
     virtual void OnAction() override;
     void HologramAction();
-    void BeginAction()override;
-    void EndAction()override;
+    virtual void BeginAction()override;
+    virtual void EndAction()override;
     bool GetIsAbiliting() { return IsAbiliting; }
 private:
     bool IsAbiliting;

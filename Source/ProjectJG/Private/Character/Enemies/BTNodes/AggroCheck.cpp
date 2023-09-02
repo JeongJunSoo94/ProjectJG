@@ -56,6 +56,7 @@ void UAggroCheck::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
 			ACBaseCharacter* player = Cast<ACBaseCharacter>(HitOut.GetActor());
 			if (player == nullptr)
 			{
+				ThisBlackboardComp->SetValueAsObject(TEXT("TargetFollow"), nullptr);
 				ThisBlackboardComp->SetValueAsFloat(TEXT("Distance"), 0.0f);
 				return;
 			}

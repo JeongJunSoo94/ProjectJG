@@ -53,9 +53,9 @@ void UCQAbliltyActionComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 	EruptionHologramActor->SetHologramRotator(UKismetMathLibrary::Conv_VectorToRotator(AbilityDirection));
 }
 
-void UCQAbliltyActionComponent::SetOwnerCharacter(ACBaseCharacter* character)
+void UCQAbliltyActionComponent::SetOwnerCharacter(ACharacter* character)
 {
-	OwnerCharacter = character;
+	OwnerCharacter = Cast<ACBaseCharacter>(character);
 	CHelpers::CreateActorComponent<UObjectPoolFactory>(OwnerCharacter, &ObjectPoolFactory, "EruptionFactory");
 	ObjectPoolFactory->PoolSize = 5;
 	ObjectPoolFactory->PooledObjectSubclass = EruptionClass;

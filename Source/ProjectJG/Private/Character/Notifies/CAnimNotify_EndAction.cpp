@@ -2,6 +2,7 @@
 #include "Global.h"
 #include "Character/CBaseCharacter.h"
 #include "Character/Components/CActionComponent.h"
+#include "Character/Interface/ActionNotifiable.h"
 
 FString UCAnimNotify_EndAction::GetNotifyName_Implementation() const
 {
@@ -15,12 +16,11 @@ void UCAnimNotify_EndAction::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 	CheckNull(MeshComp);
 	CheckNull(MeshComp->GetOwner());
 
-	UCActionComponent* action = CHelpers::GetComponent<UCActionComponent>(MeshComp->GetOwner());
+	IActionNotifiable* actionNotify = Cast<IActionNotifiable>(MeshComp->GetOwner());
+	CheckNull(actionNotify);
+
+	UCActionComponent* action = actionNotify->GetActionComponent();
 
 	CheckNull(action);
 	action->EndAction();
-
-	/*
-	CheckNull(action);
-	action->GetCurrent()->GetDoAction()->End_DoAction();*/
 }
