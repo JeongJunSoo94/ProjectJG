@@ -37,9 +37,19 @@ UMurdockWeapon::UMurdockWeapon()
 
 void UMurdockWeapon::OnHitPaticle(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	CheckNull(HitComponent);
+	CheckNull(OtherActor);
+	CheckNull(OtherComp);
+
 	FRotator rotator = Hit.ImpactNormal.Rotation();
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, Hit.Location, rotator, true, EPSCPoolMethod::AutoRelease);
 	UGameplayStatics::SpawnDecalAtLocation(GetWorld(), DecalMaterial, FVector(5), Hit.Location, rotator, 10.0f);
+
+	IDamageable* character = Cast<IDamageable>(OtherActor);
+	CheckNull(character);
+	character->TakeDamage(1.0f);
+	character->BeginHitEffect(NormalImpulse, Hit);
+	
 }
 
 void UMurdockWeapon::BeginPlay()

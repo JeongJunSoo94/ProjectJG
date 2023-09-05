@@ -82,8 +82,8 @@ void UMurdockUltimateSkillComponent::ShotLaser()
 
 		FTransform muzzleTransform = OwnerCharacter->GetMesh()->GetSocketTransform("Muzzle");
 		FVector muzzleLocation = muzzleTransform.GetLocation();
-		FVector cameraOutStart, cameraOutEnd, cameraDirection;
-		OwnerCharacter->GetLocationAndDirection(cameraOutStart, cameraOutEnd, cameraDirection);
+		FVector RayStart, RayEnd, RayDirection;
+		OwnerCharacter->GetLocationAndDirection(muzzleLocation,RayStart, RayEnd, RayDirection);
 
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSoundCue, muzzleLocation);
 
@@ -91,17 +91,16 @@ void UMurdockUltimateSkillComponent::ShotLaser()
 		CollisionParams.AddIgnoredActor(this->GetOwner());
 
 		
-		//DrawDebugLine(GetWorld(), muzzleLocation, cameraOutEnd, FColor::Red, false, 1, 0, 1);
+		
 
 		//Clog::Log(OutHit.GetActor());
 
-		//Clog::Log(muzzleTransform.GetRotation().Rotator());
-		//Clog::Log(cameraDirection.Rotation());
-
-
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), UltimateMuzzleShot, muzzleLocation, cameraDirection.Rotation(), true, EPSCPoolMethod::AutoRelease);
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), UltimateLaserSight, muzzleLocation, cameraDirection.Rotation(), true, EPSCPoolMethod::AutoRelease);
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), UltimateLaser, muzzleLocation, cameraDirection.Rotation(), true, EPSCPoolMethod::AutoRelease);
+		//Clog::Log((RayEnd - muzzleLocation));
+		//Clog::Log(RayDirection.Rotation());
+		
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), UltimateMuzzleShot, muzzleLocation, RayDirection.Rotation(), true, EPSCPoolMethod::AutoRelease);
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), UltimateLaserSight, muzzleLocation, RayDirection.Rotation(), true, EPSCPoolMethod::AutoRelease);
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), UltimateLaser, muzzleLocation, RayDirection.Rotation(), true, EPSCPoolMethod::AutoRelease);
 	
 		OwnerCharacter->StopAnimMontage(UltimateLoopAnim);
 		OwnerCharacter->PlayAnimMontage(UltimateAnim, 1.0f, "LoopOutUltimate");
@@ -110,11 +109,18 @@ void UMurdockUltimateSkillComponent::ShotLaser()
 
 		//bullet->GetMesh()->OnComponentHit.AddDynamic(this, &UMurdockSpreadShotSkillComponent::OnHitPaticle);
 
-		if (GetWorld()->LineTraceSingleByChannel(OutHit, muzzleLocation, cameraOutEnd, ECC_Visibility, CollisionParams))
+		if (GetWorld()->LineTraceSingleByChannel(OutHit, muzzleLocation, RayEnd, ECC_Pawn, CollisionParams))
 		{
 			FRotator ImpactDirection = (-OutHit.ImpactNormal).Rotation();
 
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), UltimateLaserImpact, OutHit.ImpactPoint + 12.0f*OutHit.ImpactNormal, ImpactDirection, true, EPSCPoolMethod::AutoRelease);
+			
+			DrawDebugLine(GetWorld(), muzzleLocation, RayEnd, FColor::Green, false, 2, 0, 2);
+			Clog::Log(OutHit.GetActor());
+
+			IDamageable* character = Cast<IDamageable>(OutHit.GetActor());
+			if(character)
+				character->TakeDamage(10.0f);
 		}
 
 	}

@@ -41,12 +41,14 @@ void UMurdockSpreadShotSkillComponent::OnHitPaticle(UPrimitiveComponent* HitComp
 	
 	FRotator rotator = Hit.ImpactNormal.Rotation();
 	float currentLifeTime = Cast<AMurdockSpreadShotBullet>(HitComponent->GetOwner())->GetHitTime();
-	Clog::Log(currentLifeTime);
+	//Clog::Log(currentLifeTime);
 	//UParticleSystemComponent* ParticleSystem = 
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ExplosionSoundCue, Hit.Location);
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SpreadShotImpact, Hit.Location, rotator,(FVector3d)((currentLifeTime*10.0f)), true, EPSCPoolMethod::AutoRelease);
 
-
+	IDamageable* character = Cast<IDamageable>(OtherActor);
+	CheckNull(character);
+	character->TakeDamage(10.0f);
 
 
 	//ParticleSystem->SetRelativeScale3D(ParticleSystem->GetRelativeScale3D() * currentLifeTime);

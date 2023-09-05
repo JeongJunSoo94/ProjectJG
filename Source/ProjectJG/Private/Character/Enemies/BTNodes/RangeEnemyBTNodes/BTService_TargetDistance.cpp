@@ -34,13 +34,13 @@ void UBTService_TargetDistance::TickNode(UBehaviorTreeComponent& OwnerComp, uint
 		}
 
 		float SquardDistance = (SelfActor->GetActorLocation() - TargetActor->GetActorLocation()).SquaredLength();
-		Clog::Log(SquaredDistanceKey.SelectedKeyName.ToString());
+		//Clog::Log(SquaredDistanceKey.SelectedKeyName.ToString());
 		BBComp->SetValueAsFloat(SquaredDistanceKey.SelectedKeyName, SquardDistance);
 
 		return;
 	}
-	Clog::Log(SquaredDistanceKey.SelectedKeyType);
-	Clog::Log("blackBoardKey is Only Object Type and SquardDistanceKey is Only Float Type");
+	//Clog::Log(SquaredDistanceKey.SelectedKeyType);
+	//Clog::Log("blackBoardKey is Only Object Type and SquardDistanceKey is Only Float Type");
 
 }
 

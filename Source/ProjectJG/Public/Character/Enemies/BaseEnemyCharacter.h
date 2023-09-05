@@ -25,6 +25,7 @@ protected:
 	virtual void Damaged(float totalAmount);
 public:	
 	virtual void Tick(float DeltaTime) override;
+	virtual void BeginHitEffect(FVector NormalImpulse, const FHitResult& Hit) override;
 
 protected:
 	float DamageValue;

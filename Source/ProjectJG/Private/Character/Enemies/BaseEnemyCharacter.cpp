@@ -42,6 +42,11 @@ void ABaseEnemyCharacter::Tick(float DeltaTime)
 		Damaged(DamageValue);
 }
 
+void ABaseEnemyCharacter::BeginHitEffect(FVector NormalImpulse, const FHitResult& Hit)
+{
+
+}
+
 float ABaseEnemyCharacter::TakeDamage(float Damage)
 {
 	DamageValue += Damage;
