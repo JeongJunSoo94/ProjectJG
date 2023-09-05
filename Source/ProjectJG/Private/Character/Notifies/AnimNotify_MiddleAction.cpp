@@ -1,15 +1,15 @@
-#include "Character/Notifies/CAnimNotify_EndAction.h"
+#include "Character/Notifies/AnimNotify_MiddleAction.h"
 #include "Global.h"
 #include "Character/CBaseCharacter.h"
 #include "Character/Components/CActionComponent.h"
 #include "Character/Interface/ActionNotifiable.h"
 
-FString UCAnimNotify_EndAction::GetNotifyName_Implementation() const
+FString UAnimNotify_MiddleAction::GetNotifyName_Implementation() const
 {
-	return  "EndNotifyAction";
+	return  "MiddleNotifyAction";
 }
 
-void UCAnimNotify_EndAction::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
+void UAnimNotify_MiddleAction::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
 	Super::Notify(MeshComp, Animation);
 
@@ -22,5 +22,5 @@ void UCAnimNotify_EndAction::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 	UCActionComponent* action = actionNotify->GetActionComponent();
 
 	CheckNull(action);
-	action->EndNotifyAction();
+	action->MiddleNotifyAction();
 }

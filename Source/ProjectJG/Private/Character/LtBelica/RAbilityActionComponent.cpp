@@ -63,7 +63,7 @@ void URAbilityActionComponent::SetOwnerCharacter(ACharacter* character)
 	ObjectPoolFactory->Initialized();
 }
 
-void URAbilityActionComponent::OnAction()
+void URAbilityActionComponent::OnStartAction()
 {
 	if (!IsAbiliting)
 	{
@@ -88,7 +88,7 @@ void URAbilityActionComponent::HologramAction()
 	OwnerCharacter->PlayAnimMontage(RAbliltyMontage);
 }
 
-void URAbilityActionComponent::BeginAction()
+void URAbilityActionComponent::BeginNotifyAction()
 {
 	Clog::Log("R");
 	FVector start, end, direction;
@@ -124,6 +124,6 @@ void URAbilityActionComponent::BeginAction()
 	}
 }
 
-void URAbilityActionComponent::EndAction()
+void URAbilityActionComponent::EndNotifyAction()
 {
 }

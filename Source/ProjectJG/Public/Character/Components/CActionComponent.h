@@ -18,9 +18,11 @@ protected:
 
 public:
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 public:
     virtual void SetOwnerCharacter(ACharacter* character);
-    virtual void OnAction();
-    virtual void BeginAction();
-    virtual void EndAction();
+    virtual void OnStartAction();
+    virtual void BeginNotifyAction();
+    virtual void MiddleNotifyAction();
+    virtual void EndNotifyAction();
 };

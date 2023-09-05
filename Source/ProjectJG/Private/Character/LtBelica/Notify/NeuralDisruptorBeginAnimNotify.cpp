@@ -6,7 +6,7 @@
 
 FString UNeuralDisruptorBeginAnimNotify::GetNotifyName_Implementation() const
 {
-	return  "NeuralDisruptorBeginAction";
+	return  "NeuralDisruptorBeginNotifyAction";
 }
 
 
@@ -20,7 +20,7 @@ void UNeuralDisruptorBeginAnimNotify::Notify(USkeletalMeshComponent* MeshComp, U
 	URAbilityActionComponent* action = CHelpers::GetComponent<URAbilityActionComponent>(MeshComp->GetOwner());
 
 	CheckNull(action);
-	action->BeginAction();
+	action->BeginNotifyAction();
 	//CheckNull(action);
 	// action->GetCurrent()->GetDoAction()->Begin_DoAction();
 }

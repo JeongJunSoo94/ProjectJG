@@ -31,10 +31,10 @@ protected:
 public:
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-    virtual void OnAction() override;
+    virtual void OnStartAction() override;
     void HologramAction();
-    virtual void BeginAction()override;
-    virtual void EndAction()override;
+    virtual void BeginNotifyAction()override;
+    virtual void EndNotifyAction()override;
     bool GetIsAbiliting() { return IsAbiliting; }
     virtual void SetOwnerCharacter(ACharacter* character) override;
 private:

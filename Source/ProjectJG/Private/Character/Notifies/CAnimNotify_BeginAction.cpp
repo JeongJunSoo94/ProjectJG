@@ -6,7 +6,7 @@
 
 FString UCAnimNotify_BeginAction::GetNotifyName_Implementation() const
 {
-	return  "BeginAction";
+	return  "BeginNotifyAction";
 }
 
 void UCAnimNotify_BeginAction::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
@@ -20,7 +20,7 @@ void UCAnimNotify_BeginAction::Notify(USkeletalMeshComponent* MeshComp, UAnimSeq
 	CheckNull(actionNotify);
 
 	UCActionComponent* action = actionNotify->GetActionComponent();
-
 	CheckNull(action);
-	action->BeginAction();
+
+	action->BeginNotifyAction();
 }

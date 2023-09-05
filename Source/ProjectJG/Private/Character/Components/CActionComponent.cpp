@@ -1,7 +1,8 @@
 #include "Character/Components/CActionComponent.h"
 #include "Global.h"
-#include "Character/CBaseCharacter.h"
 #include "GameFramework/Character.h"
+#include "Animation/AnimMontage.h"
+#include "Animation/AnimInstance.h"
 
 UCActionComponent::UCActionComponent()
 {
@@ -26,13 +27,16 @@ void UCActionComponent::SetOwnerCharacter(ACharacter* character)
 {
 }
 
-void UCActionComponent::OnAction()
+void UCActionComponent::OnStartAction()
 {
 }
 
-void UCActionComponent::BeginAction()
+void UCActionComponent::BeginNotifyAction()
 {
 }
-void UCActionComponent::EndAction()
+void UCActionComponent::MiddleNotifyAction()
+{
+}
+void UCActionComponent::EndNotifyAction()
 {
 }

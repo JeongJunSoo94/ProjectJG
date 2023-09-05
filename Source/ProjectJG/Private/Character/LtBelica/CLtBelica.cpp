@@ -36,7 +36,6 @@ void ACLtBelica::BeginPlay()
 	Super::BeginPlay();
 	eBelicaAbilityState = EBelicaAbilityState::None;
 	GetMesh()->HideBone(weaponBoneIdexs[2], PBO_None);
-	CurrentActionComponent = nullptr;
 }
 
 void ACLtBelica::Tick(float DeltaTime)
@@ -99,24 +98,21 @@ void ACLtBelica::OffFire()
 
 void ACLtBelica::OnQAbility()
 {
-	CurrentActionComponent = LtBelicaQAbility;
 	eBelicaAbilityState = eBelicaAbilityState == EBelicaAbilityState::QAbliity ? EBelicaAbilityState::None : EBelicaAbilityState::QAbliity;
-	LtBelicaQAbility->OnAction();
+	LtBelicaQAbility->OnStartAction();
 }
 
 void ACLtBelica::OnEAbility()
 {
-	CurrentActionComponent = LtBelicaEAbility;
 	eBelicaAbilityState = eBelicaAbilityState == EBelicaAbilityState::EAbliity? EBelicaAbilityState::None : EBelicaAbilityState::EAbliity;
-	LtBelicaEAbility->OnAction();
+	LtBelicaEAbility->OnStartAction();
 }
 
 void ACLtBelica::OnRAbility()
 {
-	CurrentActionComponent = LtBelicaRAbility;
 	eBelicaAbilityState = eBelicaAbilityState == EBelicaAbilityState::RAbliity ? EBelicaAbilityState::None : EBelicaAbilityState::RAbliity;
 	GetMesh()->UnHideBone(weaponBoneIdexs[2]);
-	LtBelicaRAbility->OnAction();
+	LtBelicaRAbility->OnStartAction();
 }
 
 bool ACLtBelica::GetLtBelicaWeaponIsFiring()
@@ -131,5 +127,28 @@ bool ACLtBelica::GetLtBelicaIsAbiliting()
 
 UCActionComponent* ACLtBelica::GetActionComponent()
 {
-	return CurrentActionComponent;
+	switch (eBelicaAbilityState)
+	{
+	case EBelicaAbilityState::None:
+	{
+		return nullptr;
+	}
+	break;
+	case EBelicaAbilityState::QAbliity:
+	{
+		return LtBelicaQAbility;
+	}
+	break;
+	case EBelicaAbilityState::EAbliity:
+	{
+		return LtBelicaEAbility;
+	}
+	break;
+	case EBelicaAbilityState::RAbliity:
+	{
+		return LtBelicaRAbility;
+	}
+	break;
+	}
+	return nullptr;
 }

@@ -20,8 +20,6 @@ class PROJECTJG_API ACLtBelica : public ACBaseCharacter, public IActionNotifiabl
 	GENERATED_BODY()
 private:
 	UPROPERTY(VisibleDefaultsOnly)
-		class UCActionComponent* CurrentActionComponent;
-	UPROPERTY(VisibleDefaultsOnly)
 		class UCLtBelicaWeapon* LtBelicaWeapon;
 	UPROPERTY(VisibleDefaultsOnly)
 		class UCQAbliltyActionComponent* LtBelicaQAbility;

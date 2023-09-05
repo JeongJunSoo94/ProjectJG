@@ -62,7 +62,7 @@ void UCQAbliltyActionComponent::SetOwnerCharacter(ACharacter* character)
 	ObjectPoolFactory->Initialized();
 }
 
-void UCQAbliltyActionComponent::OnAction()
+void UCQAbliltyActionComponent::OnStartAction()
 {
 	if (!IsAbiliting)
 	{
@@ -96,14 +96,14 @@ void UCQAbliltyActionComponent::HologramAction()
 
 }
 
-void UCQAbliltyActionComponent::BeginAction()
+void UCQAbliltyActionComponent::BeginNotifyAction()
 {
 	OwnerCharacter->bUseControllerRotationYaw = false;
 	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 	Clog::Log("Q");
 }
 
-void UCQAbliltyActionComponent::EndAction()
+void UCQAbliltyActionComponent::EndNotifyAction()
 {
 	FVector box = EruptionHologramActor->GetHologramBoxScale();
 	FVector startLocation, intervalLocation, rayStart, rayEnd;

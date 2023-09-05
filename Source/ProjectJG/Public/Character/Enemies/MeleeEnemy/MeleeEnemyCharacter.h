@@ -10,11 +10,6 @@ UCLASS()
 class PROJECTJG_API AMeleeEnemyCharacter : public ABaseEnemyCharacter,public IMeleeBehaviorTreeInterface , public IActionNotifiable
 {
 	GENERATED_BODY()
-private:
-	UPROPERTY(VisibleDefaultsOnly)
-		class UCActionComponent* CurrentActionComponent;
-	UPROPERTY(VisibleDefaultsOnly, Category = "Melee")
-		class UAnimMontage* MeleeMontage;
 protected:
 	UPROPERTY(VisibleDefaultsOnly)
 		class UMeleeAttackActionComponent* MeleeActionComponent;

@@ -52,7 +52,7 @@ void UEAbliltyActionComponent::SetOwnerCharacter(ACharacter* character)
 }
 
 
-void UEAbliltyActionComponent::OnAction()
+void UEAbliltyActionComponent::OnStartAction()
 {
 	if (!IsAbiliting)
 	{
@@ -87,11 +87,11 @@ void UEAbliltyActionComponent::HologramAction()
 	manaBomb->SetActive(true);
 }
 
-void UEAbliltyActionComponent::BeginAction()
+void UEAbliltyActionComponent::BeginNotifyAction()
 {
 	Clog::Log("E");
 }
 
-void UEAbliltyActionComponent::EndAction()
+void UEAbliltyActionComponent::EndNotifyAction()
 {
 }

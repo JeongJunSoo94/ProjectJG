@@ -33,8 +33,6 @@ AMeleeEnemyCharacter::AMeleeEnemyCharacter()
 	CHelpers::GetClass<AMeleeEnemyAIController>(&aicontroller, "Blueprint'/Game/Developers/JJS/Enemy/BP_MeleeEnemyAIController.BP_MeleeEnemyAIController_C'");
 	AIControllerClass = aicontroller;
 
-	CHelpers::GetAsset<UAnimMontage>(&MeleeMontage, "AnimMontage'/Game/Developers/JJS/Enemy/Montage/MeleeAttack_Montage.MeleeAttack_Montage'");
-
 	CHelpers::CreateActorComponent<UMeleeAttackActionComponent>(this, &MeleeActionComponent, "MeleeActionComponent");
 	MeleeActionComponent->SetOwnerCharacter(this);
 }
@@ -48,7 +46,6 @@ void AMeleeEnemyCharacter::BeginPlay()
 			FAttachmentTransformRules(EAttachmentRule::KeepRelative, true),
 		WeaponCollisionSocket);
 	WeaponCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AMeleeEnemyCharacter::OnComponentBeginOverlap);
-	CurrentActionComponent = MeleeActionComponent;
 	isFullBody = false;
 	isAttacked = false;
 }
@@ -63,11 +60,12 @@ void AMeleeEnemyCharacter::MeleeAttack()
 	if (!isAttacked)
 	{
 		isAttacked = true;
-		PlayAnimMontage(MeleeMontage);
+		MeleeActionComponent->OnStartAction();
 	}
 }
 
 UCActionComponent* AMeleeEnemyCharacter::GetActionComponent()
 {
-	return CurrentActionComponent;
+
+	return MeleeActionComponent;
 }
