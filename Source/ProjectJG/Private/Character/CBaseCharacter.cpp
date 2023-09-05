@@ -191,17 +191,26 @@ void ACBaseCharacter::GetLocationAndDirection(FVector& OutStart, FVector& OutEnd
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(this->GetOwner());
 
-
-	//DrawDebugLine(GetWorld(), OutStart, OutEnd, FColor::Red, false, 1, 0, 1);
+	//DrawDebugLine(GetWorld(), OutStart, OutEnd, FColor::Blue, false, 2, 0, 2);
 
 	bool IsHit = GetWorld()->LineTraceSingleByChannel(OutHit, OutStart, OutEnd, ECC_Visibility,CollisionParams);
 	
 	if (IsHit)
 	{
+		
 		OutEnd = OutHit.ImpactPoint;
 		//DrawDebugLine(GetWorld(), OutStart, OutEnd, FColor::Blue, false, 1, 0, 1);
 	}
+
+
 }
+void ACBaseCharacter::GetLocationAndDirection(FVector muzzleLocation, FVector& OutStart, FVector& OutEnd, FVector& OutDirection, bool IsRandom , float MaxYawInDegrees , float MaxPitchInDegrees )
+{
+	GetLocationAndDirection(OutStart, OutEnd, OutDirection, IsRandom, MaxYawInDegrees, MaxPitchInDegrees);
+
+	OutDirection = UKismetMathLibrary::GetDirectionUnitVector(muzzleLocation, OutEnd);
+}
+
 
 void ACBaseCharacter::Damaged(float totalAmount)
 {
@@ -239,4 +248,9 @@ float ACBaseCharacter::GetLookYaw()
 	float YawDifference = UKismetMathLibrary::NormalizedDeltaRotator(CameraRot, ActorRot).Yaw;
 
 	return YawDifference;
+}
+
+void ACBaseCharacter::BeginHitEffect(FVector NormalImpulse, const FHitResult& Hit)
+{
+
 }

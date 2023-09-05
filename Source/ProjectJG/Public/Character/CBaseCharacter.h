@@ -58,11 +58,14 @@ private:
 	void OnEquipNum2();
 	void OnUnEquip();
 public:
-	void GetLocationAndDirection(FVector& OutStart, FVector& OutEnd, FVector& OutDirection,bool IsRandom = false, float MaxYawInDegrees = 0.0f, float MaxPitchInDegrees = 0.0f);
+	void GetLocationAndDirection(FVector& OutStart, FVector& OutEnd, FVector& OutDirection, bool IsRandom = false, float MaxYawInDegrees = 0.0f, float MaxPitchInDegrees = 0.0f);
+	void GetLocationAndDirection(FVector muzzleLocation,FVector& OutStart, FVector& OutEnd, FVector& OutDirection, bool IsRandom = false, float MaxYawInDegrees = 0.0f, float MaxPitchInDegrees = 0.0f);
 	void Stop();
 	void SolveStop();
 
 	float GetLookYaw();
+
+	virtual void BeginHitEffect(FVector NormalImpulse, const FHitResult& Hit) override;
 private:
 	bool bMove = true;
 	float DamageValue;

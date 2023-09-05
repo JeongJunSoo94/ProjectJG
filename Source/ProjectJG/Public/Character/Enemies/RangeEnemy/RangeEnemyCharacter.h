@@ -42,17 +42,18 @@ protected:
 
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Hit_Material")
-		class UMaterialInstanceConstant* Hit_material;
+		class UMaterial* Hit_material;
 
 public:
 	ARangeEnemyCharacter();
 
 protected:
 	virtual void BeginPlay() override;
-
+	TArray<class UMaterialInstanceDynamic*> HitMaterial_Dynamics;
 
 public:
 	virtual void Tick(float DeltaTime) override;
+	virtual float TakeDamage(float Damage) override;
 
 	AActor* GetPriorityTarget();
 	void RayToPlayer();
@@ -61,10 +62,14 @@ public:
 
 	void Fire();
 
+	virtual void BeginHitEffect(FVector NormalImpulse, const FHitResult& Hit) override;
+	void DoEffect();
+	bool IsDoEffect = false;
+	FVector HitImpact;
 protected:
 	TMap<AActor*, int> PlayerAgrroMap;
 	FTimerHandle RayTimer;
-
 	FCollisionQueryParams CollisionParams;
-
+	FTimerHandle EffectTimer;
+	float EffectValue;
 };

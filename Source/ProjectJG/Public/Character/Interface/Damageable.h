@@ -16,4 +16,5 @@ class PROJECTJG_API IDamageable
 
 public:
 	virtual float TakeDamage(float Damage) = 0;
+	virtual void BeginHitEffect(FVector NormalImpulse, const FHitResult& Hit) = 0 ;
 };
