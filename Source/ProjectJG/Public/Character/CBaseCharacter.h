@@ -44,6 +44,7 @@ protected:
 	virtual void Equip(int32 weaponIndex);
 	virtual void UnEquip();
 	virtual void Damaged(float totalAmount);
+	virtual void Die();
 
 public:	
 	virtual void Tick(float DeltaTime) override;

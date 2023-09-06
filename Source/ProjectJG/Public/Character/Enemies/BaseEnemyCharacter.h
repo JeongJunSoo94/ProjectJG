@@ -23,6 +23,7 @@ protected:
 	virtual void BeginPlay() override;
 	void SetHealthWidgetSizeAndLocation(FVector location, FVector2D size);
 	virtual void Damaged(float totalAmount);
+	virtual void Die();
 public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void BeginHitEffect(FVector NormalImpulse, const FHitResult& Hit) override;

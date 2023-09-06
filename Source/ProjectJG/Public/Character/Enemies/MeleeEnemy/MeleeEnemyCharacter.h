@@ -4,6 +4,7 @@
 #include "Character/Enemies/BaseEnemyCharacter.h"
 #include "Character/Interface/MeleeBehaviorTreeInterface.h"
 #include "Character/Interface/ActionNotifiable.h"
+#include "Character/Components/CActionComponent.h"
 #include "MeleeEnemyCharacter.generated.h"
 
 UCLASS()
@@ -11,6 +12,8 @@ class PROJECTJG_API AMeleeEnemyCharacter : public ABaseEnemyCharacter,public IMe
 {
 	GENERATED_BODY()
 protected:
+	/*UPROPERTY(VisibleDefaultsOnly, Category = "Melee")
+		class UAnimMontage* DeathMontage;*/
 	UPROPERTY(VisibleDefaultsOnly)
 		class UMeleeAttackActionComponent* MeleeActionComponent;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Melee")
@@ -27,7 +30,12 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void MeleeAttack()override;
-	virtual UCActionComponent* GetActionComponent() override;
+	virtual void Die()override;
+private:
+	UCActionComponent* GetActionComponent();
+	virtual void BeginNotifyAction()override;
+	virtual void MiddleNotifyAction()override;
+	virtual void EndNotifyAction()override;
 public:
 	bool isAttacked;
 };

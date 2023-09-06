@@ -67,3 +67,7 @@ void ABaseEnemyCharacter::Damaged(float totalAmount)
 
 	DamageValue = 0;
 }
+
+void ABaseEnemyCharacter::Die()
+{
+}

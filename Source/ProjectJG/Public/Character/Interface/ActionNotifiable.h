@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "Character/Components/CActionComponent.h"
 #include "ActionNotifiable.generated.h"
 
 UINTERFACE(MinimalAPI)
@@ -16,5 +15,7 @@ class PROJECTJG_API IActionNotifiable
 	GENERATED_BODY()
 
 public:
-	virtual UCActionComponent* GetActionComponent() = 0;
+	virtual void BeginNotifyAction() =0;
+	virtual void MiddleNotifyAction() =0;
+	virtual void EndNotifyAction() = 0;
 };

@@ -5,6 +5,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Character/Interface/Damageable.h"
 #include "Character/Enemies/MeleeEnemy/MeleeAttackActionComponent.h"
+#include "Animation/AnimMontage.h"
 
 void AMeleeEnemyCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -35,6 +36,7 @@ AMeleeEnemyCharacter::AMeleeEnemyCharacter()
 
 	CHelpers::CreateActorComponent<UMeleeAttackActionComponent>(this, &MeleeActionComponent, "MeleeActionComponent");
 	MeleeActionComponent->SetOwnerCharacter(this);
+
 }
 
 void AMeleeEnemyCharacter::BeginPlay()
@@ -66,6 +68,26 @@ void AMeleeEnemyCharacter::MeleeAttack()
 
 UCActionComponent* AMeleeEnemyCharacter::GetActionComponent()
 {
-
 	return MeleeActionComponent;
+}
+
+void AMeleeEnemyCharacter::Die()
+{
+
+}
+
+void AMeleeEnemyCharacter::BeginNotifyAction()
+{
+	UCActionComponent* actionComp = GetActionComponent();
+	actionComp->BeginNotifyAction();
+}
+void AMeleeEnemyCharacter::MiddleNotifyAction()
+{
+	UCActionComponent* actionComp = GetActionComponent();
+	actionComp->MiddleNotifyAction();
+}
+void AMeleeEnemyCharacter::EndNotifyAction()
+{
+	UCActionComponent* actionComp = GetActionComponent();
+	actionComp->EndNotifyAction();
 }

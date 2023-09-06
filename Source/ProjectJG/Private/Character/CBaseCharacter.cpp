@@ -254,3 +254,6 @@ void ACBaseCharacter::BeginHitEffect(FVector NormalImpulse, const FHitResult& Hi
 {
 
 }
+
+void ACBaseCharacter::Die()
+{}

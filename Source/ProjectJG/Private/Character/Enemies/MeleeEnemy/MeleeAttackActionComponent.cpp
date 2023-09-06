@@ -38,4 +38,5 @@ void UMeleeAttackActionComponent::MiddleNotifyAction()
 void UMeleeAttackActionComponent::EndNotifyAction()
 {
 	OwnerCharacter->isFullBody = false;
+	OwnerCharacter->isAttacked = false;
 }

@@ -1,12 +1,11 @@
 #include "Character/Notifies/AnimNotify_MiddleAction.h"
 #include "Global.h"
 #include "Character/CBaseCharacter.h"
-#include "Character/Components/CActionComponent.h"
 #include "Character/Interface/ActionNotifiable.h"
 
 FString UAnimNotify_MiddleAction::GetNotifyName_Implementation() const
 {
-	return  "MiddleNotifyAction";
+	return  NotifyName;
 }
 
 void UAnimNotify_MiddleAction::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
@@ -19,8 +18,5 @@ void UAnimNotify_MiddleAction::Notify(USkeletalMeshComponent* MeshComp, UAnimSeq
 	IActionNotifiable* actionNotify = Cast<IActionNotifiable>(MeshComp->GetOwner());
 	CheckNull(actionNotify);
 
-	UCActionComponent* action = actionNotify->GetActionComponent();
-
-	CheckNull(action);
-	action->MiddleNotifyAction();
+	actionNotify->MiddleNotifyAction();
 }

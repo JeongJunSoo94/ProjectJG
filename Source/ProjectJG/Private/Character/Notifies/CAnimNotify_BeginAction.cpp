@@ -1,7 +1,6 @@
 #include "Character/Notifies/CAnimNotify_BeginAction.h"
 #include "Global.h"
 #include "Character/CBaseCharacter.h"
-#include "Character/Components/CActionComponent.h"
 #include "Character/Interface/ActionNotifiable.h"
 
 FString UCAnimNotify_BeginAction::GetNotifyName_Implementation() const
@@ -19,8 +18,5 @@ void UCAnimNotify_BeginAction::Notify(USkeletalMeshComponent* MeshComp, UAnimSeq
 	IActionNotifiable* actionNotify = Cast<IActionNotifiable>(MeshComp->GetOwner());
 	CheckNull(actionNotify);
 
-	UCActionComponent* action = actionNotify->GetActionComponent();
-	CheckNull(action);
-
-	action->BeginNotifyAction();
+	actionNotify->BeginNotifyAction();
 }
