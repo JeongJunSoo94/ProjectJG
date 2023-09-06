@@ -5,6 +5,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Character/Interface/Damageable.h"
 #include "Character/Enemies/MeleeEnemy/MeleeAttackActionComponent.h"
+#include "Animation/AnimMontage.h"
 
 void AMeleeEnemyCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -28,13 +29,14 @@ AMeleeEnemyCharacter::AMeleeEnemyCharacter()
 	
 	CHelpers::CreateComponent<UBoxComponent>(this, &WeaponCollisionBox, "WeaponCollisionBox",GetCapsuleComponent());
 	WeaponCollisionBox->bHiddenInGame = false;
+	
+	TSubclassOf<AMeleeEnemyAIController> aicontroller;
+	CHelpers::GetClass<AMeleeEnemyAIController>(&aicontroller, "Blueprint'/Game/Developers/JJS/Enemy/BP_MeleeEnemyAIController.BP_MeleeEnemyAIController_C'");
+	AIControllerClass = aicontroller;
 
 	CHelpers::CreateActorComponent<UMeleeAttackActionComponent>(this, &MeleeActionComponent, "MeleeActionComponent");
 	MeleeActionComponent->SetOwnerCharacter(this);
 
-	TSubclassOf<AMeleeEnemyAIController> aicontroller;
-	CHelpers::GetClass<AMeleeEnemyAIController>(&aicontroller,"Blueprint'/Game/Developers/JJS/Enemy/BP_MeleeEnemyAIController.BP_MeleeEnemyAIController_C'");
-	AIControllerClass = aicontroller;
 }
 
 void AMeleeEnemyCharacter::BeginPlay()
@@ -66,6 +68,26 @@ void AMeleeEnemyCharacter::MeleeAttack()
 
 UCActionComponent* AMeleeEnemyCharacter::GetActionComponent()
 {
-
 	return MeleeActionComponent;
+}
+
+void AMeleeEnemyCharacter::Die()
+{
+
+}
+
+void AMeleeEnemyCharacter::BeginNotifyAction()
+{
+	UCActionComponent* actionComp = GetActionComponent();
+	actionComp->BeginNotifyAction();
+}
+void AMeleeEnemyCharacter::MiddleNotifyAction()
+{
+	UCActionComponent* actionComp = GetActionComponent();
+	actionComp->MiddleNotifyAction();
+}
+void AMeleeEnemyCharacter::EndNotifyAction()
+{
+	UCActionComponent* actionComp = GetActionComponent();
+	actionComp->EndNotifyAction();
 }

@@ -152,3 +152,19 @@ UCActionComponent* ACLtBelica::GetActionComponent()
 	}
 	return nullptr;
 }
+
+void ACLtBelica::BeginNotifyAction() 
+{
+	UCActionComponent* actionComp = GetActionComponent();
+	actionComp->BeginNotifyAction();
+}
+void ACLtBelica::MiddleNotifyAction() 
+{
+	UCActionComponent* actionComp = GetActionComponent();
+	actionComp->MiddleNotifyAction();
+}
+void ACLtBelica::EndNotifyAction() 
+{
+	UCActionComponent* actionComp = GetActionComponent();
+	actionComp->EndNotifyAction();
+}

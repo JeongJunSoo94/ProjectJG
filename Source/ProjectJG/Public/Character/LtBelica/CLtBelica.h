@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Character/CBaseCharacter.h"
 #include "Character/Interface/ActionNotifiable.h"
+#include "Character/Components/CActionComponent.h"
 #include "CLtBelica.generated.h"
 
 UENUM(BlueprintType)
@@ -38,12 +39,14 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	UCActionComponent* GetActionComponent();
+	virtual void BeginNotifyAction()override;
+	virtual void MiddleNotifyAction()override;
+	virtual void EndNotifyAction()override;
 
 public:
 	virtual void Tick(float DeltaTime) override;
-
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	virtual UCActionComponent* GetActionComponent() override;
 private:
 	void OnFire();
 	void OffFire();
@@ -53,4 +56,6 @@ private:
 public:
 	bool GetLtBelicaWeaponIsFiring();
 	bool GetLtBelicaIsAbiliting();
+
+
 };
