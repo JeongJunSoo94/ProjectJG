@@ -60,3 +60,13 @@ void UMurdockShieldSkillComponent::LoopShieldMontage()
 	Clog::Log("BeginLoop");
 	Ownercharacter->PlayAnimMontage(ShieldAnim, 1.0f, "BeginLoop");
 }
+
+void UMurdockShieldSkillComponent::OnStartAction()
+{
+	BeginShield();
+}
+
+void UMurdockShieldSkillComponent::OnEndAction()
+{
+	BreakShield();
+}

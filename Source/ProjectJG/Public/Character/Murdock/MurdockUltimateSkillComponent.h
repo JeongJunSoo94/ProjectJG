@@ -2,12 +2,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "Character/Components/CActionComponent.h"
 #include "MurdockUltimateSkillComponent.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PROJECTJG_API UMurdockUltimateSkillComponent : public UActorComponent
+class PROJECTJG_API UMurdockUltimateSkillComponent : public UCActionComponent
 {
 	GENERATED_BODY()
 private:
@@ -42,9 +42,7 @@ private:
 public:	
 	UMurdockUltimateSkillComponent();
 
-	void BeginUltimate();
 	void LoopUltimate();
-	void EndUltimate();
 
 	void ShotLaser();
 	void ChargeLaser();
@@ -52,6 +50,14 @@ public:
 		void EndZoomLag();
 
 	bool IsStopSkill;
+
+
+	virtual void OnStartAction() override;
+	virtual void OnEndAction() override;
+
+	// move to protected member after Get JJs Notify interface  
+	void BeginUltimate();
+	void EndUltimate();
 protected:
 	virtual void BeginPlay() override;
 

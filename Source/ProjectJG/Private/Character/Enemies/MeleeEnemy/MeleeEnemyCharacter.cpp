@@ -28,13 +28,13 @@ AMeleeEnemyCharacter::AMeleeEnemyCharacter()
 	
 	CHelpers::CreateComponent<UBoxComponent>(this, &WeaponCollisionBox, "WeaponCollisionBox",GetCapsuleComponent());
 	WeaponCollisionBox->bHiddenInGame = false;
-	
-	TSubclassOf<AMeleeEnemyAIController> aicontroller;
-	CHelpers::GetClass<AMeleeEnemyAIController>(&aicontroller, "Blueprint'/Game/Developers/JJS/Enemy/BP_MeleeEnemyAIController.BP_MeleeEnemyAIController_C'");
-	AIControllerClass = aicontroller;
 
 	CHelpers::CreateActorComponent<UMeleeAttackActionComponent>(this, &MeleeActionComponent, "MeleeActionComponent");
 	MeleeActionComponent->SetOwnerCharacter(this);
+
+	TSubclassOf<AMeleeEnemyAIController> aicontroller;
+	CHelpers::GetClass<AMeleeEnemyAIController>(&aicontroller,"Blueprint'/Game/Developers/JJS/Enemy/BP_MeleeEnemyAIController.BP_MeleeEnemyAIController_C'");
+	AIControllerClass = aicontroller;
 }
 
 void AMeleeEnemyCharacter::BeginPlay()

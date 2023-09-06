@@ -145,3 +145,12 @@ bool UMurdockWeapon::GetIsFiring()
 	return IsFiring;
 }
 
+void UMurdockWeapon::OnStartAction()
+{
+	Begin_Fire();
+}
+
+void UMurdockWeapon::OnEndAction()
+{
+	End_Fire();
+}

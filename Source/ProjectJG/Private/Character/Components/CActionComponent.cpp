@@ -40,3 +40,6 @@ void UCActionComponent::MiddleNotifyAction()
 void UCActionComponent::EndNotifyAction()
 {
 }
+void UCActionComponent::OnEndAction()
+{
+}

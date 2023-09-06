@@ -91,14 +91,20 @@ void AMurdock::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AMurdock::OnFire()
 {
+
 	if (BehaviorState == MurdockBehaviorState::EIdle)
 	{
-		MurdockWeapon->Begin_Fire();
-		BehaviorState = MurdockBehaviorState::EFire;
+		PlayStartActionMontage(MurdockBehaviorState::EFire);
+		//MurdockWeapon->Begin_Fire();
 	}
 	else if (BehaviorState == MurdockBehaviorState::EUltimate)
 	{
-		UltimateSkill->ShotLaser();
+		PlayStartActionMontage(MurdockBehaviorState::EUltimate);
+		//UltimateSkill->ShotLaser();
+	}
+	else
+	{
+		return;
 	}
 
 }
@@ -107,8 +113,7 @@ void AMurdock::OffFire()
 {
 	if (BehaviorState == MurdockBehaviorState::EFire)
 	{
-		MurdockWeapon->End_Fire();
-		BehaviorState = MurdockBehaviorState::EIdle;
+		PlayEndActionMontage();
 	}
 }
 
@@ -127,18 +132,17 @@ void AMurdock::OnShield()
 {
 	if (BehaviorState == MurdockBehaviorState::EIdle)
 	{
-		ShieldSkill->BeginShield();
-		BehaviorState = MurdockBehaviorState::EShield;
+		PlayStartActionMontage(MurdockBehaviorState::EShield);
 	}
 }
 void AMurdock::OffShield()
 {
 	if (BehaviorState == MurdockBehaviorState::EShield)
 	{
-		ShieldSkill->BreakShield();
-		BehaviorState = MurdockBehaviorState::EIdle;
+		PlayEndActionMontage();
 	}
 }
+// correct this fuction after Get JJs Notify interface  
 void AMurdock::LoopShield()
 {
 	ShieldSkill->LoopShieldMontage();
@@ -149,24 +153,24 @@ void AMurdock::OnSpreadShot()
 	if (BehaviorState == MurdockBehaviorState::EIdle)
 	{
 		//Clog::Log(SpreadShotSkill);
-		SpreadShotSkill->ZoomInSpreadShot();
-		BehaviorState = MurdockBehaviorState::ESpreadShot;
+		PlayStartActionMontage(MurdockBehaviorState::ESpreadShot);
 	}
 }
 void AMurdock::OffSpreadShot()
 {
 	if (BehaviorState == MurdockBehaviorState::ESpreadShot)
 	{
-		SpreadShotSkill->ShootSpreadShot();
-		BehaviorState = MurdockBehaviorState::EIdle;
+		PlayEndActionMontage();
 	}
 }
 
+// correct this fuction after Get JJs Notify interface  
 void AMurdock::LoopSpreadShotZoom()
 {
 	SpreadShotSkill->LoopZoomMontage();
 }
 
+// correct this fuction after Get JJs Notify interface  
 void AMurdock::LoopUltimate()
 {
 	if (BehaviorState == MurdockBehaviorState::EUltimate)
@@ -174,6 +178,7 @@ void AMurdock::LoopUltimate()
 		if (UltimateSkill->IsStopSkill)
 		{
 			GetCharacterMovement()->bOrientRotationToMovement = true;
+			//PlayEndActionMontage();
 			UltimateSkill->EndUltimate();
 			SolveStop();
 		}
@@ -308,3 +313,59 @@ void AMurdock::DoZoom(float DeltaTime)
 
 }
 
+UCActionComponent* AMurdock::GetActionComponent()
+{
+	switch(BehaviorState)
+	{
+		case MurdockBehaviorState::EIdle:
+		{
+			return MurdockWeapon;
+		}
+		break;
+		case MurdockBehaviorState::EFire:
+		{
+			return MurdockWeapon;
+		}
+		break;
+		case MurdockBehaviorState::EShield:
+		{
+			return ShieldSkill;
+		}
+		break;
+		case MurdockBehaviorState::ESpreadShot:
+		{
+			return SpreadShotSkill;
+		}
+		break;
+		case MurdockBehaviorState::EUltimate:
+		{
+			return UltimateSkill;
+		}
+		break;
+		case MurdockBehaviorState::EMAX:
+		{
+			return nullptr;
+		}
+		break;
+	}
+
+
+	return nullptr;
+}
+
+void AMurdock::PlayStartActionMontage(MurdockBehaviorState ActionEnum)
+{
+	BehaviorState = ActionEnum;
+	UCActionComponent* action = GetActionComponent();
+	CheckNull(action);
+	action->OnStartAction();
+}
+
+void AMurdock::PlayEndActionMontage()
+{
+	UCActionComponent* action = GetActionComponent();
+	Clog::Log(action);
+	CheckNull(action);
+	action->OnEndAction();
+	BehaviorState = MurdockBehaviorState::EIdle;
+}

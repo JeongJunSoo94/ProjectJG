@@ -268,10 +268,13 @@ void ARangeEnemyCharacter::BeginHitEffect( FVector NormalImpulse, const FHitResu
 
 	//UMaterialInterface* m_interface = GetMesh()->GetMaterial(4);
 
-	HitMaterial_Dynamics.Add(GetMesh()->CreateDynamicMaterialInstance(0));
-	HitMaterial_Dynamics.Add(GetMesh()->CreateDynamicMaterialInstance(1));
-	HitMaterial_Dynamics.Add(GetMesh()->CreateDynamicMaterialInstance(2));
-	HitMaterial_Dynamics.Add(GetMesh()->CreateDynamicMaterialInstance(3));
+	if (HitMaterial_Dynamics.Num() < 4)//나중에 수정 해야함
+	{
+		HitMaterial_Dynamics.Add(GetMesh()->CreateDynamicMaterialInstance(0));
+		HitMaterial_Dynamics.Add(GetMesh()->CreateDynamicMaterialInstance(1));
+		HitMaterial_Dynamics.Add(GetMesh()->CreateDynamicMaterialInstance(2));
+		HitMaterial_Dynamics.Add(GetMesh()->CreateDynamicMaterialInstance(3));
+	}
 	HitImpact = Hit.ImpactPoint;
 	// 움직일때 같이 움직이도록 해야함.
 	//Clog::Log(HitMaterial_Dynamic);

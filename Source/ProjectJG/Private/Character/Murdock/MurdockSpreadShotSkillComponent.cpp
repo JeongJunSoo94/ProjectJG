@@ -66,6 +66,16 @@ void UMurdockSpreadShotSkillComponent::CreateObjectPool()
 	ObjectPoolFactory->Initialized();
 }
 
+void UMurdockSpreadShotSkillComponent::OnStartAction()
+{
+	ZoomInSpreadShot();
+}
+
+void UMurdockSpreadShotSkillComponent::OnEndAction()
+{
+	ShootSpreadShot();
+}
+
 
 void UMurdockSpreadShotSkillComponent::BeginPlay()
 {

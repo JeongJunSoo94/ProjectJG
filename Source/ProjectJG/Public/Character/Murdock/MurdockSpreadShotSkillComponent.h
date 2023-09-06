@@ -2,12 +2,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "Character/Components/CActionComponent.h"
 #include "MurdockSpreadShotSkillComponent.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PROJECTJG_API UMurdockSpreadShotSkillComponent : public UActorComponent
+class PROJECTJG_API UMurdockSpreadShotSkillComponent : public UCActionComponent
 {
 	GENERATED_BODY()
 private:
@@ -41,14 +41,18 @@ private:
 public:	
 	UMurdockSpreadShotSkillComponent();
 
-	void ZoomInSpreadShot();
-	void ShootSpreadShot();
 
 	void LoopZoomMontage();
 	
 	void CreateObjectPool();
 
+	virtual void OnStartAction() override;
+	virtual void OnEndAction() override;
+
 protected:
+	void ZoomInSpreadShot();
+	void ShootSpreadShot();
+
 	virtual void BeginPlay() override;
 
 		

@@ -22,6 +22,7 @@ public:
 public:
     virtual void SetOwnerCharacter(ACharacter* character);
     virtual void OnStartAction();
+    virtual void OnEndAction();
     virtual void BeginNotifyAction();
     virtual void MiddleNotifyAction();
     virtual void EndNotifyAction();

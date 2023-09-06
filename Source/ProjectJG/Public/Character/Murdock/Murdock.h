@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Character/CBaseCharacter.h"
+#include "Character/Interface/ActionNotifiable.h"
+#include "Character/Components/CActionComponent.h"
 #include "Murdock.generated.h"
 
 DECLARE_DYNAMIC_DELEGATE(FZoomDelegate);
@@ -21,7 +23,7 @@ enum class MurdockBehaviorState : uint8
 
 
 UCLASS()
-class PROJECTJG_API AMurdock : public ACBaseCharacter
+class PROJECTJG_API AMurdock : public ACBaseCharacter , public IActionNotifiable
 {
 	GENERATED_BODY()
 private:
@@ -98,5 +100,8 @@ public:
 	void MoveCamera(FName targetName);
 
 	float GetFrontYaw() { return FrontYaw; }
+	virtual UCActionComponent* GetActionComponent() override;
 
+	void PlayStartActionMontage(MurdockBehaviorState ActionEnum);
+	void PlayEndActionMontage();
 };

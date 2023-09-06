@@ -2,12 +2,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "Character/Components/CActionComponent.h"
 #include "MurdockShieldSkillComponent.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PROJECTJG_API UMurdockShieldSkillComponent : public UActorComponent
+class PROJECTJG_API UMurdockShieldSkillComponent : public UCActionComponent
 {
 	GENERATED_BODY()
 
@@ -30,11 +30,14 @@ private:
 public:	
 	UMurdockShieldSkillComponent();
 
-	void BeginShield();
-	void BreakShield();
+	virtual void OnStartAction() override;
+	virtual void OnEndAction() override;
 
 	void LoopShieldMontage();
 protected:
+	void BeginShield();
+	void BreakShield();
 	virtual void BeginPlay() override;
+
 
 };

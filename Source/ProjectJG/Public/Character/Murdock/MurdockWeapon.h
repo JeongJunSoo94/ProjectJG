@@ -1,12 +1,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "Character/Components/CActionComponent.h"
 #include "MurdockWeapon.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PROJECTJG_API UMurdockWeapon : public UActorComponent
+class PROJECTJG_API UMurdockWeapon : public UCActionComponent
 {
 	GENERATED_BODY()
 private:
@@ -45,13 +45,18 @@ private:
 	FTimerHandle Timer;
 	bool IsEquipped;
 	bool IsFiring;
-public:
-	void SetOwnerCharacter(ACBaseCharacter* character);
 
 	void Begin_Fire();
 	void Firing();
 	void End_Fire();
 
+public:
+	void SetOwnerCharacter(ACBaseCharacter* character);
+
+
 	bool GetIsFiring();
+
+	virtual void OnStartAction() override;
+	virtual void OnEndAction() override;
 
 };

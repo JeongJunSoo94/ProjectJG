@@ -33,6 +33,16 @@ UMurdockUltimateSkillComponent::UMurdockUltimateSkillComponent()
 }
 
 
+void UMurdockUltimateSkillComponent::OnStartAction()
+{
+	BeginUltimate();
+}
+
+void UMurdockUltimateSkillComponent::OnEndAction()
+{
+	EndUltimate();
+}
+
 void UMurdockUltimateSkillComponent::BeginUltimate()
 {
 	OwnerCharacter->PlayAnimMontage(UltimateAnim, 1.0f, "Default");
