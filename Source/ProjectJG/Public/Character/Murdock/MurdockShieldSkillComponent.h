@@ -32,9 +32,12 @@ public:
 
 	virtual void OnStartAction() override;
 	virtual void OnEndAction() override;
+	virtual void BeginNotifyAction() override;
+	virtual void MiddleNotifyAction() override;
+	virtual void EndNotifyAction() override;
 
-	void LoopShieldMontage();
 protected:
+	void LoopShieldMontage();
 	void BeginShield();
 	void BreakShield();
 	virtual void BeginPlay() override;

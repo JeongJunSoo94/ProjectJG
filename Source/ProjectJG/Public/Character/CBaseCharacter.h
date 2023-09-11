@@ -66,7 +66,8 @@ public:
 
 	float GetLookYaw();
 
-	virtual void BeginHitEffect(FVector NormalImpulse, const FHitResult& Hit) override;
+	virtual void BeginHitEffect(AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit) override;
+	virtual void SetImpactVectorFrom(FVector& ProjectileVector) override;
 private:
 	bool bMove = true;
 	float DamageValue;

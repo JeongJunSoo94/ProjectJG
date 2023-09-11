@@ -4,6 +4,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Materials/MaterialInstanceConstant.h"
+#include "Character/Interface/Damageable.h"
 
 ACBullet::ACBullet()
 {
@@ -46,6 +47,9 @@ void ACBullet::BeginPlay()
 
 void ACBullet::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+    IDamageable* damageableActor = Cast<IDamageable>(OtherActor);
+    if(damageableActor)
+        damageableActor->SetImpactVectorFrom(Projectile->Velocity);
 
     OnReturnedToPool.Execute(this);
     //Destroy();

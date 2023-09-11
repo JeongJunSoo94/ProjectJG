@@ -76,6 +76,19 @@ void UMurdockSpreadShotSkillComponent::OnEndAction()
 	ShootSpreadShot();
 }
 
+void UMurdockSpreadShotSkillComponent::BeginNotifyAction()
+{
+}
+
+void UMurdockSpreadShotSkillComponent::MiddleNotifyAction()
+{
+	LoopZoomMontage();
+}
+
+void UMurdockSpreadShotSkillComponent::EndNotifyAction()
+{
+}
+
 
 void UMurdockSpreadShotSkillComponent::BeginPlay()
 {

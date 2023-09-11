@@ -42,9 +42,17 @@ void ABaseEnemyCharacter::Tick(float DeltaTime)
 		Damaged(DamageValue);
 }
 
-void ABaseEnemyCharacter::BeginHitEffect(FVector NormalImpulse, const FHitResult& Hit)
+void ABaseEnemyCharacter::BeginHitEffect(AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
 {
 
+}
+
+void ABaseEnemyCharacter::SetImpactVectorFrom(FVector& ProjectileVector)
+{
+}
+
+void ABaseEnemyCharacter::RegistBlackBoardDatas(UBlackboardComponent* blackboard)
+{
 }
 
 float ABaseEnemyCharacter::TakeDamage(float Damage)
@@ -62,9 +70,7 @@ float ABaseEnemyCharacter::TakeDamage(float Damage)
 void ABaseEnemyCharacter::Damaged(float totalAmount)
 {
 	Status->SubHealth(totalAmount);
-
 	Cast<UHealthWidget>(HealthWidget->GetUserWidgetObject())->Update(Status->GetHealth(), Status->GetMaxHealth());
-
 	DamageValue = 0;
 }
 

@@ -85,11 +85,9 @@ private:
 
 public:
 	FZoomDelegate EndZoomFunc;
-	void LoopShield();
-	void LoopSpreadShotZoom();
-	void LoopUltimate();
-	void EndUltimateToIdle();
-	MurdockBehaviorState GetBehaviorState() { return BehaviorState; }
+
+	FORCEINLINE MurdockBehaviorState GetBehaviorState() { return BehaviorState; }
+	FORCEINLINE void SetBehaviorState(MurdockBehaviorState State) { BehaviorState = State; }
 
 	void CameraLag(bool Active, float CameraLagSpeed);
 	template<typename T>
@@ -100,8 +98,12 @@ public:
 	void MoveCamera(FName targetName);
 
 	float GetFrontYaw() { return FrontYaw; }
-	virtual UCActionComponent* GetActionComponent() override;
+	UCActionComponent* GetActionComponent() ;
 
-	void PlayStartActionMontage(MurdockBehaviorState ActionEnum);
-	void PlayEndActionMontage();
+	void OnStartActionMontage(MurdockBehaviorState ActionEnum);
+	void OnEndActionMontage(MurdockBehaviorState ActionEnum = MurdockBehaviorState::EIdle);
+
+	void BeginNotifyAction();
+	void MiddleNotifyAction() ;
+	void EndNotifyAction() ;
 };

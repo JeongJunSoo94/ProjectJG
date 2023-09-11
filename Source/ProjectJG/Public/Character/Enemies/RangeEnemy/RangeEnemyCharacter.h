@@ -4,13 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "Character/Enemies/BaseEnemyCharacter.h"
+#include "Character/Interface/ActionNotifiable.h"
 #include "RangeEnemyCharacter.generated.h"
 
 /**
  * 
  */
+namespace BlackboardDataNames
+{
+	const FName SelfActor = TEXT("SelfActor");
+	const FName TargetActor = TEXT("TargetActor");
+	const FName SquardDistanceToTarget = TEXT("SquardDistanceToTarget");
+	const FName CharacterStatus = TEXT("CharacterStatus");
+
+}
+
 UCLASS()
-class PROJECTJG_API ARangeEnemyCharacter : public ABaseEnemyCharacter
+class PROJECTJG_API ARangeEnemyCharacter : public ABaseEnemyCharacter, public IActionNotifiable
 {
 	GENERATED_BODY()
 	
@@ -22,27 +32,14 @@ protected:
 	UFUNCTION()
 		void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	UPROPERTY(VisibleDefaultsOnly, Category = "EnemyFire")
-		class UAnimMontage* FireMontage;
-	UPROPERTY(VisibleDefaultsOnly, Category = "EnemyFire")
-		class UParticleSystem* FlashParticle;
-	//UPROPERTY(VisibleDefaultsOnly, Category = "EnemyFire")
-		//class UParticleSystem* EjectParticle;
-	UPROPERTY(VisibleDefaultsOnly, Category = "EnemyFire")
-		class USoundCue* FireSoundCue;
-	UPROPERTY(VisibleDefaultsOnly, Category = "EnemyFire")
-		TSubclassOf<class ARangeEnemy_Bullet> BulletClass;
-	UPROPERTY(VisibleDefaultsOnly, Category = "ShotGun")
-		class UParticleSystem* ImpactParticle;
-	
-	UFUNCTION()
-		void OnHitPaticle(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-	UPROPERTY(VisibleDefaultsOnly)
-		class UObjectPoolFactory* ObjectPoolFactory;
-
+	UPROPERTY(VisibleDefaultsOnly, Category = "EnemyWeapon")
+		class URangeEnemyWeaponComponent* Weapon;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Hit_Material")
 		class UMaterial* Hit_material;
+
+	const FName frontDieMontage = TEXT("ForwardDie");
+	const FName backDieMontage = TEXT("BackwardDie");
 
 public:
 	ARangeEnemyCharacter();
@@ -50,26 +47,38 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	TArray<class UMaterialInstanceDynamic*> HitMaterial_Dynamics;
-
 public:
 	virtual void Tick(float DeltaTime) override;
 	virtual float TakeDamage(float Damage) override;
+	virtual void BeginHitEffect(AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit) override;
+	virtual void SetImpactVectorFrom(FVector& ProjectileVector) override;
+
+	virtual void RegistBlackBoardDatas(class UBlackboardComponent* blackboard) override;
 
 	AActor* GetPriorityTarget();
 	void RayToPlayer();
-
-	double MaxRemainSquaredDistance = 0.25f;
-
 	void Fire();
 
-	virtual void BeginHitEffect(FVector NormalImpulse, const FHitResult& Hit) override;
-	void DoEffect();
+	virtual void Die() override;
+
+	void BeginNotifyAction();
+	void MiddleNotifyAction();
+	void EndNotifyAction();
+
+protected:
+	double MaxRemainSquaredDistance = 0.25f;
 	bool IsDoEffect = false;
 	FVector HitImpact;
-protected:
+
+	void DoEffect();
+
+
 	TMap<AActor*, int> PlayerAgrroMap;
 	FTimerHandle RayTimer;
 	FCollisionQueryParams CollisionParams;
 	FTimerHandle EffectTimer;
 	float EffectValue;
+
+	bool IsHitFromForward = false;
+	bool IsDie = false;
 };

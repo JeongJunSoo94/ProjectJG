@@ -5,15 +5,10 @@
 #include "Components/SphereComponent.h"
 #include "Character/CBaseCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "Character/Components/StatusComponent.h"
 
 #include "Animation/AnimMontage.h"
-#include "particles/PxParticleSystem.h"
-#include "Particles/ParticleSystem.h"
-#include "Engine/StaticMeshActor.h"
 #include "Sound/SoundCue.h"
-#include "Components/StaticMeshComponent.h"
-#include "Character/Enemies/RangeEnemy/Bullets/RangeEnemy_Bullet.h"
-#include "BaseSystem/ObjectPoolFactory.h"
 
 #include "Materials/MaterialInstanceConstant.h"
 #include "Components/StaticMeshComponent.h"
@@ -23,10 +18,17 @@
 #include "Materials/MaterialExpression.h"
 #include "Materials/MaterialExpressionWorldPosition.h"
 
+#include "Character/Enemies/RangeEnemy/Components/RangeEnemyWeaponComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+
+#include "BehaviorTree/BlackboardComponent.h"
+//#include "BehaviorTree/BlackboardData.h"
+//#include "BehaviorTree/BehaviorTree.h"
+
 void ARangeEnemyCharacter::OnSphereBeginOverlap( UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	ACBaseCharacter* Player = Cast<ACBaseCharacter>(OtherActor);
-	Clog::Log(Player);
+	//Clog::Log(Player);
 
 	if (Player == nullptr)
 	{
@@ -53,16 +55,7 @@ void ARangeEnemyCharacter::OnSphereEndOverlap( UPrimitiveComponent* OverlappedCo
 	}
 }
 
-void ARangeEnemyCharacter::OnHitPaticle(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-	FRotator rotator = Hit.ImpactNormal.Rotation();
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, Hit.Location, rotator, true, EPSCPoolMethod::AutoRelease);
-	
-	IDamageable* character = Cast<IDamageable>(OtherActor);
-	CheckNull(character);
-	character->TakeDamage(10.0f);
-	character->BeginHitEffect(NormalImpulse, Hit);
-}
+
 
 ARangeEnemyCharacter::ARangeEnemyCharacter()
 {
@@ -86,23 +79,17 @@ ARangeEnemyCharacter::ARangeEnemyCharacter()
 	CHelpers::GetClass<ARangeEnemyAIController>(&aicontroller, "Blueprint'/Game/Developers/GohyeongJu/Characters/Enemy/RangeEnemy/RangeEnemyAIController.RangeEnemyAIController_C'");
 	AIControllerClass = aicontroller;
 
-	CHelpers::GetAsset<UAnimMontage>(&FireMontage, "AnimMontage'/Game/Developers/GohyeongJu/Characters/Enemy/RangeEnemy/Montage/RangeEnemy_Fire_Montage.RangeEnemy_Fire_Montage'");
+	CHelpers::CreateActorComponent<URangeEnemyWeaponComponent>(this, &Weapon, "Weapon");
+	Weapon->CreateObjectPool();
 
-	CHelpers::GetAsset<UParticleSystem>(&FlashParticle, "ParticleSystem'/Game/ParagonWraith/FX/Particles/Abilities/Primary/FX/P_Wraith_Primary_MuzzleFlash.P_Wraith_Primary_MuzzleFlash'");
-	//CHelpers::GetAsset<UParticleSystem>(&EjectParticle, "");
 
-	CHelpers::GetAsset<USoundCue>(&FireSoundCue, "SoundCue'/Game/Developers/GohyeongJu/Characters/Enemy/RangeEnemy/Sound/RangeEnemy_fire_Cue.RangeEnemy_fire_Cue'");
+	UAnimMontage* AnimMontage;
+	CHelpers::GetAsset<UAnimMontage>(&AnimMontage, "AnimMontage'/Game/Developers/GohyeongJu/Characters/Enemy/RangeEnemy/Montage/Death_Backward_Montage.Death_Backward_Montage'");
+	BaseMontages.Add(backDieMontage, AnimMontage);
 
-	CHelpers::GetClass<ARangeEnemy_Bullet>(&BulletClass, "Blueprint'/Game/Developers/GohyeongJu/Characters/Enemy/RangeEnemy/Bullet/RangeEnemy_Bullet.RangeEnemy_Bullet_C'");
+	CHelpers::GetAsset<UAnimMontage>(&AnimMontage, "AnimMontage'/Game/Developers/GohyeongJu/Characters/Enemy/RangeEnemy/Montage/Death_Forward_Montage.Death_Forward_Montage'");
+	BaseMontages.Add(frontDieMontage, AnimMontage);
 
-	CHelpers::GetAsset<UParticleSystem>(&ImpactParticle, "ParticleSystem'/Game/ParagonWraith/FX/Particles/Abilities/Primary/FX/P_Wraith_Primary_HitCharacter.P_Wraith_Primary_HitCharacter'");
-
-	CHelpers::CreateActorComponent<UObjectPoolFactory>(this, &ObjectPoolFactory, "ObjectPoolFactory");
-
-	ObjectPoolFactory->PoolSize = 20;
-
-	ObjectPoolFactory->PooledObjectSubclass = BulletClass;
-	ObjectPoolFactory->Initialized();
 }
 
 
@@ -113,12 +100,16 @@ void ARangeEnemyCharacter::BeginPlay()
 	//Sphere->SetCollisionObjectType(ECollisionChannel::ECC_OverlapAll_Deprecated);
 	//Clog::Log(Sphere->GetCollisionObjectType());
 	
+	//Clog::Log(BaseMontages[backDieMontage]->GetFName().ToString());
+	//Clog::Log(BaseMontages[frontDieMontage]->GetFName().ToString());
+
 	GetWorldTimerManager().SetTimer(RayTimer,this, &ARangeEnemyCharacter::RayToPlayer, 1.0f, true);
 	
 	CollisionParams.AddIgnoredActor(this->GetOwner());
 
 	Sphere->OnComponentBeginOverlap.AddDynamic(this, &ARangeEnemyCharacter::OnSphereBeginOverlap);
 	Sphere->OnComponentEndOverlap.AddDynamic(this, &ARangeEnemyCharacter::OnSphereEndOverlap);
+
 }
 
 void ARangeEnemyCharacter::Tick(float DeltaTime)
@@ -130,6 +121,16 @@ void ARangeEnemyCharacter::Tick(float DeltaTime)
 		DoEffect();
 	}
 
+}
+
+void ARangeEnemyCharacter::Fire()
+{
+	Weapon->Fire();
+}
+
+void ARangeEnemyCharacter::RegistBlackBoardDatas(UBlackboardComponent* blackboard)
+{
+	blackboard->SetValueAsObject(BlackboardDataNames::CharacterStatus, Status);
 }
 
 AActor* ARangeEnemyCharacter::GetPriorityTarget()
@@ -181,7 +182,7 @@ void ARangeEnemyCharacter::RayToPlayer()
 
 			if (IsHit)
 			{
-				Clog::Log("Hit Ray");
+				//Clog::Log("Hit Ray");
 
 				double remainSquaredDistance = ((End - Start).SquaredLength() - OutHit.Distance * OutHit.Distance);
 				
@@ -199,7 +200,7 @@ void ARangeEnemyCharacter::RayToPlayer()
 			}
 			else
 			{
-				Clog::Log("fail Ray Hit");
+				//Clog::Log("fail Ray Hit");
 				if (Elem.Value < 3)
 				{
 					Elem.Value += 1;
@@ -210,58 +211,12 @@ void ARangeEnemyCharacter::RayToPlayer()
 }
 
 
-void ARangeEnemyCharacter::Fire()
+void ARangeEnemyCharacter::BeginHitEffect(AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
 {
 
-	Clog::Log("Play Fire");
-
-
-
-	PlayAnimMontage(FireMontage);
-
-	FVector start, end, direction;
-
-	direction = GetActorForwardVector();
-	UGameplayStatics::SpawnEmitterAttached(FlashParticle, GetMesh(), "Muzzle_01", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true, EPSCPoolMethod::AutoRelease);
-	//UGameplayStatics::SpawnEmitterAttached(EjectParticle, GetMesh(), "Muzzle_01", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true, EPSCPoolMethod::AutoRelease);
-
-
-	FVector muzzleLocation = GetMesh()->GetSocketLocation("Muzzle_01");
-	//muzzleLocation += 400 * direction;
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSoundCue, muzzleLocation);
-
-
-	if (!!BulletClass)
-	{
-		ARangeEnemy_Bullet* bullet;
-		bullet = Cast<ARangeEnemy_Bullet>(ObjectPoolFactory->SpawnObject());
-
-		//bullet->TeleportTo(muzzleLocation, direction.Rotation());
-		FTransform Transform = bullet->GetTransform();
-		Transform.SetLocation(muzzleLocation);
-		Transform.SetRotation(FQuat(direction.Rotation()));
-		bullet->SetActorTransform(Transform);
-		bullet->SetActorLifeTime(3.0f);
-
-		if (!(bullet->bInitailized))
-		{
-			//Clog::Log("Bind");
-			bullet->bInitailized = true;
-			bullet->GetMesh()->OnComponentHit.AddDynamic(this, &ARangeEnemyCharacter::OnHitPaticle);
-		}
-		bullet->SetActive(true);
-
-		//ACBullet* bullet= GetWorld()->SpawnActor<ACBullet>(BulletClass, muzzleLocation, direction.Rotation());
-		//bullet->GetMesh()->OnComponentHit.AddDynamic(this, &UCLtBelicaWeapon::OnHitPaticle);
-	}
-	//direction = OwnerCharacter->GetMesh()->GetSocketTransform("SMG_Barrel").GetRotation();
-
-}
-
-void ARangeEnemyCharacter::BeginHitEffect( FVector NormalImpulse, const FHitResult& Hit)
-{
-	Clog::Log(Hit.ImpactPoint);
-	Clog::Log("---------------------------------");
+	//Clog::Log(Hit.ImpactPoint);
+	//Clog::Log("---------------------------------");
+	HitImpact = Hit.ImpactPoint;
 
 	if (IsDoEffect)
 		return;
@@ -275,7 +230,7 @@ void ARangeEnemyCharacter::BeginHitEffect( FVector NormalImpulse, const FHitResu
 		HitMaterial_Dynamics.Add(GetMesh()->CreateDynamicMaterialInstance(2));
 		HitMaterial_Dynamics.Add(GetMesh()->CreateDynamicMaterialInstance(3));
 	}
-	HitImpact = Hit.ImpactPoint;
+	
 	// 움직일때 같이 움직이도록 해야함.
 	//Clog::Log(HitMaterial_Dynamic);
 	for (UMaterialInstanceDynamic*& HitMaterial_Dynamic : HitMaterial_Dynamics)
@@ -291,6 +246,18 @@ void ARangeEnemyCharacter::BeginHitEffect( FVector NormalImpulse, const FHitResu
 	EffectValue = 0.0f;
 }
 
+void ARangeEnemyCharacter::SetImpactVectorFrom(FVector& ProjectileVector)
+{
+	if (UKismetMathLibrary::Dot_VectorVector(GetActorForwardVector(), ProjectileVector) < 0)
+	{
+		IsHitFromForward = true;
+	}
+	else
+	{
+		IsHitFromForward = false;
+	}
+}
+
 float ARangeEnemyCharacter::TakeDamage(float Damage)
 {
 
@@ -300,7 +267,7 @@ float ARangeEnemyCharacter::TakeDamage(float Damage)
 void ARangeEnemyCharacter::DoEffect()
 {
 
-	Clog::Log(EffectValue);
+	//Clog::Log(EffectValue);
 	for (UMaterialInstanceDynamic*& HitMaterial_Dynamic : HitMaterial_Dynamics)
 	{
 		HitMaterial_Dynamic->SetScalarParameterValue(TEXT("Radius"), EffectValue);
@@ -317,4 +284,37 @@ void ARangeEnemyCharacter::DoEffect()
 
 
 
+}
+
+void ARangeEnemyCharacter::Die()
+{
+	
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	isFullBody = true;
+	IsDie = true;
+	if (IsHitFromForward)
+	{
+		Clog::Log("Die Forward");
+		PlayAnimMontage(BaseMontages[frontDieMontage]);
+	}
+	else
+	{
+		Clog::Log("Die Backrward");
+		PlayAnimMontage(BaseMontages[backDieMontage]);
+	}
+}
+
+void ARangeEnemyCharacter::BeginNotifyAction()
+{
+}
+
+void ARangeEnemyCharacter::MiddleNotifyAction()
+{
+}
+
+void ARangeEnemyCharacter::EndNotifyAction()
+{
+	if(IsDie)
+		GetMesh()->GetAnimInstance()->Montage_Pause();
 }

@@ -24,6 +24,6 @@ void UMurdockShieldAnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSeq
 	}
 
 	CheckNull(cachingMurdock);
-	cachingMurdock->LoopShield();
+	//cachingMurdock->LoopShield();
 }
 

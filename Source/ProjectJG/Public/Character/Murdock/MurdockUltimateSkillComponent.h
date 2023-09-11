@@ -5,6 +5,15 @@
 #include "Character/Components/CActionComponent.h"
 #include "MurdockUltimateSkillComponent.generated.h"
 
+UENUM(BlueprintType)
+enum class UltimateSkillState : uint8
+{
+	ESkillReady = 0		UMETA(DisplayName = "Ready"),
+	ESkillProceeding	UMETA(DisplayName = "Proceed"),
+	ESkillStop			UMETA(DisplayName = "Stop"),
+	EMAX				UMETA(DisplayName = "Max")
+};
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECTJG_API UMurdockUltimateSkillComponent : public UCActionComponent
@@ -42,25 +51,27 @@ private:
 public:	
 	UMurdockUltimateSkillComponent();
 
-	void LoopUltimate();
-
-	void ShotLaser();
-	void ChargeLaser();
 	UFUNCTION()
 		void EndZoomLag();
 
-	bool IsStopSkill;
-
-
 	virtual void OnStartAction() override;
 	virtual void OnEndAction() override;
+	virtual void BeginNotifyAction() override;
+	virtual void MiddleNotifyAction() override;
+	virtual void EndNotifyAction() override;
 
 	// move to protected member after Get JJs Notify interface  
-	void BeginUltimate();
-	void EndUltimate();
 protected:
-	virtual void BeginPlay() override;
+	void BeginUltimate();
+	void LoopUltimate();
+	void EndUltimate();
+	void ChangeEndState();
 
+	void ChargeLaser();
+	void ShotLaser();
+
+	virtual void BeginPlay() override;
+	UltimateSkillState curState = UltimateSkillState::ESkillReady;
 private:
 	int maxLaserCount = 3;
 	int currentLaserCount = 0;

@@ -35,12 +35,55 @@ UMurdockUltimateSkillComponent::UMurdockUltimateSkillComponent()
 
 void UMurdockUltimateSkillComponent::OnStartAction()
 {
-	BeginUltimate();
+	switch (curState)
+	{
+	case UltimateSkillState::ESkillReady:
+	{
+		Clog::Log("ESkillReady");
+		BeginUltimate();
+	}
+	break;
+	case UltimateSkillState::ESkillProceeding:
+	{
+		Clog::Log("ESkillProceeding");
+		ShotLaser();
+	}
+	break;
+	case UltimateSkillState::ESkillStop:
+	{
+		Clog::Log("ESkillStop");
+		//EndUltimate();
+	}
+	break;
+	}
+
+	
 }
 
 void UMurdockUltimateSkillComponent::OnEndAction()
 {
 	EndUltimate();
+}
+
+void UMurdockUltimateSkillComponent::BeginNotifyAction()
+{
+}
+
+void UMurdockUltimateSkillComponent::MiddleNotifyAction()
+{
+	if (curState == UltimateSkillState::ESkillStop)
+	{
+		EndUltimate();
+	}
+	else
+	{
+		LoopUltimate();
+	}
+}
+
+void UMurdockUltimateSkillComponent::EndNotifyAction()
+{
+	ChangeEndState();
 }
 
 void UMurdockUltimateSkillComponent::BeginUltimate()
@@ -51,7 +94,7 @@ void UMurdockUltimateSkillComponent::BeginUltimate()
 
 	OwnerCharacter->StartCameraFOV(-30.0f, 1.0f, this, "EndZoomLag");
 	
-	IsStopSkill = false;
+	curState = UltimateSkillState::ESkillProceeding;
 	currentLaserCount = maxLaserCount;
 }
 
@@ -60,8 +103,10 @@ void UMurdockUltimateSkillComponent::BeginUltimate()
 
 void UMurdockUltimateSkillComponent::LoopUltimate()
 {
+
 	OwnerCharacter->StopAnimMontage(UltimateAnim);
 	OwnerCharacter->PlayAnimMontage(UltimateLoopAnim);
+	
 }
 
 void UMurdockUltimateSkillComponent::EndUltimate()
@@ -71,6 +116,14 @@ void UMurdockUltimateSkillComponent::EndUltimate()
 	//[&]() { UMurdockUltimateSkillComponent::EndZoomLag(); }
 	OwnerCharacter->StopAnimMontage(UltimateLoopAnim);
 	OwnerCharacter->PlayAnimMontage(UltimateAnim, 1.0f, "EndUltimateShot");
+	OwnerCharacter->SolveStop();
+}
+
+void UMurdockUltimateSkillComponent::ChangeEndState()
+{
+	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
+	OwnerCharacter->SetBehaviorState(MurdockBehaviorState::EIdle);
+	curState = UltimateSkillState::ESkillReady;
 }
 
 void UMurdockUltimateSkillComponent::ChargeLaser()
@@ -137,7 +190,7 @@ void UMurdockUltimateSkillComponent::ShotLaser()
 	
 	if(currentLaserCount <= 0)
 	{
-		IsStopSkill = true;
+		curState = UltimateSkillState::ESkillStop;
 	}
 
 	//UGameplayStatics::SpawnEmitterAttached(UltimateMuzzleShot, Ownercharacter->GetMesh(), "Muzzle", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true, EPSCPoolMethod::AutoRelease);

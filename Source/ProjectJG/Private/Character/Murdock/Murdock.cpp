@@ -94,12 +94,12 @@ void AMurdock::OnFire()
 
 	if (BehaviorState == MurdockBehaviorState::EIdle)
 	{
-		PlayStartActionMontage(MurdockBehaviorState::EFire);
+		OnStartActionMontage(MurdockBehaviorState::EFire);
 		//MurdockWeapon->Begin_Fire();
 	}
 	else if (BehaviorState == MurdockBehaviorState::EUltimate)
 	{
-		PlayStartActionMontage(MurdockBehaviorState::EUltimate);
+		OnStartActionMontage(MurdockBehaviorState::EUltimate);
 		//UltimateSkill->ShotLaser();
 	}
 	else
@@ -113,7 +113,7 @@ void AMurdock::OffFire()
 {
 	if (BehaviorState == MurdockBehaviorState::EFire)
 	{
-		PlayEndActionMontage();
+		OnEndActionMontage();
 	}
 }
 
@@ -132,62 +132,31 @@ void AMurdock::OnShield()
 {
 	if (BehaviorState == MurdockBehaviorState::EIdle)
 	{
-		PlayStartActionMontage(MurdockBehaviorState::EShield);
+		OnStartActionMontage(MurdockBehaviorState::EShield);
 	}
 }
 void AMurdock::OffShield()
 {
 	if (BehaviorState == MurdockBehaviorState::EShield)
 	{
-		PlayEndActionMontage();
+		OnEndActionMontage();
 	}
 }
-// correct this fuction after Get JJs Notify interface  
-void AMurdock::LoopShield()
-{
-	ShieldSkill->LoopShieldMontage();
-}
+
 
 void AMurdock::OnSpreadShot()
 {
 	if (BehaviorState == MurdockBehaviorState::EIdle)
 	{
 		//Clog::Log(SpreadShotSkill);
-		PlayStartActionMontage(MurdockBehaviorState::ESpreadShot);
+		OnStartActionMontage(MurdockBehaviorState::ESpreadShot);
 	}
 }
 void AMurdock::OffSpreadShot()
 {
 	if (BehaviorState == MurdockBehaviorState::ESpreadShot)
 	{
-		PlayEndActionMontage();
-	}
-}
-
-// correct this fuction after Get JJs Notify interface  
-void AMurdock::LoopSpreadShotZoom()
-{
-	SpreadShotSkill->LoopZoomMontage();
-}
-
-// correct this fuction after Get JJs Notify interface  
-void AMurdock::LoopUltimate()
-{
-	if (BehaviorState == MurdockBehaviorState::EUltimate)
-	{
-		if (UltimateSkill->IsStopSkill)
-		{
-			GetCharacterMovement()->bOrientRotationToMovement = true;
-			//PlayEndActionMontage();
-			UltimateSkill->EndUltimate();
-			SolveStop();
-		}
-		else
-		{
-			UltimateSkill->LoopUltimate();
-			Stop();
-			//commit
-		}
+		OnEndActionMontage();
 	}
 }
 
@@ -199,36 +168,15 @@ void AMurdock::OnUltimate()
 		//Clog::Log(int(BehaviorState));
 		FVector FrontVector = UKismetMathLibrary::Cross_VectorVector(PlayerMainCamera->GetRightVector(), GetActorUpVector());
 		SetActorRotation(FrontVector.Rotation().Quaternion());
-	
 		GetCharacterMovement()->bOrientRotationToMovement = false;
 		FrontYaw = GetBaseAimRotation().Yaw;
-		
-		UltimateSkill->BeginUltimate();
-		BehaviorState = MurdockBehaviorState::EUltimate;
-		
+		OnStartActionMontage(MurdockBehaviorState::EUltimate);
+		Stop();
 	}
-	else if (BehaviorState == MurdockBehaviorState::EUltimate && !UltimateSkill->IsStopSkill)
+	else if (BehaviorState == MurdockBehaviorState::EUltimate)
 	{
-		GetCharacterMovement()->bOrientRotationToMovement = true;
-		UltimateSkill->EndUltimate();
-		SolveStop();
-	}
-}
-void AMurdock::OffUltimate()
-{
-	if (BehaviorState == MurdockBehaviorState::EUltimate)
-	{
-		GetCharacterMovement()->bOrientRotationToMovement = true;
-		UltimateSkill->EndUltimate();
-		SolveStop();
-	}
-}
-
-void AMurdock::EndUltimateToIdle()
-{
-	if (BehaviorState == MurdockBehaviorState::EUltimate)
-	{
-		BehaviorState = MurdockBehaviorState::EIdle;
+		OnEndActionMontage(MurdockBehaviorState::EUltimate);
+		//SolveStop();
 	}
 }
 
@@ -353,19 +301,42 @@ UCActionComponent* AMurdock::GetActionComponent()
 	return nullptr;
 }
 
-void AMurdock::PlayStartActionMontage(MurdockBehaviorState ActionEnum)
+void AMurdock::OnStartActionMontage(MurdockBehaviorState ActionEnum)
 {
-	BehaviorState = ActionEnum;
+	if (BehaviorState != ActionEnum)
+		BehaviorState = ActionEnum;
+
 	UCActionComponent* action = GetActionComponent();
 	CheckNull(action);
 	action->OnStartAction();
 }
 
-void AMurdock::PlayEndActionMontage()
+void AMurdock::OnEndActionMontage(MurdockBehaviorState ActionEnum)
 {
 	UCActionComponent* action = GetActionComponent();
 	Clog::Log(action);
 	CheckNull(action);
 	action->OnEndAction();
-	BehaviorState = MurdockBehaviorState::EIdle;
+	BehaviorState = ActionEnum;
+}
+
+void AMurdock::BeginNotifyAction()
+{
+	UCActionComponent* actionComp = GetActionComponent();
+	CheckNull(actionComp);
+	actionComp->BeginNotifyAction();
+}
+
+void AMurdock::MiddleNotifyAction()
+{
+	UCActionComponent* actionComp = GetActionComponent();
+	CheckNull(actionComp);
+	actionComp->MiddleNotifyAction();
+}
+
+void AMurdock::EndNotifyAction()
+{
+	UCActionComponent* actionComp = GetActionComponent();
+	CheckNull(actionComp);
+	actionComp->EndNotifyAction();
 }

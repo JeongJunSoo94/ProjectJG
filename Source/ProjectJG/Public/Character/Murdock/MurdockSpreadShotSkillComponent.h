@@ -42,14 +42,17 @@ public:
 	UMurdockSpreadShotSkillComponent();
 
 
-	void LoopZoomMontage();
 	
 	void CreateObjectPool();
 
 	virtual void OnStartAction() override;
 	virtual void OnEndAction() override;
+	virtual void BeginNotifyAction() override;
+	virtual void MiddleNotifyAction() override;
+	virtual void EndNotifyAction() override;
 
 protected:
+	void LoopZoomMontage();
 	void ZoomInSpreadShot();
 	void ShootSpreadShot();
 

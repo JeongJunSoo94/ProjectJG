@@ -21,6 +21,6 @@ void UEndUltimateAnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSeque
 	}
 
 	CheckNull(cachingMurdock);
-	cachingMurdock->EndUltimateToIdle();
+	//cachingMurdock->EndUltimateToIdle();
 
 }

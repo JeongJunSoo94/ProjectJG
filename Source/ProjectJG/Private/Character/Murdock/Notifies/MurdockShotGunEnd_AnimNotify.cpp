@@ -22,6 +22,6 @@ void UMurdockShotGunEnd_AnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAn
 	}
 
 	CheckNull(cachingMurdock);
-	cachingMurdock->LoopSpreadShotZoom();
+	//cachingMurdock->LoopSpreadShotZoom();
 	
 }

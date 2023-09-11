@@ -37,9 +37,16 @@ UMurdockWeapon::UMurdockWeapon()
 
 void UMurdockWeapon::OnHitPaticle(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	/*Clog::Log("---OnHitParticle---");
 	CheckNull(HitComponent);
+	Clog::Log(HitComponent->GetOwner());
 	CheckNull(OtherActor);
+	Clog::Log(OtherActor->GetName());
 	CheckNull(OtherComp);
+	Clog::Log(OtherComp->GetOwner());
+	Clog::Log("---OnHitParticle---");*/
+
+	
 
 	FRotator rotator = Hit.ImpactNormal.Rotation();
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, Hit.Location, rotator, true, EPSCPoolMethod::AutoRelease);
@@ -48,7 +55,7 @@ void UMurdockWeapon::OnHitPaticle(UPrimitiveComponent* HitComponent, AActor* Oth
 	IDamageable* character = Cast<IDamageable>(OtherActor);
 	CheckNull(character);
 	character->TakeDamage(1.0f);
-	character->BeginHitEffect(NormalImpulse, Hit);
+	character->BeginHitEffect(OwnerCharacter, NormalImpulse, Hit);
 	
 }
 

@@ -250,7 +250,12 @@ float ACBaseCharacter::GetLookYaw()
 	return YawDifference;
 }
 
-void ACBaseCharacter::BeginHitEffect(FVector NormalImpulse, const FHitResult& Hit)
+void ACBaseCharacter::BeginHitEffect(AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
+{
+
+}
+
+void ACBaseCharacter::SetImpactVectorFrom(FVector& ProjectileVector)
 {
 
 }

@@ -70,3 +70,16 @@ void UMurdockShieldSkillComponent::OnEndAction()
 {
 	BreakShield();
 }
+
+void UMurdockShieldSkillComponent::BeginNotifyAction()
+{
+}
+
+void UMurdockShieldSkillComponent::MiddleNotifyAction()
+{
+	LoopShieldMontage();
+}
+
+void UMurdockShieldSkillComponent::EndNotifyAction()
+{
+}

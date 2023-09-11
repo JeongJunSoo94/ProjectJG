@@ -30,12 +30,13 @@ void URangeEnemyBTService::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* No
 	}
 
 	AActor* priorityTarget = Owner->GetPriorityTarget();
-
+	//Clog::Log(priorityTarget);
 	AActor* targetActor = Cast<AActor>(BBComp->GetValueAsObject(TEXT("TargetActor")));
 
 
 	if (priorityTarget == targetActor)
 	{
+		//Clog::Log(priorityTarget);
 		return;
 	}
 

@@ -23,6 +23,6 @@ void UEndUltimateShotAnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimS
 	}
 
 	CheckNull(cachingMurdock);
-	cachingMurdock->LoopUltimate();
+	//cachingMurdock->LoopUltimate();
 
 }

@@ -6,6 +6,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BehaviorTree.h"
+#include "Character/Enemies/RangeEnemy/RangeEnemyCharacter.h"
 
 ARangeEnemyAIController::ARangeEnemyAIController()
 {
