@@ -36,6 +36,7 @@ void ACLtBelica::BeginPlay()
 	Super::BeginPlay();
 	eBelicaAbilityState = EBelicaAbilityState::None;
 	GetMesh()->HideBone(weaponBoneIdexs[2], PBO_None);
+	IsSkilling = false;
 }
 
 void ACLtBelica::Tick(float DeltaTime)
@@ -70,6 +71,7 @@ void ACLtBelica::OnFire()
 
 void ACLtBelica::OffFire()
 {
+	CheckFalse(!IsSkilling);
 	switch (eBelicaAbilityState)
 	{
 		case EBelicaAbilityState::None:
@@ -93,23 +95,26 @@ void ACLtBelica::OffFire()
 		}
 		break;
 	}
-	eBelicaAbilityState = EBelicaAbilityState::None;
+	
 }
 
 void ACLtBelica::OnQAbility()
 {
+	CheckFalse(!IsSkilling);
 	eBelicaAbilityState = eBelicaAbilityState == EBelicaAbilityState::QAbliity ? EBelicaAbilityState::None : EBelicaAbilityState::QAbliity;
 	LtBelicaQAbility->OnStartAction();
 }
 
 void ACLtBelica::OnEAbility()
 {
+	CheckFalse(!IsSkilling);
 	eBelicaAbilityState = eBelicaAbilityState == EBelicaAbilityState::EAbliity? EBelicaAbilityState::None : EBelicaAbilityState::EAbliity;
 	LtBelicaEAbility->OnStartAction();
 }
 
 void ACLtBelica::OnRAbility()
 {
+	CheckFalse(!IsSkilling);
 	eBelicaAbilityState = eBelicaAbilityState == EBelicaAbilityState::RAbliity ? EBelicaAbilityState::None : EBelicaAbilityState::RAbliity;
 	GetMesh()->UnHideBone(weaponBoneIdexs[2]);
 	LtBelicaRAbility->OnStartAction();
@@ -130,6 +135,11 @@ UCActionComponent* ACLtBelica::GetActionComponent()
 	switch (eBelicaAbilityState)
 	{
 	case EBelicaAbilityState::None:
+	{
+		return nullptr;
+	}
+	break;
+	case EBelicaAbilityState::Fire:
 	{
 		return nullptr;
 	}
@@ -156,15 +166,23 @@ UCActionComponent* ACLtBelica::GetActionComponent()
 void ACLtBelica::BeginNotifyAction() 
 {
 	UCActionComponent* actionComp = GetActionComponent();
+	CheckNull(actionComp);
 	actionComp->BeginNotifyAction();
+	IsSkilling = true;
+	Stop();
 }
 void ACLtBelica::MiddleNotifyAction() 
 {
 	UCActionComponent* actionComp = GetActionComponent();
+	CheckNull(actionComp);
 	actionComp->MiddleNotifyAction();
 }
 void ACLtBelica::EndNotifyAction() 
 {
 	UCActionComponent* actionComp = GetActionComponent();
+	CheckNull(actionComp);
 	actionComp->EndNotifyAction();
+	SolveStop();
+	IsSkilling = false;
+	eBelicaAbilityState = EBelicaAbilityState::None;
 }

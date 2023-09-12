@@ -7,7 +7,9 @@
 #include "Materials/MaterialInstanceConstant.h"
 #include "particles/PxParticleSystem.h"
 #include "Particles/ParticleSystem.h"
+#include "Character/Components/StatusComponent.h"
 #include "Sound/SoundCue.h"
+#include "Character/Interface/Damageable.h"
 
 AManaBombObject::AManaBombObject()
 {
@@ -60,14 +62,29 @@ void AManaBombObject::Explosion()
     Mesh->UpdateComponentToWorld();
     UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BurstParticle, GetActorLocation(), GetActorRotation(), true, EPSCPoolMethod::AutoRelease);
     UGameplayStatics::PlaySoundAtLocation(GetWorld(), ManaBombSoundCue, GetActorLocation());
+    for (auto actor : InteractionActors)
+    {
+        if (actor.Value == true)
+        {
+            IDamageable* character = Cast<IDamageable>(actor.Key);
+            CheckNull(character);
+            character->TakeDamage(10.0f);
+        }
+    }
 }
 
 void AManaBombObject::NotifyActorBeginOverlap(AActor* OtherActor)
 {
-
+    UStatusComponent* Status = CHelpers::GetComponent<UStatusComponent>(OtherActor);
+    CheckNull(Status);
+    InteractionActors.Add(OtherActor, true);
 }
 
 void AManaBombObject::NotifyActorEndOverlap(AActor* OtherActor)
 {
+    if (InteractionActors.Find(OtherActor))
+    {
+        InteractionActors[OtherActor] = false;
+    }
 }
 

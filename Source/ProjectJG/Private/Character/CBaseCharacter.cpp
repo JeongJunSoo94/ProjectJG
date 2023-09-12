@@ -57,6 +57,7 @@ void ACBaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	CHelpers::CheckNullComponent<UCameraComponent>(this,&PlayerMainCamera);
+	CHelpers::CheckNullComponent<USpringArmComponent>(this, &SpringArm);
 
 	CrossHair = CreateWidget<UUserWidget_CrossHair, APlayerController>(GetController<APlayerController>(), CrossHairClass);
 	CrossHair->AddToViewport();
@@ -172,7 +173,15 @@ void ACBaseCharacter::GetLocationAndDirection(FVector& OutStart, FVector& OutEnd
 	OutDirection = PlayerMainCamera->GetForwardVector();
 	FTransform transform = PlayerMainCamera->GetComponentToWorld();
 	FVector cameraLocation = transform.GetLocation();
-	OutStart = cameraLocation + OutDirection;
+	if (SpringArm == nullptr)
+	{
+		Clog::Log("SpringArm null");
+		OutStart = cameraLocation + OutDirection;
+	}
+	else
+	{
+		OutStart = cameraLocation + OutDirection * SpringArm->TargetArmLength;
+	}
 
 	FVector conDirection;
 	if (IsRandom)

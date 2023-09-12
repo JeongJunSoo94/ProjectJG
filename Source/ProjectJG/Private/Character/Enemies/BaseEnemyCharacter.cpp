@@ -40,6 +40,8 @@ void ABaseEnemyCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (DamageValue > 0)
 		Damaged(DamageValue);
+	
+
 }
 
 void ABaseEnemyCharacter::BeginHitEffect(AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
@@ -75,5 +77,9 @@ void ABaseEnemyCharacter::Damaged(float totalAmount)
 }
 
 void ABaseEnemyCharacter::Die()
+{
+}
+
+void ABaseEnemyCharacter::RegistBlackBoardDatas(class UBlackboardComponent* blackboard)
 {
 }
