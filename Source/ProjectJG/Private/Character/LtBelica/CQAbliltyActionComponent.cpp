@@ -66,7 +66,7 @@ void UCQAbliltyActionComponent::OnStartAction()
 {
 	if (!IsAbiliting)
 	{
-		OwnerCharacter->bUseControllerRotationYaw = true;
+		//OwnerCharacter->bUseControllerRotationYaw = true;
 		OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 		IsAbiliting = true;
 		SetComponentTickEnabled(true);
@@ -74,7 +74,7 @@ void UCQAbliltyActionComponent::OnStartAction()
 	}
 	else
 	{
-		OwnerCharacter->bUseControllerRotationYaw = false;
+		//OwnerCharacter->bUseControllerRotationYaw = false;
 		OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 		IsAbiliting = false;
 		SetComponentTickEnabled(false);
@@ -100,7 +100,6 @@ void UCQAbliltyActionComponent::BeginNotifyAction()
 {
 	OwnerCharacter->bUseControllerRotationYaw = false;
 	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
-	Clog::Log("Q");
 }
 
 void UCQAbliltyActionComponent::EndNotifyAction()
@@ -148,5 +147,6 @@ void UCQAbliltyActionComponent::EndNotifyAction()
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EruptionRocksParticle, handLocation, handRotator + FRotator(45, 0, 0));
 
 	HandParticleComponent->Activate(false);
-
+	OwnerCharacter->bUseControllerRotationYaw = true;
+	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 }

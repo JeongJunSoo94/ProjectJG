@@ -9,10 +9,11 @@
 UENUM(BlueprintType)
 enum class EBelicaAbilityState : uint8
 {
-	None =0,
-	QAbliity =1,
-	EAbliity =2,
-	RAbliity =3,
+	None = 0,
+	Fire = 1,
+	QAbliity =2,
+	EAbliity =3,
+	RAbliity =4,
 };
 
 UCLASS()
@@ -56,6 +57,7 @@ private:
 public:
 	bool GetLtBelicaWeaponIsFiring();
 	bool GetLtBelicaIsAbiliting();
-
+private:
+	bool IsSkilling;
 
 };

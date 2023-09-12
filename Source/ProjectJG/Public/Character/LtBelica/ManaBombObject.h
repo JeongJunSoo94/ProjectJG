@@ -39,5 +39,6 @@ public:
     void SetBombLocation(FVector location);
     void SetBombScale(float radius);
 protected:
+    TMap<AActor*, bool> InteractionActors;
     FTimerHandle ExplosionTimer;
 };

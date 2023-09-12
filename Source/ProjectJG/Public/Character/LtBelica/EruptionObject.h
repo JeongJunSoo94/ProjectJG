@@ -38,6 +38,6 @@ protected:
 public:
     bool bInitailized;
 protected:
-    TMap<AActor*,bool> InteractionActor;
+    TMap<AActor*,bool> InteractionActors;
     FTimerHandle ExplosionTimer;
 };

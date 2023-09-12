@@ -40,6 +40,8 @@ void ABaseEnemyCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (DamageValue > 0)
 		Damaged(DamageValue);
+	
+
 }
 
 void ABaseEnemyCharacter::BeginHitEffect(FVector NormalImpulse, const FHitResult& Hit)
@@ -62,12 +64,15 @@ float ABaseEnemyCharacter::TakeDamage(float Damage)
 void ABaseEnemyCharacter::Damaged(float totalAmount)
 {
 	Status->SubHealth(totalAmount);
-
 	Cast<UHealthWidget>(HealthWidget->GetUserWidgetObject())->Update(Status->GetHealth(), Status->GetMaxHealth());
 
 	DamageValue = 0;
 }
 
 void ABaseEnemyCharacter::Die()
+{
+}
+
+void ABaseEnemyCharacter::RegistBlackBoardDatas(class UBlackboardComponent* blackboard)
 {
 }

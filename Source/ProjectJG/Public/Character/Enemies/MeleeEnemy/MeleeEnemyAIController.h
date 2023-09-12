@@ -18,6 +18,7 @@ protected:
 public:
 	AMeleeEnemyAIController();
 	virtual void OnPossess(APawn* InPawn) override;
+	virtual void OnUnPossess() override;
 protected:
 	virtual void BeginPlay() override;
 

@@ -9,6 +9,7 @@
 #include "Particles/ParticleSystem.h"
 #include "Character/Components/StatusComponent.h"
 #include "Sound/SoundCue.h"
+#include "Character/Interface/Damageable.h"
 
 void AEruptionObject::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -43,14 +44,20 @@ void AEruptionObject::Explosion()
 {
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EruptionParticle, GetActorLocation(), GetActorUpVector().Rotation(), true, EPSCPoolMethod::AutoRelease);
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), EruptionSoundCue, GetActorLocation());
-	for (auto actor : InteractionActor)
+	for (auto actor : InteractionActors)
 	{
+		if (actor.Value == true)
+		{
+			IDamageable* character = Cast<IDamageable>(actor.Key);
+			CheckNull(character);
+			character->TakeDamage(10.0f);
+		}
 	}
 }
 
 void AEruptionObject::Init()
 {
-	for (auto actor : InteractionActor)
+	for (auto actor : InteractionActors)
 	{
 		actor.Value = false;
 	}
@@ -61,13 +68,13 @@ void AEruptionObject::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	UStatusComponent* Status = CHelpers::GetComponent<UStatusComponent>(OtherActor);
 	CheckNull(Status);
-	InteractionActor.Add(OtherActor,true);
+	InteractionActors.Add(OtherActor,true);
 }
 
 void AEruptionObject::NotifyActorEndOverlap(AActor* OtherActor)
 {
-	if (InteractionActor.Find(OtherActor))
+	if (InteractionActors.Find(OtherActor))
 	{
-		InteractionActor[OtherActor] = false;
+		InteractionActors[OtherActor] = false;
 	}
 }

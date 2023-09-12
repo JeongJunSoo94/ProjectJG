@@ -4,6 +4,7 @@
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Character/Enemies/BaseEnemyCharacter.h"
 
 AMeleeEnemyAIController::AMeleeEnemyAIController()
 {
@@ -31,9 +32,18 @@ void AMeleeEnemyAIController::OnPossess(APawn* InPawn)
 	Super::OnPossess(InPawn);
 	if (UseBlackboard(BDAsset, BlackboardComp))
 	{
+		ABaseEnemyCharacter* character = Cast<ABaseEnemyCharacter>(InPawn);
+		CheckNull(character);
+		character->RegistBlackBoardDatas(BlackboardComp);
 		if (!RunBehaviorTree(BT))
 		{
 			Clog::Log("No");
 		}
 	}
+}
+
+void AMeleeEnemyAIController::OnUnPossess()
+{
+	Super::OnUnPossess();
+
 }
