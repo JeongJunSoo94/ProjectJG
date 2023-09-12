@@ -72,7 +72,7 @@ protected:
 
 	void DoEffect();
 
-
+	TMap<FName,UAnimMontage*> BaseMontages;
 	TMap<AActor*, int> PlayerAgrroMap;
 	FTimerHandle RayTimer;
 	FCollisionQueryParams CollisionParams;

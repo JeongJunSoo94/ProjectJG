@@ -36,9 +36,10 @@ protected:
 	void SetHealthWidgetSizeAndLocation(FVector location, FVector2D size);
 	virtual void Damaged(float totalAmount);
 	virtual void Die();
+	virtual void SetImpactVectorFrom(FVector& ProjectileVector) override;
 public:	
 	virtual void Tick(float DeltaTime) override;
-	virtual void BeginHitEffect(FVector NormalImpulse, const FHitResult& Hit) override;
+	virtual void BeginHitEffect(AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit) override;
 	ECharacterStateFlags GetECharacterStateFlags() { return eCharacterStateFlags; }
 
 	virtual void RegistBlackBoardDatas(class UBlackboardComponent* blackboard);
@@ -46,4 +47,5 @@ protected:
 	float DamageValue;
 public:
 	bool isFullBody;
+	bool isDie;
 };

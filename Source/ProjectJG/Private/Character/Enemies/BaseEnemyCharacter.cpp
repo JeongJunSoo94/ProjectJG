@@ -79,7 +79,3 @@ void ABaseEnemyCharacter::Damaged(float totalAmount)
 void ABaseEnemyCharacter::Die()
 {
 }
-
-void ABaseEnemyCharacter::RegistBlackBoardDatas(class UBlackboardComponent* blackboard)
-{
-}
