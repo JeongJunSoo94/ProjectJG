@@ -46,6 +46,9 @@ URAbilityActionComponent::URAbilityActionComponent()
 
 void URAbilityActionComponent::BeginPlay()
 {
+	IsCoolTiming = false;
+	CurCoolTime = 0;
+	MaxCoolTime = 10.0f;
 }
 
 void URAbilityActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -65,6 +68,8 @@ void URAbilityActionComponent::SetOwnerCharacter(ACharacter* character)
 
 void URAbilityActionComponent::OnStartAction()
 {
+	if (IsCoolTiming)
+		return;
 	if (!IsAbiliting)
 	{
 		OwnerCharacter->bUseControllerRotationYaw = true;
@@ -85,12 +90,14 @@ void URAbilityActionComponent::HologramAction()
 {
 	IsAbiliting = false;
 	SetComponentTickEnabled(false);
+	IsCoolTiming = true;
+	GetWorld()->GetTimerManager().SetTimer(CoolTimeHandle, this, &URAbilityActionComponent::CoolTimeUpdate, 0.1f, true);
+
 	OwnerCharacter->PlayAnimMontage(RAbliltyMontage);
 }
 
 void URAbilityActionComponent::BeginNotifyAction()
 {
-	Clog::Log("R");
 	FVector start, end, direction;
 	OwnerCharacter->GetLocationAndDirection(start, end, direction, true, 0.3f, 0.4f);
 
@@ -104,7 +111,6 @@ void URAbilityActionComponent::BeginNotifyAction()
 
 	if (!!BulletClass)
 	{
-		Clog::Log("Fire");
 		ACBullet* bullet;
 		bullet = Cast<ACBullet>(ObjectPoolFactory->SpawnObject());
 
@@ -126,4 +132,16 @@ void URAbilityActionComponent::BeginNotifyAction()
 
 void URAbilityActionComponent::EndNotifyAction()
 {
+}
+
+void URAbilityActionComponent::CoolTimeUpdate()
+{
+	CurCoolTime += 0.1f;
+	OnUpdateWidgetTimer.Execute(CurCoolTime, MaxCoolTime);
+	if (CurCoolTime >= MaxCoolTime)
+	{
+		IsCoolTiming = false;
+		CurCoolTime = 0.0f;
+		GetWorld()->GetTimerManager().ClearTimer(CoolTimeHandle);
+	}
 }

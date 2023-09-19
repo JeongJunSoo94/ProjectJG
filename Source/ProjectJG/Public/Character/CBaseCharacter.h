@@ -19,21 +19,13 @@ protected:
 	UPROPERTY(BlueprintReadOnly,VisibleDefaultsOnly, Category = "equipedWeaponIdex")
 		int32 equipedWeaponIdex;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<class UUserWidget_CrossHair> CrossHairClass;
-
-	class UUserWidget_CrossHair* CrossHair;
 
 	UPROPERTY(VisibleDefaultsOnly)
-		class UStatusComponent* Status;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<class UStatusUserWidget> StatusClass;
-
-	class UStatusUserWidget* StatusUI;
+		class UStatusComponent* StatusComp;
 
 	UPROPERTY(VisibleDefaultsOnly)
-		class UWidgetComponent* HealthWidget;
+		class UBaseHUDComponent* HUDComp;
+
 public:
 	ACBaseCharacter();
 	//float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
@@ -48,7 +40,7 @@ protected:
 
 public:	
 	virtual void Tick(float DeltaTime) override;
-
+	UBaseHUDComponent* GetBaseHUDComponent() { return HUDComp; }
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 private:
 	void OnMoveForward(float Axis);

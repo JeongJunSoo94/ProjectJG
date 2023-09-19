@@ -7,10 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Character/Components/StatusComponent.h"
-#include "Widgets/UserWidget_CrossHair.h"
-#include "Widgets/StatusUserWidget.h"
-#include "Widgets/HealthWidget.h"
-#include "Components/WidgetComponent.h"
+#include "Character/Components/BaseHUDComponent.h"
 
 ACBaseCharacter::ACBaseCharacter()
 {
@@ -18,7 +15,7 @@ ACBaseCharacter::ACBaseCharacter()
 	CHelpers::CreateComponent<USpringArmComponent>(this, &SpringArm, "SpringArm",GetCapsuleComponent());
 	CHelpers::CreateComponent<UCameraComponent>(this, &PlayerMainCamera, "Camera", SpringArm);
 	
-	CHelpers::CreateActorComponent<UStatusComponent>(this, &Status, "Status");
+	CHelpers::CreateActorComponent<UStatusComponent>(this, &StatusComp, "StatusComp");
 	//CHelpers::CreateComponent<UWidgetComponent>(this, &HealthWidget, "HealthWidget", GetMesh());
 
 	bUseControllerRotationYaw = false;
@@ -39,17 +36,8 @@ ACBaseCharacter::ACBaseCharacter()
 	equipedWeaponIdex = 0;
 	weaponBoneIdexs.Add(0);
 
-	CHelpers::GetClass<UUserWidget_CrossHair>(&CrossHairClass, "WidgetBlueprint'/Game/Developers/USER/Character/WB_CrossHair.WB_CrossHair_C'");
-	CHelpers::GetClass<UStatusUserWidget>(&StatusClass, "WidgetBlueprint'/Game/Developers/USER/Character/WB_Status.WB_Status_C'");
-
-	CHelpers::CreateComponent<UWidgetComponent>(this, &HealthWidget, "HealthWidget", GetMesh());
-	
-	TSubclassOf<UHealthWidget> healthClass;
-	CHelpers::GetClass<UHealthWidget>(&healthClass, "WidgetBlueprint'/Game/Developers/USER/Character/WB_Health.WB_Health_C'");
-	HealthWidget->SetWidgetClass(healthClass);
-	HealthWidget->SetRelativeLocation(FVector(0, 0, 200));
-	HealthWidget->SetDrawSize(FVector2D(120, 20));
-	HealthWidget->SetWidgetSpace(EWidgetSpace::Screen);
+	CHelpers::CreateActorComponent<UBaseHUDComponent>(this, &HUDComp, "HUDComp");
+	HUDComp->CreateHeadHealthBar();
 
 }
 
@@ -58,22 +46,9 @@ void ACBaseCharacter::BeginPlay()
 	Super::BeginPlay();
 	CHelpers::CheckNullComponent<UCameraComponent>(this,&PlayerMainCamera);
 	CHelpers::CheckNullComponent<USpringArmComponent>(this, &SpringArm);
-
-	CrossHair = CreateWidget<UUserWidget_CrossHair, APlayerController>(GetController<APlayerController>(), CrossHairClass);
-	CrossHair->AddToViewport();
-	CrossHair->SetVisibility(ESlateVisibility::Visible);
-
-	//player ¿œ∂ß
-	StatusUI = CreateWidget<UStatusUserWidget, APlayerController>(GetController<APlayerController>(), StatusClass);
-	StatusUI->AddToViewport();
-	StatusUI->SetVisibility(ESlateVisibility::Visible);
-
-	StatusUI->Update(Status->GetHealth(), Status->GetMaxHealth());
-
-	HealthWidget->InitWidget();
-	Cast<UHealthWidget>(HealthWidget->GetUserWidgetObject())->Update(Status->GetHealth(), Status->GetMaxHealth());
-
-
+	//HUDComp->isHiddenHeadHealthBar = false;
+	HUDComp->CreatePlayerControllerAttach(GetController<APlayerController>());
+	HUDComp->HealthBarUpdate(StatusComp->GetHealth(), StatusComp->GetMaxHealth());
 }
 
 void ACBaseCharacter::Tick(float DeltaTime)
@@ -211,8 +186,8 @@ void ACBaseCharacter::GetLocationAndDirection(FVector& OutStart, FVector& OutEnd
 		//DrawDebugLine(GetWorld(), OutStart, OutEnd, FColor::Blue, false, 1, 0, 1);
 	}
 
-
 }
+
 void ACBaseCharacter::GetLocationAndDirection(FVector muzzleLocation, FVector& OutStart, FVector& OutEnd, FVector& OutDirection, bool IsRandom , float MaxYawInDegrees , float MaxPitchInDegrees )
 {
 	GetLocationAndDirection(OutStart, OutEnd, OutDirection, IsRandom, MaxYawInDegrees, MaxPitchInDegrees);
@@ -223,11 +198,11 @@ void ACBaseCharacter::GetLocationAndDirection(FVector muzzleLocation, FVector& O
 
 void ACBaseCharacter::Damaged(float totalAmount)
 {
-	Status->SubHealth(totalAmount);
+	StatusComp->SubHealth(totalAmount);
 
-	StatusUI->Update(Status->GetHealth(), Status->GetMaxHealth());
+	//StatusUI->Update(Status->GetHealth(), Status->GetMaxHealth());
 
-	Cast<UHealthWidget>(HealthWidget->GetUserWidgetObject())->Update(Status->GetHealth(), Status->GetMaxHealth());
+	HUDComp->HealthBarUpdate(StatusComp->GetHealth(), StatusComp->GetMaxHealth());
 
 	DamageValue = 0;
 }
