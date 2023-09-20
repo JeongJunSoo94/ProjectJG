@@ -5,6 +5,7 @@
 #include "Character/LtBelica/CQAbliltyActionComponent.h"
 #include "Character/LtBelica/EAbliltyActionComponent.h"
 #include "Character/LtBelica/RAbilityActionComponent.h"
+#include "Character/Components/BaseHUDComponent.h"
 
 ACLtBelica::ACLtBelica()
 {
@@ -37,6 +38,7 @@ void ACLtBelica::BeginPlay()
 	eBelicaAbilityState = EBelicaAbilityState::None;
 	GetMesh()->HideBone(weaponBoneIdexs[2], PBO_None);
 	IsSkilling = false;
+	GetBaseHUDComponent()->SetPlayerControllerAttach(LtBelicaWeapon, LtBelicaQAbility, LtBelicaEAbility, LtBelicaRAbility);
 }
 
 void ACLtBelica::Tick(float DeltaTime)
@@ -95,12 +97,14 @@ void ACLtBelica::OffFire()
 		}
 		break;
 	}
-	
+	LtBelicaWeapon->End_Fire();
 }
 
 void ACLtBelica::OnQAbility()
 {
 	CheckFalse(!IsSkilling);
+	if (LtBelicaQAbility->GetIsCoolTiming())
+		return;
 	eBelicaAbilityState = eBelicaAbilityState == EBelicaAbilityState::QAbliity ? EBelicaAbilityState::None : EBelicaAbilityState::QAbliity;
 	LtBelicaQAbility->OnStartAction();
 }
@@ -108,6 +112,8 @@ void ACLtBelica::OnQAbility()
 void ACLtBelica::OnEAbility()
 {
 	CheckFalse(!IsSkilling);
+	if (LtBelicaEAbility->GetIsCoolTiming())
+		return;
 	eBelicaAbilityState = eBelicaAbilityState == EBelicaAbilityState::EAbliity? EBelicaAbilityState::None : EBelicaAbilityState::EAbliity;
 	LtBelicaEAbility->OnStartAction();
 }
@@ -115,6 +121,8 @@ void ACLtBelica::OnEAbility()
 void ACLtBelica::OnRAbility()
 {
 	CheckFalse(!IsSkilling);
+	if (LtBelicaRAbility->GetIsCoolTiming())
+		return;
 	eBelicaAbilityState = eBelicaAbilityState == EBelicaAbilityState::RAbliity ? EBelicaAbilityState::None : EBelicaAbilityState::RAbliity;
 	GetMesh()->UnHideBone(weaponBoneIdexs[2]);
 	LtBelicaRAbility->OnStartAction();

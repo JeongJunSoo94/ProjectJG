@@ -14,6 +14,7 @@
 #include "BaseSystem/ObjectPoolFactory.h"
 #include "Character/LtBelica/EruptionHologram.h"
 #include "Character/LtBelica/EruptionObject.h"
+#include "TimerManager.h"
 
 UCQAbliltyActionComponent::UCQAbliltyActionComponent()
 {
@@ -29,6 +30,9 @@ UCQAbliltyActionComponent::UCQAbliltyActionComponent()
 
 	CHelpers::GetClass<AEruptionObject>(&EruptionClass, "Blueprint'/Game/Developers/JJS/LtBelica/Ablility/BP_Eruption.BP_Eruption_C'");
 
+	CHelpers::GetAsset<UTexture2D>(&WidgetTexture2D, "Texture2D'/Game/ParagonLtBelica/FX/Textures/Heroes/Belica/Abilities/T_Belica_ArmHolo.T_Belica_ArmHolo'");
+
+
 }
 
 void UCQAbliltyActionComponent::BeginPlay()
@@ -37,6 +41,9 @@ void UCQAbliltyActionComponent::BeginPlay()
 	EruptionHologramActor->SetHologramScale(FVector(2));
 	HandParticleComponent = UGameplayStatics::SpawnEmitterAttached(HandParticle, OwnerCharacter->GetMesh(), "hologramSocket", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true, EPSCPoolMethod::AutoRelease);
 	HandParticleComponent->Activate(false);
+	IsCoolTiming = false;
+	CurCoolTime = 0;
+	MaxCoolTime = 5.0f;
 }
 
 void UCQAbliltyActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -64,6 +71,8 @@ void UCQAbliltyActionComponent::SetOwnerCharacter(ACharacter* character)
 
 void UCQAbliltyActionComponent::OnStartAction()
 {
+	if (IsCoolTiming)
+		return;
 	if (!IsAbiliting)
 	{
 		//OwnerCharacter->bUseControllerRotationYaw = true;
@@ -90,6 +99,8 @@ void UCQAbliltyActionComponent::HologramAction()
 	FTransform transform = OwnerCharacter->GetMesh()->GetSocketTransform("hand_r");
 	FVector handLocation = transform.GetLocation();
 	FRotator handRotator = transform.GetRotation().Rotator();
+	IsCoolTiming = true;
+	GetWorld()->GetTimerManager().SetTimer(CoolTimeHandle, this, &UCQAbliltyActionComponent::CoolTimeUpdate, 0.1f, true);
 
 	OwnerCharacter->PlayAnimMontage(QAbliltyMontage);
 	UGameplayStatics::SpawnEmitterAttached(HandParticle, OwnerCharacter->GetMesh(), "hologramSocket", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true, EPSCPoolMethod::AutoRelease);
@@ -149,4 +160,16 @@ void UCQAbliltyActionComponent::EndNotifyAction()
 	HandParticleComponent->Activate(false);
 	OwnerCharacter->bUseControllerRotationYaw = true;
 	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
+}
+
+void UCQAbliltyActionComponent::CoolTimeUpdate()
+{
+	CurCoolTime+=0.1f;
+	OnUpdateWidgetTimer.Execute(CurCoolTime, MaxCoolTime);
+	if (CurCoolTime >= MaxCoolTime)
+	{
+		IsCoolTiming = false;
+		CurCoolTime = 0.0f;
+		GetWorld()->GetTimerManager().ClearTimer(CoolTimeHandle);
+	}
 }

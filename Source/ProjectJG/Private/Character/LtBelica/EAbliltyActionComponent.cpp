@@ -31,6 +31,9 @@ void UEAbliltyActionComponent::BeginPlay()
 {
 	ManaBombHologramActor = GetWorld()->SpawnActor<AManaBombHologram>(ManaBombHologramClass, FVector::ZeroVector, FRotator::ZeroRotator);
 	ManaBombHologramActor->SetHologramScale(FVector(3));
+	IsCoolTiming = false;
+	CurCoolTime = 0;
+	MaxCoolTime = 5.0f;
 }
 
 void UEAbliltyActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -54,6 +57,8 @@ void UEAbliltyActionComponent::SetOwnerCharacter(ACharacter* character)
 
 void UEAbliltyActionComponent::OnStartAction()
 {
+	if (IsCoolTiming)
+		return;
 	if (!IsAbiliting)
 	{
 		IsAbiliting = true;
@@ -83,6 +88,10 @@ void UEAbliltyActionComponent::HologramAction()
 	manaBomb->SetBombLocation(ManaBombHologramActor->GetActorLocation());
 	manaBomb->SetBombScale(ManaBombHologramActor->GetActorScale().X * 50.0f);
 	manaBomb->SetActorLifeTime(3.0f);
+
+	IsCoolTiming = true;
+	GetWorld()->GetTimerManager().SetTimer(CoolTimeHandle, this, &UEAbliltyActionComponent::CoolTimeUpdate, 0.1f, true);
+
 	OwnerCharacter->PlayAnimMontage(EAbliltyMontage);
 	manaBomb->SetActive(true);
 }
@@ -94,4 +103,16 @@ void UEAbliltyActionComponent::BeginNotifyAction()
 
 void UEAbliltyActionComponent::EndNotifyAction()
 {
+}
+
+void UEAbliltyActionComponent::CoolTimeUpdate()
+{
+	CurCoolTime += 0.1f;
+	OnUpdateWidgetTimer.Execute(CurCoolTime, MaxCoolTime);
+	if (CurCoolTime >= MaxCoolTime)
+	{
+		IsCoolTiming = false;
+		CurCoolTime = 0.0f;
+		GetWorld()->GetTimerManager().ClearTimer(CoolTimeHandle);
+	}
 }

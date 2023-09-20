@@ -36,6 +36,7 @@ public:
     virtual void BeginNotifyAction()override;
     virtual void EndNotifyAction()override;
     bool GetIsAbiliting() { return IsAbiliting; }
+    virtual void CoolTimeUpdate()override;
     virtual void SetOwnerCharacter(ACharacter* character) override;
 private:
     class ACBaseCharacter* OwnerCharacter;

@@ -3,6 +3,8 @@
 #include "GameFramework/Character.h"
 #include "Animation/AnimMontage.h"
 #include "Animation/AnimInstance.h"
+#include "Widgets/CharacterSkillWidget.h"
+#include "TimerManager.h"
 
 UCActionComponent::UCActionComponent()
 {
@@ -43,3 +45,6 @@ void UCActionComponent::EndNotifyAction()
 void UCActionComponent::OnEndAction()
 {
 }
+
+void UCActionComponent::CoolTimeUpdate()
+{}

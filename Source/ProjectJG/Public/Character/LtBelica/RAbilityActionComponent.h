@@ -37,6 +37,7 @@ public:
     void HologramAction();
     virtual void BeginNotifyAction()override;
     virtual void EndNotifyAction()override;
+    virtual void CoolTimeUpdate()override;
     bool GetIsAbiliting() { return IsAbiliting; }
 private:
     bool IsAbiliting;
