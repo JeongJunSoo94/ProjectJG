@@ -15,7 +15,8 @@
 
 #include "Curves/CurveFloat.h"
 
-
+#include "GameFramework/GameModeBase.h"
+#include "GameFramework/GameStateBase.h"
 
 AMurdock::AMurdock()
 {
@@ -91,7 +92,8 @@ void AMurdock::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AMurdock::OnFire()
 {
-
+	//GetWorld()
+	Clog::Log(GetWorld()->GetGameState()->GetName());
 	if (BehaviorState == MurdockBehaviorState::EIdle)
 	{
 		OnStartActionMontage(MurdockBehaviorState::EFire);

@@ -145,6 +145,7 @@ void ACBaseCharacter::Equip(int32 weaponIndex)
 		GetMesh()->UnHideBone(weaponBoneIdexs[weaponIndex]);
 		equipedWeaponIdex = weaponIndex;
 	}
+	
 }
 
 void ACBaseCharacter::UnEquip()
