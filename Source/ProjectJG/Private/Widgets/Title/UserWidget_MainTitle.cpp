@@ -73,6 +73,7 @@ void UUserWidget_MainTitle::PrintDifficulty()
 
 void UUserWidget_MainTitle::PrintCharacterEnum()
 {
+	//UGameplayStatics::GetGameInstance(GetWorld());
 	Clog::Log("Character%d", StaticCast<int32>(GameData.SelectCharacter));
 }
 
