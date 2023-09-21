@@ -47,6 +47,7 @@ URAbilityActionComponent::URAbilityActionComponent()
 void URAbilityActionComponent::BeginPlay()
 {
 	IsCoolTiming = false;
+	IntervalCoolTime = 0.1f;
 	CurCoolTime = 0;
 	MaxCoolTime = 10.0f;
 }
@@ -91,7 +92,7 @@ void URAbilityActionComponent::HologramAction()
 	IsAbiliting = false;
 	SetComponentTickEnabled(false);
 	IsCoolTiming = true;
-	GetWorld()->GetTimerManager().SetTimer(CoolTimeHandle, this, &URAbilityActionComponent::CoolTimeUpdate, 0.1f, true);
+	GetWorld()->GetTimerManager().SetTimer(CoolTimeHandle, this, &URAbilityActionComponent::CoolTimeUpdate, IntervalCoolTime, true);
 
 	OwnerCharacter->PlayAnimMontage(RAbliltyMontage);
 }
@@ -132,16 +133,4 @@ void URAbilityActionComponent::BeginNotifyAction()
 
 void URAbilityActionComponent::EndNotifyAction()
 {
-}
-
-void URAbilityActionComponent::CoolTimeUpdate()
-{
-	CurCoolTime += 0.1f;
-	OnUpdateWidgetTimer.Execute(CurCoolTime, MaxCoolTime);
-	if (CurCoolTime >= MaxCoolTime)
-	{
-		IsCoolTiming = false;
-		CurCoolTime = 0.0f;
-		GetWorld()->GetTimerManager().ClearTimer(CoolTimeHandle);
-	}
 }

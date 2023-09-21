@@ -7,7 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Character/Components/StatusComponent.h"
-#include "Character/Components/BaseHUDComponent.h"
+#include "BaseSystem/GameHUD.h"
 
 ACBaseCharacter::ACBaseCharacter()
 {
@@ -35,10 +35,6 @@ ACBaseCharacter::ACBaseCharacter()
 
 	equipedWeaponIdex = 0;
 	weaponBoneIdexs.Add(0);
-
-	CHelpers::CreateActorComponent<UBaseHUDComponent>(this, &HUDComp, "HUDComp");
-	HUDComp->CreateHeadHealthBar();
-
 }
 
 void ACBaseCharacter::BeginPlay()
@@ -46,9 +42,9 @@ void ACBaseCharacter::BeginPlay()
 	Super::BeginPlay();
 	CHelpers::CheckNullComponent<UCameraComponent>(this,&PlayerMainCamera);
 	CHelpers::CheckNullComponent<USpringArmComponent>(this, &SpringArm);
-	//HUDComp->isHiddenHeadHealthBar = false;
-	HUDComp->CreatePlayerControllerAttach(GetController<APlayerController>());
-	HUDComp->HealthBarUpdate(StatusComp->GetHealth(), StatusComp->GetMaxHealth());
+
+	AGameHUD* hud = UGameplayStatics::GetPlayerController(this, 0)->GetHUD<AGameHUD>();
+	hud->HealthBarUpdate(StatusComp->GetHealth(), StatusComp->GetMaxHealth());
 }
 
 void ACBaseCharacter::Tick(float DeltaTime)
@@ -203,7 +199,9 @@ void ACBaseCharacter::Damaged(float totalAmount)
 
 	//StatusUI->Update(Status->GetHealth(), Status->GetMaxHealth());
 
-	HUDComp->HealthBarUpdate(StatusComp->GetHealth(), StatusComp->GetMaxHealth());
+	//HUDComp->HealthBarUpdate(StatusComp->GetHealth(), StatusComp->GetMaxHealth());
+	AGameHUD* hud = UGameplayStatics::GetPlayerController(this, 0)->GetHUD<AGameHUD>();
+	hud->HealthBarUpdate(StatusComp->GetHealth(), StatusComp->GetMaxHealth());
 
 	DamageValue = 0;
 }

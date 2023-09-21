@@ -42,6 +42,7 @@ void UCQAbliltyActionComponent::BeginPlay()
 	HandParticleComponent = UGameplayStatics::SpawnEmitterAttached(HandParticle, OwnerCharacter->GetMesh(), "hologramSocket", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true, EPSCPoolMethod::AutoRelease);
 	HandParticleComponent->Activate(false);
 	IsCoolTiming = false;
+	IntervalCoolTime = 0.1f;
 	CurCoolTime = 0;
 	MaxCoolTime = 5.0f;
 }
@@ -100,7 +101,7 @@ void UCQAbliltyActionComponent::HologramAction()
 	FVector handLocation = transform.GetLocation();
 	FRotator handRotator = transform.GetRotation().Rotator();
 	IsCoolTiming = true;
-	GetWorld()->GetTimerManager().SetTimer(CoolTimeHandle, this, &UCQAbliltyActionComponent::CoolTimeUpdate, 0.1f, true);
+	GetWorld()->GetTimerManager().SetTimer(CoolTimeHandle, this, &UCQAbliltyActionComponent::CoolTimeUpdate, IntervalCoolTime, true);
 
 	OwnerCharacter->PlayAnimMontage(QAbliltyMontage);
 	UGameplayStatics::SpawnEmitterAttached(HandParticle, OwnerCharacter->GetMesh(), "hologramSocket", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true, EPSCPoolMethod::AutoRelease);
@@ -160,16 +161,4 @@ void UCQAbliltyActionComponent::EndNotifyAction()
 	HandParticleComponent->Activate(false);
 	OwnerCharacter->bUseControllerRotationYaw = true;
 	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
-}
-
-void UCQAbliltyActionComponent::CoolTimeUpdate()
-{
-	CurCoolTime+=0.1f;
-	OnUpdateWidgetTimer.Execute(CurCoolTime, MaxCoolTime);
-	if (CurCoolTime >= MaxCoolTime)
-	{
-		IsCoolTiming = false;
-		CurCoolTime = 0.0f;
-		GetWorld()->GetTimerManager().ClearTimer(CoolTimeHandle);
-	}
 }

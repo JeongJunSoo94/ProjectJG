@@ -47,4 +47,13 @@ void UCActionComponent::OnEndAction()
 }
 
 void UCActionComponent::CoolTimeUpdate()
-{}
+{
+	CurCoolTime += IntervalCoolTime;
+	OnUpdateWidgetTimer.Execute(CurCoolTime, MaxCoolTime);
+	if (CurCoolTime >= MaxCoolTime)
+	{
+		IsCoolTiming = false;
+		CurCoolTime = 0.0f;
+		GetWorld()->GetTimerManager().ClearTimer(CoolTimeHandle);
+	}
+}
