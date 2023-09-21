@@ -5,7 +5,7 @@
 #include "Character/LtBelica/CQAbliltyActionComponent.h"
 #include "Character/LtBelica/EAbliltyActionComponent.h"
 #include "Character/LtBelica/RAbilityActionComponent.h"
-#include "Character/Components/BaseHUDComponent.h"
+#include "BaseSystem/GameHUD.h"
 
 ACLtBelica::ACLtBelica()
 {
@@ -38,7 +38,8 @@ void ACLtBelica::BeginPlay()
 	eBelicaAbilityState = EBelicaAbilityState::None;
 	GetMesh()->HideBone(weaponBoneIdexs[2], PBO_None);
 	IsSkilling = false;
-	GetBaseHUDComponent()->SetPlayerControllerAttach(LtBelicaWeapon, LtBelicaQAbility, LtBelicaEAbility, LtBelicaRAbility);
+	AGameHUD* hud = UGameplayStatics::GetPlayerController(this, 0)->GetHUD<AGameHUD>();
+	hud->SetHUDPlayerControllerSkillBind(LtBelicaWeapon, LtBelicaQAbility, LtBelicaEAbility, LtBelicaRAbility);
 }
 
 void ACLtBelica::Tick(float DeltaTime)

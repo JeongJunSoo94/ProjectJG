@@ -17,8 +17,8 @@ public:
 protected:
     UPROPERTY(EditAnywhere)
         class UTexture2D* WidgetTexture2D;
-    UPROPERTY(VisibleDefaultsOnly)
-        class UCharacterSkillWidget* CharacterSkillWidget;
+    //UPROPERTY(VisibleDefaultsOnly)
+    //    class UCharacterSkillWidget* CharacterSkillWidget;
 protected:
     virtual void BeginPlay() override;
 
@@ -33,10 +33,11 @@ public:
     virtual void MiddleNotifyAction();
     virtual void EndNotifyAction();
     virtual void CoolTimeUpdate();
-    void SetCharacterSkillWidget(UCharacterSkillWidget* SkillWidget) { CharacterSkillWidget= SkillWidget;}
+    //void SetCharacterSkillWidget(UCharacterSkillWidget* SkillWidget) { CharacterSkillWidget= SkillWidget;}
     bool GetIsCoolTiming() { return IsCoolTiming; }
 protected:
     bool IsCoolTiming = false;
+    float IntervalCoolTime = 0.0f;
     float CurCoolTime = 0.0f;
     float MaxCoolTime = 0.0f;
     FTimerHandle CoolTimeHandle;
