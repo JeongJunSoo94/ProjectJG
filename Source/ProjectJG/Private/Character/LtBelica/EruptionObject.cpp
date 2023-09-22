@@ -10,6 +10,7 @@
 #include "Character/Components/StatusComponent.h"
 #include "Sound/SoundCue.h"
 #include "Character/Interface/Damageable.h"
+#include "BaseSystem/PoolObjectActorComponent.h"
 
 void AEruptionObject::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -23,6 +24,7 @@ AEruptionObject::AEruptionObject()
 	CHelpers::GetAsset<UParticleSystem>(&EruptionParticle, "ParticleSystem'/Game/ParagonLtBelica/FX/Particles/Belica/Abilities/EruptionBeam/FX/P_EruptionBeam2.P_EruptionBeam2'");
 
 	CHelpers::GetAsset<USoundCue>(&EruptionSoundCue, "SoundCue'/Game/MilitaryWeapDark/Sound/GrenadeLauncher/GrenadeLauncher_Explosion_Cue.GrenadeLauncher_Explosion_Cue'");
+	CHelpers::CreateActorComponent(this, &PoolObject, "PoolObject");
 }
 
 void AEruptionObject::SetEruptionScale(float radius)
@@ -61,7 +63,7 @@ void AEruptionObject::Init()
 	{
 		actor.Value = false;
 	}
-	GetWorldTimerManager().SetTimer(ExplosionTimer, this, &AEruptionObject::Explosion, ActorLifeTime - 0.1f, false);
+	GetWorldTimerManager().SetTimer(ExplosionTimer, this, &AEruptionObject::Explosion, PoolObject->GetActorLifeTime() - 0.1f, false);
 }
 
 void AEruptionObject::NotifyActorBeginOverlap(AActor* OtherActor)

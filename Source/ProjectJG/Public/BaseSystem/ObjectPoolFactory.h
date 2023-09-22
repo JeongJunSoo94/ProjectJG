@@ -6,6 +6,15 @@
 #include "Components/ActorComponent.h"
 #include "ObjectPoolFactory.generated.h"
 
+USTRUCT(BlueprintType)
+struct FActorArray
+{
+	GENERATED_USTRUCT_BODY()
+public:
+	TArray<AActor*> actorArray;
+	TArray<bool> actorIsActive;
+};
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECTJG_API UObjectPoolFactory : public UActorComponent
@@ -16,26 +25,18 @@ public:
 	UObjectPoolFactory();
 	
 	UFUNCTION(BlueprintCallable, Category = "ObjectPool")
-		ABasePooledObject* SpawnObject();
-
-	UPROPERTY(EditAnywhere, Category = "ObjectPool")
-		int PoolSize;
-	UPROPERTY(EditAnywhere, Category = "ObjectPool")
-		TSubclassOf<class ABasePooledObject> PooledObjectSubclass;
-
+		AActor* SpawnObject(TSubclassOf<class AActor> PooledObjectSubclass);
 	UFUNCTION()
-		void OnReturnedToPool(ABasePooledObject* PoolActor);
+		void OnReturnToPool(AActor* PoolActor);
 	UFUNCTION()
-		void Initialized();
-	UFUNCTION()
-		void CreateObject(UWorld* const World, int idx);
+		void CreateObject(unsigned int createCount, TSubclassOf<class AActor> pooledObjectSubclass);
 protected:
 	virtual void BeginPlay() override;
+	
+	TMap<FName, FActorArray> ObjectPools;
 
-	TArray<ABasePooledObject*> ObjectPool;
-	TQueue<ABasePooledObject*> AvailableObjectPool;
-	TArray<int> SpawnPoolIndexs;
+	TArray<TQueue<AActor*>> AvailableObjectPools;
+	//TMap<FName, FActorQueue> AvailableObjectPools;
+	TMap<FName, int> SpawnPoolIndexs;
 
-
-		
 };

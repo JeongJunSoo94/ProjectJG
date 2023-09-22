@@ -1,11 +1,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BaseSystem/BasePooledObject.h"
+#include "GameFramework/Actor.h"
+#include "BaseSystem/ObjectPoolFunctions.h"
 #include "ManaBombObject.generated.h"
 
 UCLASS()
-class PROJECTJG_API AManaBombObject : public ABasePooledObject
+class PROJECTJG_API AManaBombObject : public AActor, public IObjectPoolFunctions
 {
 	GENERATED_BODY()
 private:
@@ -25,6 +26,10 @@ private:
 
     UPROPERTY(VisibleDefaultsOnly, Category = "ManaBomb")
         class USoundCue* ManaBombSoundCue;
+
+public:
+    UPROPERTY(VisibleDefaultsOnly)
+        class UPoolObjectActorComponent* PoolObject;
 public:
     AManaBombObject();
 

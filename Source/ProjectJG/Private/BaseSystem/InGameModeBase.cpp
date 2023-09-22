@@ -5,6 +5,7 @@
 #include "GameFramework/Pawn.h"
 #include "DataAssets/CharacterDataAsset.h"
 #include "Widgets/Title/UserWidget_MainTitle.h"
+#include "BaseSystem/ObjectPoolFactory.h"
 
 AInGameModeBase::AInGameModeBase()
 {
@@ -16,6 +17,7 @@ AInGameModeBase::AInGameModeBase()
 	CHelpers::GetAsset<UCharacterDataAsset>(&characterDataAsset, "CharacterDataAsset'/Game/Developers/GohyeongJu/DataAsset/DB_CharacterDataAsset.DB_CharacterDataAsset'");
 	
 	//PlayerControllerClass = AController_StartMenu::StaticClass();
+	CHelpers::CreateActorComponent<UObjectPoolFactory>(this, &ObjectPoolFactory, "ObjectPoolFactory");
 }
 
 void AInGameModeBase::BeginPlay()

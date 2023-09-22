@@ -15,6 +15,8 @@
 #include "Character/LtBelica/ManaBombObject.h"
 #include "GameFramework/Character.h"
 #include "BaseSystem/ObjectPoolFactory.h"
+#include "BaseSystem/InGameModeBase.h"
+#include "BaseSystem/PoolObjectActorComponent.h"
 
 UEAbliltyActionComponent::UEAbliltyActionComponent()
 {
@@ -35,6 +37,11 @@ void UEAbliltyActionComponent::BeginPlay()
 	IntervalCoolTime = 0.1f;
 	CurCoolTime = 0;
 	MaxCoolTime = 5.0f;
+	ObjectPoolFactory = CHelpers::GetComponent<UObjectPoolFactory>(GetWorld()->GetAuthGameMode());
+	if (ObjectPoolFactory != nullptr)
+	{
+		ObjectPoolFactory->CreateObject(5, ManaBombClass);
+	}
 }
 
 void UEAbliltyActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -49,10 +56,7 @@ void UEAbliltyActionComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 void UEAbliltyActionComponent::SetOwnerCharacter(ACharacter* character)
 {
 	OwnerCharacter = Cast<ACBaseCharacter>(character);
-	CHelpers::CreateActorComponent<UObjectPoolFactory>(OwnerCharacter, &ObjectPoolFactory, "ManaBombFactory");
-	ObjectPoolFactory->PoolSize = 5;
-	ObjectPoolFactory->PooledObjectSubclass = ManaBombClass;
-	ObjectPoolFactory->Initialized();
+
 }
 
 
@@ -84,17 +88,17 @@ void UEAbliltyActionComponent::HologramAction()
 	SetComponentTickEnabled(false);
 	ManaBombHologramActor->SetActive(false);
 	AManaBombObject* manaBomb;
-	manaBomb = Cast<AManaBombObject>(ObjectPoolFactory->SpawnObject());
+	manaBomb = Cast<AManaBombObject>(ObjectPoolFactory->SpawnObject(ManaBombClass));
 
 	manaBomb->SetBombLocation(ManaBombHologramActor->GetActorLocation());
 	manaBomb->SetBombScale(ManaBombHologramActor->GetActorScale().X * 50.0f);
-	manaBomb->SetActorLifeTime(3.0f);
+	manaBomb->PoolObject->SetActorLifeTime(3.0f);
 
 	IsCoolTiming = true;
 	GetWorld()->GetTimerManager().SetTimer(CoolTimeHandle, this, &UEAbliltyActionComponent::CoolTimeUpdate, IntervalCoolTime, true);
 
 	OwnerCharacter->PlayAnimMontage(EAbliltyMontage);
-	manaBomb->SetActive(true);
+	manaBomb->PoolObject->SetActive(true);
 }
 
 void UEAbliltyActionComponent::BeginNotifyAction()

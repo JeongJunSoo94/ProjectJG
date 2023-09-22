@@ -10,6 +10,7 @@
 #include "Character/Components/StatusComponent.h"
 #include "Sound/SoundCue.h"
 #include "Character/Interface/Damageable.h"
+#include "BaseSystem/PoolObjectActorComponent.h"
 
 AManaBombObject::AManaBombObject()
 {
@@ -32,6 +33,7 @@ AManaBombObject::AManaBombObject()
     CHelpers::GetAsset<UParticleSystem>(&BurstParticle, "ParticleSystem'/Game/ParagonLtBelica/FX/Particles/Belica/Abilities/ManaBomb/FX/P_ManaBombBurst.P_ManaBombBurst'");
 
     CHelpers::GetAsset<USoundCue>(&ManaBombSoundCue, "SoundCue'/Game/MilitaryWeapDark/Sound/GrenadeLauncher/GrenadeLauncher_Explosion_Cue.GrenadeLauncher_Explosion_Cue'");
+    CHelpers::CreateActorComponent(this, &PoolObject, "PoolObject");
 }
 
 void AManaBombObject::BeginPlay()
@@ -40,7 +42,7 @@ void AManaBombObject::BeginPlay()
 
 void AManaBombObject::Init()
 {
-    GetWorldTimerManager().SetTimer(ExplosionTimer, this, &AManaBombObject::Explosion, ActorLifeTime-0.1f, false);
+    GetWorldTimerManager().SetTimer(ExplosionTimer, this, &AManaBombObject::Explosion, PoolObject->GetActorLifeTime() -0.1f, false);
 }
 
 void AManaBombObject::SetBombLocation(FVector location)

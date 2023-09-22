@@ -1,11 +1,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BaseSystem/BasePooledObject.h"
+#include "GameFramework/Actor.h"
+#include "BaseSystem/ObjectPoolFunctions.h"
 #include "EruptionObject.generated.h"
 
 UCLASS()
-class PROJECTJG_API AEruptionObject : public ABasePooledObject
+class PROJECTJG_API AEruptionObject : public AActor, public IObjectPoolFunctions
 {
 	GENERATED_BODY()
 private:
@@ -23,7 +24,9 @@ private:
 
     UPROPERTY(VisibleDefaultsOnly, Category = "Eruption")
         class USoundCue* EruptionSoundCue;
-
+public:
+    UPROPERTY(VisibleDefaultsOnly)
+        class UPoolObjectActorComponent* PoolObject;
 public:
     AEruptionObject();
     void SetEruptionScale(float radius);

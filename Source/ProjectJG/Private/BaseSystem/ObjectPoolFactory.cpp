@@ -1,6 +1,7 @@
 #include "BaseSystem/ObjectPoolFactory.h"
 #include "Global.h"
 #include "BaseSystem/BasePooledObject.h"
+#include "BaseSystem/PoolObjectActorComponent.h"
 
 UObjectPoolFactory::UObjectPoolFactory()
 {
@@ -11,52 +12,72 @@ void UObjectPoolFactory::BeginPlay()
 	Super::BeginPlay();
 }
 
-void UObjectPoolFactory::CreateObject(UWorld* const World,int idx)
+void UObjectPoolFactory::CreateObject(unsigned int createCount, TSubclassOf<class AActor> pooledObjectSubclass)
 {
-	ABasePooledObject* PooledObject = World->SpawnActor<ABasePooledObject>(PooledObjectSubclass, FVector::ZeroVector, FRotator::ZeroRotator);
-	if (PooledObject != nullptr)
+	CheckNull(pooledObjectSubclass);
+	UWorld* const World = GetWorld();
+	CheckNull(World);
+	for (unsigned int i = 0; i < createCount; ++i)
 	{
-		PooledObject->SetActive(false);
-		PooledObject->SetPoolIndex(idx);
-		PooledObject->OnReturnedToPool.BindUObject(this, &UObjectPoolFactory::OnReturnedToPool);
-		ObjectPool.Add(PooledObject);
-		AvailableObjectPool.Enqueue(PooledObject);
-	}
-}
-
-void UObjectPoolFactory::Initialized()
-{
-	if (PooledObjectSubclass != nullptr)
-	{
-		UWorld* const World = GetWorld();
-		if (World != nullptr)
+		AActor* actor = World->SpawnActor<AActor>(pooledObjectSubclass, FVector::ZeroVector, FRotator::ZeroRotator);
+		UPoolObjectActorComponent* PooledObject = CHelpers::GetComponent<UPoolObjectActorComponent>(actor);
+		if (PooledObject != nullptr)
 		{
-			for (int i = 0; i < PoolSize; ++i)
+			PooledObject->SetActive(false);
+			if (ObjectPools.Find(pooledObjectSubclass->GetFName())==nullptr)
 			{
-				CreateObject(World,i);
+				ObjectPools.Add(pooledObjectSubclass->GetFName(), FActorArray());
+				SpawnPoolIndexs.Add(pooledObjectSubclass->GetFName(), SpawnPoolIndexs.Num());
+				AvailableObjectPools.SetNum(AvailableObjectPools.Num() + 1);
 			}
+			PooledObject->SetPoolIndex(ObjectPools[pooledObjectSubclass->GetFName()].actorArray.Num(), pooledObjectSubclass->GetFName());
+			PooledObject->OnReturnToPool.BindUObject(this, &UObjectPoolFactory::OnReturnToPool);
+			ObjectPools[pooledObjectSubclass->GetFName()].actorArray.Add(actor);
+			ObjectPools[pooledObjectSubclass->GetFName()].actorIsActive.Add(false);
+			
+			AvailableObjectPools[SpawnPoolIndexs[pooledObjectSubclass->GetFName()]].Enqueue(actor);
+			//AvailableObjectPools[SpawnPoolIndexs[pooledObjectSubclass->GetFName()]].actorQueue.Enqueue(actor);
+
+			//if (AvailableObjectPools.Find(pooledObjectSubclass->GetFName()) == nullptr)
+			//{
+			//	//AvailableObjectPools.Add(pooledObjectSubclass->GetFName());// [pooledObjectSubclass->GetFName()] ;
+			//}
+			//AvailableObjectPools[pooledObjectSubclass->GetFName()].actorQueue.Enqueue(actor);
 		}
 	}
 }
 
-
-ABasePooledObject* UObjectPoolFactory::SpawnObject()
+AActor* UObjectPoolFactory::SpawnObject(TSubclassOf<class AActor> pooledObjectSubclass)
 {
-	ABasePooledObject* PooledObject;
-	if (AvailableObjectPool.IsEmpty())
+	AActor* PooledObject=nullptr;
+	//for (int i = 0; i < ObjectPools[pooledObjectSubclass->GetFName()].actorArray.Num(); ++i)
+	//{
+	//	if (ObjectPools[pooledObjectSubclass->GetFName()].actorIsActive[i])
+	//	{
+	//		PooledObject = ObjectPools[pooledObjectSubclass->GetFName()].actorArray[i];
+	//		ObjectPools[pooledObjectSubclass->GetFName()].actorIsActive[i] = true;
+	//		return PooledObject;
+	//	}
+	//}
+	//CreateObject(1, pooledObjectSubclass);
+	//PooledObject = ObjectPools[pooledObjectSubclass->GetFName()].actorArray[ObjectPools[pooledObjectSubclass->GetFName()].actorArray.Num()-1];
+	//ObjectPools[pooledObjectSubclass->GetFName()].actorIsActive[ObjectPools[pooledObjectSubclass->GetFName()].actorArray.Num() - 1] = true;
+
+	if (AvailableObjectPools[SpawnPoolIndexs[pooledObjectSubclass->GetFName()]].IsEmpty())
 	{
-		UWorld* const World = GetWorld();
-		if (World != nullptr)
-		{
-			CreateObject(World, ObjectPool.Num());
-		}
+		CreateObject(1, pooledObjectSubclass);
 	}
-	AvailableObjectPool.Dequeue(PooledObject);
+	AvailableObjectPools[SpawnPoolIndexs[pooledObjectSubclass->GetFName()]].Dequeue(PooledObject);
 	return PooledObject;
 }
 
-void UObjectPoolFactory::OnReturnedToPool(ABasePooledObject* PoolActor)
+void UObjectPoolFactory::OnReturnToPool(AActor* PoolActor)
 {
-	PoolActor->SetActive(false);
-	AvailableObjectPool.Enqueue(PoolActor);
+	UPoolObjectActorComponent* PooledObject = CHelpers::GetComponent<UPoolObjectActorComponent>(PoolActor);
+	if (PooledObject != nullptr)
+	{
+		PooledObject->SetActive(false);
+		//ObjectPools[PooledObject->GetPoolObjectID()].actorIsActive[PooledObject->GetPoolIndex()]=false;
+		AvailableObjectPools[SpawnPoolIndexs[PooledObject->GetPoolObjectID()]].Enqueue(PoolActor);
+	}
 }

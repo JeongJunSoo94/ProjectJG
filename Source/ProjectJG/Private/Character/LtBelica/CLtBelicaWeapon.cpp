@@ -13,6 +13,8 @@
 #include "Materials/MaterialInstanceConstant.h"
 #include "BaseSystem/ObjectPoolFactory.h"
 #include "Character/Interface/Damageable.h"
+#include "BaseSystem/InGameModeBase.h"
+#include "BaseSystem/PoolObjectActorComponent.h"
 
 UCLtBelicaWeapon::UCLtBelicaWeapon()
 {
@@ -52,6 +54,12 @@ void UCLtBelicaWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 	OwnerCharacter->bUseControllerRotationYaw = true;
+
+	ObjectPoolFactory = CHelpers::GetComponent<UObjectPoolFactory>(GetWorld()->GetAuthGameMode());
+	if (ObjectPoolFactory != nullptr)
+	{
+		ObjectPoolFactory->CreateObject(20, BulletClass);
+	}
 }
 
 
@@ -65,10 +73,7 @@ void UCLtBelicaWeapon::SetOwnerCharacter(ACBaseCharacter* character)
 {
 	OwnerCharacter = character;
 	MuzzleIndex = OwnerCharacter->GetMesh()->GetBoneIndex("SMG_Barrel");
-	CHelpers::CreateActorComponent<UObjectPoolFactory>(OwnerCharacter, &ObjectPoolFactory, "ObjectPoolFactory");
-	ObjectPoolFactory->PoolSize = 20;
-	ObjectPoolFactory->PooledObjectSubclass = BulletClass;
-	ObjectPoolFactory->Initialized();
+
 }
 
 void UCLtBelicaWeapon::Begin_Fire()
@@ -99,20 +104,20 @@ void UCLtBelicaWeapon::Firing()
 	if (!!BulletClass)
 	{
 		ACBullet* bullet;
-		bullet = Cast<ACBullet>(ObjectPoolFactory->SpawnObject());
+		bullet = Cast<ACBullet>(ObjectPoolFactory->SpawnObject(BulletClass));
 
 		FTransform Transform = bullet->GetTransform();
 		Transform.SetLocation(muzzleLocation);
 		direction = UKismetMathLibrary::GetDirectionUnitVector(muzzleLocation,end);
 		Transform.SetRotation(FQuat(direction.Rotation()));
 		bullet->SetActorTransform(Transform);
-		bullet->SetActorLifeTime(3.0f);
+		bullet->PoolObject->SetActorLifeTime(3.0f);
 		if (!(bullet->bInitailized))
 		{
 			bullet->bInitailized = true;
 			bullet->GetMesh()->OnComponentHit.AddDynamic(this, &UCLtBelicaWeapon::OnHitPaticle);
 		}
-		bullet->SetActive(true);
+		bullet->PoolObject->SetActive(true);
 
 		//ACBullet* bullet= GetWorld()->SpawnActor<ACBullet>(BulletClass, muzzleLocation, direction.Rotation());
 		//bullet->GetMesh()->OnComponentHit.AddDynamic(this, &UCLtBelicaWeapon::OnHitPaticle);

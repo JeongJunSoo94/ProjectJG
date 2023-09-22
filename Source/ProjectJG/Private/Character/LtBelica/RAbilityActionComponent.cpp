@@ -16,6 +16,8 @@
 #include "Character/LtBelica/EruptionObject.h"
 #include "Bullet/CBullet.h"
 #include "Sound/SoundCue.h"
+#include "BaseSystem/InGameModeBase.h"
+#include "BaseSystem/PoolObjectActorComponent.h"
 
 void URAbilityActionComponent::OnHitPaticle(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -50,6 +52,11 @@ void URAbilityActionComponent::BeginPlay()
 	IntervalCoolTime = 0.1f;
 	CurCoolTime = 0;
 	MaxCoolTime = 10.0f;
+	ObjectPoolFactory = CHelpers::GetComponent<UObjectPoolFactory>(GetWorld()->GetAuthGameMode());
+	if (ObjectPoolFactory != nullptr)
+	{
+		ObjectPoolFactory->CreateObject(5, BulletClass);
+	}
 }
 
 void URAbilityActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -61,10 +68,6 @@ void URAbilityActionComponent::SetOwnerCharacter(ACharacter* character)
 {
 	OwnerCharacter = Cast<ACBaseCharacter>(character);
 	MuzzleIndex = OwnerCharacter->GetMesh()->GetBoneIndex("PistolBarrel");
-	CHelpers::CreateActorComponent<UObjectPoolFactory>(OwnerCharacter, &ObjectPoolFactory, "PistolPoolFactory");
-	ObjectPoolFactory->PoolSize = 20;
-	ObjectPoolFactory->PooledObjectSubclass = BulletClass;
-	ObjectPoolFactory->Initialized();
 }
 
 void URAbilityActionComponent::OnStartAction()
@@ -113,20 +116,20 @@ void URAbilityActionComponent::BeginNotifyAction()
 	if (!!BulletClass)
 	{
 		ACBullet* bullet;
-		bullet = Cast<ACBullet>(ObjectPoolFactory->SpawnObject());
+		bullet = Cast<ACBullet>(ObjectPoolFactory->SpawnObject(BulletClass));
 
 		FTransform Transform = bullet->GetTransform();
 		Transform.SetLocation(muzzleLocation);
 		direction = UKismetMathLibrary::GetDirectionUnitVector(muzzleLocation, end);
 		Transform.SetRotation(FQuat(direction.Rotation()));
 		bullet->SetActorTransform(Transform);
-		bullet->SetActorLifeTime(3.0f);
+		bullet->PoolObject->SetActorLifeTime(3.0f);
 		if (!(bullet->bInitailized))
 		{
 			bullet->bInitailized = true;
 			bullet->GetMesh()->OnComponentHit.AddDynamic(this, &URAbilityActionComponent::OnHitPaticle);
 		}
-		bullet->SetActive(true);
+		bullet->PoolObject->SetActive(true);
 
 	}
 }

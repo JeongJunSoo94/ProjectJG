@@ -14,6 +14,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Materials/MaterialInstanceConstant.h"
 #include "BaseSystem/ObjectPoolFactory.h"
+#include "BaseSystem/InGameModeBase.h"
+#include "BaseSystem/PoolObjectActorComponent.h"
 
 UMurdockWeapon::UMurdockWeapon()
 {
@@ -62,6 +64,12 @@ void UMurdockWeapon::OnHitPaticle(UPrimitiveComponent* HitComponent, AActor* Oth
 void UMurdockWeapon::BeginPlay()
 {
 	Super::BeginPlay();
+	ObjectPoolFactory = CHelpers::GetComponent<UObjectPoolFactory>(GetWorld()->GetAuthGameMode());
+	if (ObjectPoolFactory != nullptr)
+	{
+		ObjectPoolFactory->CreateObject(5, BulletClass);
+	}
+
 }
 
 
@@ -69,12 +77,11 @@ void UMurdockWeapon::SetOwnerCharacter(ACBaseCharacter* character)
 {
 	OwnerCharacter = Cast<ACBaseCharacter>(GetOwner());
 	MuzzleIndex = OwnerCharacter->GetMesh()->GetBoneIndex("Muzzle");
-	CHelpers::CreateActorComponent<UObjectPoolFactory>(OwnerCharacter, &ObjectPoolFactory, "ObjectPoolFactory");
-	ObjectPoolFactory->PoolSize = 20;
-	
-	ObjectPoolFactory->PooledObjectSubclass = BulletClass;
-	ObjectPoolFactory->Initialized();
-
+	//CHelpers::CreateActorComponent<UObjectPoolFactory>(OwnerCharacter, &ObjectPoolFactory, "ObjectPoolFactory");
+	//ObjectPoolFactory->PoolSize = 20;
+	//
+	//ObjectPoolFactory->PooledObjectSubclass = BulletClass;
+	//ObjectPoolFactory->Initialized();
 	OwnerCharacter->bUseControllerRotationYaw = true;
 	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 	
@@ -114,14 +121,14 @@ void UMurdockWeapon::Firing()
 	if (!!BulletClass)
 	{
 		AMurdockBullet* bullet;
-		bullet = Cast<AMurdockBullet>(ObjectPoolFactory->SpawnObject());
+		bullet = Cast<AMurdockBullet>(ObjectPoolFactory->SpawnObject(BulletClass));
 	
 		//bullet->TeleportTo(muzzleLocation, direction.Rotation());
 		FTransform Transform = bullet->GetTransform();
 		Transform.SetLocation(muzzleLocation);
 		Transform.SetRotation(FQuat(direction.Rotation()));
 		bullet->SetActorTransform(Transform);
-		bullet->SetActorLifeTime(3.0f);
+		bullet->PoolObject->SetActorLifeTime(3.0f);
 		
 		if (!(bullet->bInitailized))
 		{
@@ -129,7 +136,7 @@ void UMurdockWeapon::Firing()
 			bullet->bInitailized = true;
 			bullet->GetMesh()->OnComponentHit.AddDynamic(this, &UMurdockWeapon::OnHitPaticle);
 		}
-		bullet->SetActive(true);
+		bullet->PoolObject->SetActive(true);
 
 		//ACBullet* bullet= GetWorld()->SpawnActor<ACBullet>(BulletClass, muzzleLocation, direction.Rotation());
 		//bullet->GetMesh()->OnComponentHit.AddDynamic(this, &UCLtBelicaWeapon::OnHitPaticle);

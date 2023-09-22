@@ -31,7 +31,12 @@ protected:
 
 	UUserWidget* CurWidget;
 
+<<<<<<< HEAD
 
+=======
+	UPROPERTY(VisibleDefaultsOnly)
+		class UObjectPoolFactory* ObjectPoolFactory;
+>>>>>>> EnemySpawn_Feature
 public:
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 

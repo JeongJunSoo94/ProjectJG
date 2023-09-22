@@ -5,6 +5,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Materials/MaterialInstanceConstant.h"
 #include "Character/Interface/Damageable.h"
+#include "BaseSystem/PoolObjectActorComponent.h"
 
 ACBullet::ACBullet()
 {
@@ -28,6 +29,8 @@ ACBullet::ACBullet()
 
 	bInitailized = false;
 
+    CHelpers::CreateActorComponent(this, &PoolObject, "PoolObject");
+
     //SetActive(false);
 }
 
@@ -35,7 +38,6 @@ void ACBullet::Init()
 {
     Projectile->Velocity = FQuat(GetActorRotation()).GetForwardVector()* Projectile->InitialSpeed;
     Projectile->SetUpdatedComponent(Mesh);
- 
 }
 
 void ACBullet::BeginPlay()
@@ -51,7 +53,7 @@ void ACBullet::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPri
     if(damageableActor)
         damageableActor->SetImpactVectorFrom(Projectile->Velocity);
 
-    OnReturnedToPool.Execute(this);
+    PoolObject->OnReturnToPool.Execute(this);
     //Destroy();
 }
 
