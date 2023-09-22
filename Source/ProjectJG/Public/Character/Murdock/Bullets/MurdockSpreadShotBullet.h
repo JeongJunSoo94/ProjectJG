@@ -3,14 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BaseSystem/BasePooledObject.h"
+#include "GameFramework/Actor.h"
+#include "BaseSystem/ObjectPoolFunctions.h"
+#include "BaseSystem/PoolObjectActorComponent.h"
 #include "MurdockSpreadShotBullet.generated.h"
 
-/**
- * 
- */
 UCLASS()
-class PROJECTJG_API AMurdockSpreadShotBullet : public ABasePooledObject
+class PROJECTJG_API AMurdockSpreadShotBullet : public AActor, public IObjectPoolFunctions
 {
 	GENERATED_BODY()
 protected:
@@ -22,6 +21,9 @@ protected:
         void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
             UPrimitiveComponent* OtherComp, FVector  NormalImpulse,
             const FHitResult& Hit);
+public:
+    UPROPERTY(VisibleDefaultsOnly)
+        class UPoolObjectActorComponent* PoolObject;
 public:
     AMurdockSpreadShotBullet();
     virtual UStaticMeshComponent* GetMesh() { return Mesh; }

@@ -7,6 +7,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Materials/MaterialInstanceConstant.h"
+#include "BaseSystem/PoolObjectActorComponent.h"
 
 AMurdockSpreadShotBullet::AMurdockSpreadShotBullet()
 {
@@ -29,7 +30,7 @@ AMurdockSpreadShotBullet::AMurdockSpreadShotBullet()
     Projectile->SetUpdatedComponent(Mesh);
 
     bInitailized = false;
-
+    CHelpers::CreateActorComponent(this, &PoolObject, "PoolObject");
     //SetActive(false);
 }
 
@@ -48,7 +49,7 @@ void AMurdockSpreadShotBullet::BeginPlay()
 
 void AMurdockSpreadShotBullet::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-    HitTime = GetCurrentLifeTime();
-    OnReturnedToPool.Execute(this);
+    HitTime = PoolObject->GetCurrentLifeTime();
+    PoolObject->OnReturnToPool.Execute(this);
     //Destroy();
 }

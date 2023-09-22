@@ -2,11 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "BaseSystem/ObjectPoolFunctions.h"
 #include "BaseSystem/BasePooledObject.h"
 #include "CBullet.generated.h"
 
 UCLASS()
-class PROJECTJG_API ACBullet : public ABasePooledObject
+class PROJECTJG_API ACBullet : public AActor, public IObjectPoolFunctions
 {
     GENERATED_BODY()
 protected:
@@ -18,6 +19,9 @@ protected:
         void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
             UPrimitiveComponent* OtherComp, FVector  NormalImpulse,
             const FHitResult& Hit);
+public:
+    UPROPERTY(VisibleDefaultsOnly)
+        class UPoolObjectActorComponent* PoolObject;
 public:
     ACBullet();
     virtual UStaticMeshComponent* GetMesh() { return Mesh; }

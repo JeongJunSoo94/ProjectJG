@@ -18,7 +18,7 @@
 #include "BaseSystem/ObjectPoolFactory.h"
 #include "Character/Murdock/Bullets/MurdockSpreadShotBullet.h"
 #include "Particles/Size/ParticleModuleSize.h"
-
+#include "BaseSystem/InGameModeBase.h"
 
 UMurdockSpreadShotSkillComponent::UMurdockSpreadShotSkillComponent()
 {
@@ -59,11 +59,12 @@ void UMurdockSpreadShotSkillComponent::CreateObjectPool()
 {
 	OwnerCharacter = Cast<AMurdock>(GetOwner());
 
-	CHelpers::CreateActorComponent<UObjectPoolFactory>(OwnerCharacter, &ObjectPoolFactory, "SpreadShotSkillObjectFactory");
-	ObjectPoolFactory->PoolSize = 20;
+	//CHelpers::CreateActorComponent<UObjectPoolFactory>(OwnerCharacter, &ObjectPoolFactory, "SpreadShotSkillObjectFactory");
+	//ObjectPoolFactory->PoolSize = 20;
 
-	ObjectPoolFactory->PooledObjectSubclass = BulletClass;
-	ObjectPoolFactory->Initialized();
+	//ObjectPoolFactory->PooledObjectSubclass = BulletClass;
+	//ObjectPoolFactory->Initialized();
+
 }
 
 void UMurdockSpreadShotSkillComponent::OnStartAction()
@@ -93,6 +94,12 @@ void UMurdockSpreadShotSkillComponent::EndNotifyAction()
 void UMurdockSpreadShotSkillComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	ObjectPoolFactory = CHelpers::GetComponent<UObjectPoolFactory>(GetWorld()->GetAuthGameMode());
+	if (ObjectPoolFactory != nullptr)
+	{
+		ObjectPoolFactory->CreateObject(20, BulletClass);
+	}
 
 	if (OwnerCharacter == Cast<AMurdock>(GetOwner()))
 	{
@@ -147,21 +154,21 @@ void UMurdockSpreadShotSkillComponent::ShootSpreadShot()
 	if (!!BulletClass)
 	{
 		AMurdockSpreadShotBullet* bullet;
-		bullet = Cast<AMurdockSpreadShotBullet>(ObjectPoolFactory->SpawnObject());
+		bullet = Cast<AMurdockSpreadShotBullet>(ObjectPoolFactory->SpawnObject(BulletClass));
 
 		//bullet->TeleportTo(muzzleLocation, direction.Rotation());
 		FTransform Transform = bullet->GetTransform();
 		Transform.SetLocation(muzzleLocation);
 		Transform.SetRotation(FQuat(direction.Rotation()));
 		bullet->SetActorTransform(Transform);
-		bullet->SetActorLifeTime(3.0f);
+		bullet->PoolObject->SetActorLifeTime(3.0f);
 
 		if (!(bullet->bInitailized))
 		{
 			bullet->bInitailized = true;
 			bullet->GetMesh()->OnComponentHit.AddDynamic(this, &UMurdockSpreadShotSkillComponent::OnHitPaticle);
 		}
-		bullet->SetActive(true);
+		bullet->PoolObject->SetActive(true);
 	}
 
 

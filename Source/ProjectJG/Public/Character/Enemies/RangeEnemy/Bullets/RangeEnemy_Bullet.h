@@ -15,7 +15,7 @@ class PROJECTJG_API ARangeEnemy_Bullet : public ACBullet
 	GENERATED_BODY()
 protected:
     UPROPERTY(VisibleDefaultsOnly)
-        class UParticleSystem* BulletParticle;
+        class UParticleSystem* BulletParticle; 
 public:
     ARangeEnemy_Bullet();
     virtual UStaticMeshComponent* GetMesh() override { return Mesh; }

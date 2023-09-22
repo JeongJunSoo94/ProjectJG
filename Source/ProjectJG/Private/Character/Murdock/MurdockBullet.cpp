@@ -37,6 +37,8 @@ AMurdockBullet::AMurdockBullet()
     bInitailized = false;
 
     CHelpers::GetAsset<UParticleSystem>(&BulletParticle, "ParticleSystem'/Game/ParagonMurdock/FX/Particles/Abilities/Primary/FX/P_PlasmaShot_Projectile_Trail_2.P_PlasmaShot_Projectile_Trail_2'");
+
+
 }
 
 void AMurdockBullet::BeginPlay()

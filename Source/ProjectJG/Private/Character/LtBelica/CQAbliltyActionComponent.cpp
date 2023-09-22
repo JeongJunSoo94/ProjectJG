@@ -15,6 +15,8 @@
 #include "Character/LtBelica/EruptionHologram.h"
 #include "Character/LtBelica/EruptionObject.h"
 #include "TimerManager.h"
+#include "BaseSystem/InGameModeBase.h"
+#include "BaseSystem/PoolObjectActorComponent.h"
 
 UCQAbliltyActionComponent::UCQAbliltyActionComponent()
 {
@@ -45,6 +47,12 @@ void UCQAbliltyActionComponent::BeginPlay()
 	IntervalCoolTime = 0.1f;
 	CurCoolTime = 0;
 	MaxCoolTime = 5.0f;
+
+	ObjectPoolFactory = CHelpers::GetComponent<UObjectPoolFactory>(GetWorld()->GetAuthGameMode());
+	if (ObjectPoolFactory != nullptr)
+	{
+		ObjectPoolFactory->CreateObject(7, EruptionClass);
+	}
 }
 
 void UCQAbliltyActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -64,10 +72,7 @@ void UCQAbliltyActionComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 void UCQAbliltyActionComponent::SetOwnerCharacter(ACharacter* character)
 {
 	OwnerCharacter = Cast<ACBaseCharacter>(character);
-	CHelpers::CreateActorComponent<UObjectPoolFactory>(OwnerCharacter, &ObjectPoolFactory, "EruptionFactory");
-	ObjectPoolFactory->PoolSize = 5;
-	ObjectPoolFactory->PooledObjectSubclass = EruptionClass;
-	ObjectPoolFactory->Initialized();
+
 }
 
 void UCQAbliltyActionComponent::OnStartAction()
@@ -135,7 +140,7 @@ void UCQAbliltyActionComponent::EndNotifyAction()
 	AEruptionObject* eruption;
 	for (int i = 1; i <= 7; ++i)
 	{
-		eruption = Cast<AEruptionObject>(ObjectPoolFactory->SpawnObject());
+		eruption = Cast<AEruptionObject>(ObjectPoolFactory->SpawnObject(EruptionClass));
 		CollisionParams.AddIgnoredActor(eruption);
 		eruption->SetEruptionScale(EruptionHologramActor->GetActorScale().X * 100.0f);
 		rayStart = startLocation + intervalLocation * i;
@@ -144,8 +149,8 @@ void UCQAbliltyActionComponent::EndNotifyAction()
 		if (IsHit)
 		{
 			eruption->SetActorLocation(OutHit.ImpactPoint);
-			eruption->SetActorLifeTime(i * 0.1f);
-			eruption->SetActive(true);
+			eruption->PoolObject->SetActorLifeTime(i * 0.1f);
+			eruption->PoolObject->SetActive(true);
 		}
 	}
 

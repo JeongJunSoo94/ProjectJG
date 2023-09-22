@@ -3,6 +3,7 @@
 #include "BaseSystem/GameHUD.h"
 //#include "BaseSystem/projectJG_GameInstance.h"
 #include "GameFramework/Pawn.h"
+#include "BaseSystem/ObjectPoolFactory.h"
 
 AInGameModeBase::AInGameModeBase()
 {
@@ -12,6 +13,7 @@ AInGameModeBase::AInGameModeBase()
 	DefaultPawnClass = PawnClass;
 
 	//PlayerControllerClass = AController_StartMenu::StaticClass();
+	CHelpers::CreateActorComponent<UObjectPoolFactory>(this, &ObjectPoolFactory, "ObjectPoolFactory");
 }
 
 void AInGameModeBase::BeginPlay()

@@ -30,6 +30,9 @@ protected:
 		TSubclassOf<UUserWidget>HUDWidgetClass;
 
 	UUserWidget* CurWidget;
+
+	UPROPERTY(VisibleDefaultsOnly)
+		class UObjectPoolFactory* ObjectPoolFactory;
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		FString CharacterName;

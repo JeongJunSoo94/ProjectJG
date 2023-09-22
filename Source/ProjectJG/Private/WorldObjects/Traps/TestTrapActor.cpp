@@ -14,7 +14,7 @@ ATestTrapActor::ATestTrapActor()
 	CHelpers::GetAsset<UBehaviorTree>(&BT, "BehaviorTree'/Game/Developers/USER/WorldObjects/TrapBehaviorTree.TrapBehaviorTree'");
 	CHelpers::GetAsset<UBlackboardData>(&BTData, "BlackboardData'/Game/Developers/USER/WorldObjects/TrapBlackboardData.TrapBlackboardData'");
 
-	CHelpers::CreateActorComponent<UObjectPoolFactory>(this, &ObjectPoolFactory, "ObjectPoolFactory");
+	//CHelpers::CreateActorComponent<UObjectPoolFactory>(this, &ObjectPoolFactory, "ObjectPoolFactory");
 	CHelpers::CreateActorComponent<UBehaviorTreeComponent>(this, &BTC, "BTC");
 	CHelpers::CreateActorComponent<UBlackboardComponent>(this, &BlC, "BlC");
 
@@ -23,9 +23,9 @@ ATestTrapActor::ATestTrapActor()
 void ATestTrapActor::BeginPlay()
 {
 	Super::BeginPlay();
-	ObjectPoolFactory->PoolSize = 20;
-	ObjectPoolFactory->PooledObjectSubclass = BulletClass;
-	ObjectPoolFactory->Initialized();
+	//ObjectPoolFactory->PoolSize = 20;
+	//ObjectPoolFactory->PooledObjectSubclass = BulletClass;
+	//ObjectPoolFactory->Initialized();
 	
 	GetWorldTimerManager().SetTimer(LifeTimer, this, &ATestTrapActor::Fire, 1.0f, true);
 	BT->BlackboardAsset = BTData;
@@ -49,19 +49,19 @@ void ATestTrapActor::Fire()
 	FRotator direction = GetActorRotation();
 	if (!!BulletClass)
 	{
-		ACBullet* bullet;
-		bullet = Cast<ACBullet>(ObjectPoolFactory->SpawnObject());
-		FTransform Transform = bullet->GetTransform();
-		Transform.SetLocation(muzzleLocation);
-		Transform.SetRotation(FQuat(direction));
-		bullet->SetActorTransform(Transform);
-		bullet->SetActorLifeTime(3.0f);
-		if (!(bullet->bInitailized))
-		{
-			bullet->bInitailized = true;
-			bullet->GetMesh()->OnComponentHit.AddDynamic(this, &ATestTrapActor::OnHitPlayer);
-		}
-		bullet->SetActive(true);
+		//ACBullet* bullet;
+		//bullet = Cast<ACBullet>(ObjectPoolFactory->SpawnObject());
+		//FTransform Transform = bullet->GetTransform();
+		//Transform.SetLocation(muzzleLocation);
+		//Transform.SetRotation(FQuat(direction));
+		//bullet->SetActorTransform(Transform);
+		//bullet->SetActorLifeTime(3.0f);
+		//if (!(bullet->bInitailized))
+		//{
+		//	bullet->bInitailized = true;
+		//	bullet->GetMesh()->OnComponentHit.AddDynamic(this, &ATestTrapActor::OnHitPlayer);
+		//}
+		//bullet->SetActive(true);
 	}
 }
 
