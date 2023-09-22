@@ -62,7 +62,6 @@ void UMurdockWeapon::OnHitPaticle(UPrimitiveComponent* HitComponent, AActor* Oth
 void UMurdockWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 

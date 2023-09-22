@@ -191,6 +191,8 @@ void UMurdockUltimateSkillComponent::ShotLaser()
 	if(currentLaserCount <= 0)
 	{
 		curState = UltimateSkillState::ESkillStop;
+		IsCoolTiming = true;
+		GetWorld()->GetTimerManager().SetTimer(CoolTimeHandle, this, &UMurdockUltimateSkillComponent::CoolTimeUpdate, IntervalCoolTime, true);
 	}
 
 	//UGameplayStatics::SpawnEmitterAttached(UltimateMuzzleShot, Ownercharacter->GetMesh(), "Muzzle", FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true, EPSCPoolMethod::AutoRelease);
@@ -204,6 +206,11 @@ void UMurdockUltimateSkillComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	OwnerCharacter = Cast<AMurdock>(GetOwner());
+
+	IsCoolTiming = false;
+	IntervalCoolTime = 0.1f;
+	CurCoolTime = 0;
+	MaxCoolTime = 15.0f;
 }
 
 void UMurdockUltimateSkillComponent::EndZoomLag()

@@ -31,6 +31,11 @@ void UMurdockShieldSkillComponent::BeginPlay()
 	ShieldParticle->Deactivate();
 
 
+	IsCoolTiming = false;
+	IntervalCoolTime = 0.1f;
+	CurCoolTime = 0;
+	MaxCoolTime = 1.0f;
+
 
 }
 
@@ -46,6 +51,8 @@ void UMurdockShieldSkillComponent::BeginShield()
 }
 void UMurdockShieldSkillComponent::BreakShield()
 { 
+	IsCoolTiming = true;
+	GetWorld()->GetTimerManager().SetTimer(CoolTimeHandle, this, &UMurdockShieldSkillComponent::CoolTimeUpdate, IntervalCoolTime, true);
 
 	Ownercharacter->PlayAnimMontage(ShieldAnim,1.0f,"EndLoop");
 	ShieldParticle->Deactivate();

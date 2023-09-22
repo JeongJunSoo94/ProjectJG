@@ -17,6 +17,7 @@
 
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/GameStateBase.h"
+#include "BaseSystem/GameHUD.h"
 
 AMurdock::AMurdock()
 {
@@ -46,6 +47,7 @@ AMurdock::AMurdock()
 	ZoomCurveFloat = ZoomCurve.Object;
 	
 	SpreadShotSkill->CreateObjectPool();
+
 }
 
 
@@ -58,6 +60,8 @@ void AMurdock::BeginPlay()
 	CHelpers::CheckNullComponent<UMurdockUltimateSkillComponent>(this, &UltimateSkill);
 	currentFOV = PlayerMainCamera->FieldOfView;
 	
+	AGameHUD* hud = UGameplayStatics::GetPlayerController(this, 0)->GetHUD<AGameHUD>();
+	hud->SetHUDPlayerControllerSkillBind(MurdockWeapon, ShieldSkill, SpreadShotSkill, UltimateSkill);
 }
 
 void AMurdock::Tick(float DeltaTime)
@@ -132,7 +136,7 @@ void AMurdock::OffAlt()
 
 void AMurdock::OnShield()
 {
-	if (BehaviorState == MurdockBehaviorState::EIdle)
+	if (BehaviorState == MurdockBehaviorState::EIdle && !ShieldSkill->GetIsCoolTiming())
 	{
 		OnStartActionMontage(MurdockBehaviorState::EShield);
 	}
@@ -148,7 +152,7 @@ void AMurdock::OffShield()
 
 void AMurdock::OnSpreadShot()
 {
-	if (BehaviorState == MurdockBehaviorState::EIdle)
+	if (BehaviorState == MurdockBehaviorState::EIdle && !SpreadShotSkill->GetIsCoolTiming() )
 	{
 		//Clog::Log(SpreadShotSkill);
 		OnStartActionMontage(MurdockBehaviorState::ESpreadShot);
@@ -165,7 +169,7 @@ void AMurdock::OffSpreadShot()
 void AMurdock::OnUltimate()
 {
 
-	if (BehaviorState == MurdockBehaviorState::EIdle)
+	if (BehaviorState == MurdockBehaviorState::EIdle && !UltimateSkill->GetIsCoolTiming())
 	{
 		//Clog::Log(int(BehaviorState));
 		FVector FrontVector = UKismetMathLibrary::Cross_VectorVector(PlayerMainCamera->GetRightVector(), GetActorUpVector());

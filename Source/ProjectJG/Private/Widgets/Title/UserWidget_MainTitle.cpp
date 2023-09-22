@@ -9,6 +9,8 @@
 
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/GameStateBase.h"
+#include "BaseSystem/projectJG_GameInstance.h"
+
 UUserWidget_MainTitle::UUserWidget_MainTitle(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -79,5 +81,10 @@ void UUserWidget_MainTitle::PrintCharacterEnum()
 
 void UUserWidget_MainTitle::OnStartButton(FName StageName)
 {
+	UprojectJG_GameInstance* gameInstance = Cast<UprojectJG_GameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+
+	gameInstance->SetGameData(GameData);
+
+
 	UGameplayStatics::OpenLevel(GetWorld(), StageName);
 }

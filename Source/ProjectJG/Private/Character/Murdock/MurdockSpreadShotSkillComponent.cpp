@@ -94,6 +94,11 @@ void UMurdockSpreadShotSkillComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	IsCoolTiming = false;
+	IntervalCoolTime = 0.1f;
+	CurCoolTime = 0;
+	MaxCoolTime = 10.0f;
+
 	if (OwnerCharacter == Cast<AMurdock>(GetOwner()))
 	{
 		Clog::Log("SameOwner");
@@ -130,6 +135,9 @@ void UMurdockSpreadShotSkillComponent::LoopZoomMontage()
 
 void UMurdockSpreadShotSkillComponent::ShootSpreadShot()
 {
+	IsCoolTiming = true;
+	GetWorld()->GetTimerManager().SetTimer(CoolTimeHandle, this, &UMurdockSpreadShotSkillComponent::CoolTimeUpdate, IntervalCoolTime, true);
+	
 	OwnerCharacter->StartCameraFOV(30.0f, 1.0f);
 
 

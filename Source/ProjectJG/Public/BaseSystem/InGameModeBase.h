@@ -30,7 +30,15 @@ protected:
 		TSubclassOf<UUserWidget>HUDWidgetClass;
 
 	UUserWidget* CurWidget;
+
+
 public:
+	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		FString CharacterName;
+	UPROPERTY(EditAnywhere)
+		class UCharacterDataAsset* characterDataAsset;
+
+	TArray<TQueue<AActor*>> Test;
 };

@@ -15,3 +15,10 @@ void UprojectJG_GameInstance::SetEffectVolume(float value)
 {
 	EffectVolume = value;
 }
+
+void UprojectJG_GameInstance::SetGameData(FGameSettingData Data)
+{
+	StaticData.StageNumber = Data.StageNumber;
+	StaticData.SelectCharacter = Data.SelectCharacter;
+	StaticData.Difficulty = Data.Difficulty;
+}
