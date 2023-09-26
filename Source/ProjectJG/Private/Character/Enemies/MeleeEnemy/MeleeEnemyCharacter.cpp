@@ -148,6 +148,7 @@ void AMeleeEnemyCharacter::EndNotifyAction()
 	case ECharacterStateFlags::DEAD:
 	{
 		GetMesh()->GetAnimInstance()->Montage_Pause(DeathMontage);//MontagePause(DeathMontage);
+		ReturnPool();
 		//isFullBody = false;
 		//Destroy();
 	}

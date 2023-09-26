@@ -5,6 +5,7 @@
 #include "Widgets/StatusUserWidget.h"
 #include "Widgets/HealthWidget.h"
 #include "Components/WidgetComponent.h"
+#include "BaseSystem/PoolObjectActorComponent.h"
 
 ABaseEnemyCharacter::ABaseEnemyCharacter()
 {
@@ -18,15 +19,15 @@ ABaseEnemyCharacter::ABaseEnemyCharacter()
 	HealthWidget->SetWidgetClass(healthClass);
 	SetHealthWidgetSizeAndLocation(FVector(0, 0, 200), FVector2D(120, 20));
 	HealthWidget->SetWidgetSpace(EWidgetSpace::Screen);
+
+	CHelpers::CreateActorComponent(this, &PoolObject, "PoolObject");
 }
 
 void ABaseEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
 	HealthWidget->InitWidget();
 	Cast<UHealthWidget>(HealthWidget->GetUserWidgetObject())->Update(Status->GetHealth(), Status->GetMaxHealth());
-
 }
 
 void ABaseEnemyCharacter::SetHealthWidgetSizeAndLocation(FVector location, FVector2D size)
@@ -78,4 +79,12 @@ void ABaseEnemyCharacter::Damaged(float totalAmount)
 
 void ABaseEnemyCharacter::Die()
 {
+}
+void ABaseEnemyCharacter::Init()
+{
+}
+
+void ABaseEnemyCharacter::ReturnPool()
+{
+	PoolObject->OnReturnToPool.Execute(this);
 }

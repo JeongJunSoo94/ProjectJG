@@ -62,8 +62,11 @@ AActor* UObjectPoolFactory::SpawnObject(TSubclassOf<class AActor> pooledObjectSu
 	//CreateObject(1, pooledObjectSubclass);
 	//PooledObject = ObjectPools[pooledObjectSubclass->GetFName()].actorArray[ObjectPools[pooledObjectSubclass->GetFName()].actorArray.Num()-1];
 	//ObjectPools[pooledObjectSubclass->GetFName()].actorIsActive[ObjectPools[pooledObjectSubclass->GetFName()].actorArray.Num() - 1] = true;
-
-	if (AvailableObjectPools[SpawnPoolIndexs[pooledObjectSubclass->GetFName()]].IsEmpty())
+	if (SpawnPoolIndexs.Find(pooledObjectSubclass->GetFName())==nullptr)
+	{
+		CreateObject(1, pooledObjectSubclass);
+	}
+	else if (AvailableObjectPools[SpawnPoolIndexs[pooledObjectSubclass->GetFName()]].IsEmpty())
 	{
 		CreateObject(1, pooledObjectSubclass);
 	}

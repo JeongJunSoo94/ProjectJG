@@ -26,9 +26,9 @@ protected:
 		FName WeaponCollisionSocket = "Muzzle_Front";
 	UFUNCTION()
 		void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 public:
 	AMeleeEnemyCharacter();
-
 protected:
 	virtual void BeginPlay() override;
 public:
