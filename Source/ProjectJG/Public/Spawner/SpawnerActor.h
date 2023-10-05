@@ -20,6 +20,8 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly)
 		class UObjectPoolFactory* ObjectPoolFactory;
 	void OnReturnEnemyCount(AActor* actor);
+	bool SpawnCheck();
+	void SpawnLayer();
 	void SpawnActor();
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -30,5 +32,7 @@ public:
 		bool IsInfiniteSpawn = false;
 		bool IsEnemysSpawnable = true;
 		int EnemysSpawnCount=0;
+		int SpawnerSpawnCount = 0;
+		int EnemysSpawnLayer = 0;
 		FTimerHandle SpawnTimeHandle;
 };

@@ -27,10 +27,6 @@ public:
 		int SpawnCount = 0;
 	UPROPERTY(EditAnywhere)
 		float SpawnIntervalTime = 0.0f;
-	UPROPERTY(EditAnywhere)
-		float CurSpawnTime = 0.0f;
-	UPROPERTY(EditAnywhere)
-		float MaxSpawnTime = 0.0f;
 	bool IsCoolTiming = false;
 };
 
