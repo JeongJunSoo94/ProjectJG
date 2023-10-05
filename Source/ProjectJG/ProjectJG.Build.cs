@@ -8,7 +8,11 @@ public class ProjectJG : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "AIModule", "GameplayTasks", "NavigationSystem" });
+		PublicDependencyModuleNames.AddRange(new string[] { 
+			"Core", "CoreUObject", "Engine", "InputCore", "AIModule", "GameplayTasks", "NavigationSystem",
+			// New Module
+			"LevelSequence" , "MovieScene"
+		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

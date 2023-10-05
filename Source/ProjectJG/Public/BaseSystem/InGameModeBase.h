@@ -6,14 +6,6 @@
 #include "GameFramework/GameModeBase.h"
 #include "InGameModeBase.generated.h"
 
-UENUM(BlueprintType)
-enum class EGameState :uint8
-{
-	GameStart,
-	GamePlay,
-	GamePause,
-	GameOver,
-};
 
 UCLASS()
 class PROJECTJG_API AInGameModeBase : public AGameModeBase
@@ -22,9 +14,6 @@ class PROJECTJG_API AInGameModeBase : public AGameModeBase
 protected:
 	AInGameModeBase();
 	virtual void BeginPlay()override;
-
-	UPROPERTY(EditAnywhere, Category = "GameModeBase")
-		EGameState gameStateEnum;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "HUD")
 		TSubclassOf<UUserWidget>HUDWidgetClass;
