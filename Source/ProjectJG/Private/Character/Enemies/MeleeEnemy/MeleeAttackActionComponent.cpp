@@ -26,7 +26,7 @@ void UMeleeAttackActionComponent::OnStartAction()
 
 void UMeleeAttackActionComponent::BeginNotifyAction()
 {
-	OwnerCharacter->isFullBody = true;
+	OwnerCharacter->IsFullBody = true;
 }
 
 void UMeleeAttackActionComponent::MiddleNotifyAction()
@@ -37,6 +37,6 @@ void UMeleeAttackActionComponent::MiddleNotifyAction()
 
 void UMeleeAttackActionComponent::EndNotifyAction()
 {
-	OwnerCharacter->isFullBody = false;
+	OwnerCharacter->IsFullBody = false;
 	OwnerCharacter->isAttacked = false;
 }

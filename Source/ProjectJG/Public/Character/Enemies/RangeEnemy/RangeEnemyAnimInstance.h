@@ -11,9 +11,6 @@ UCLASS()
 class PROJECTJG_API URangeEnemyAnimInstance : public UCCharacterAnimInstance
 {
 	GENERATED_BODY()
-protected:
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "RangeEnemyAnimation")
-		bool IsDie = false;
 public:
 	virtual void NativeBeginPlay() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;

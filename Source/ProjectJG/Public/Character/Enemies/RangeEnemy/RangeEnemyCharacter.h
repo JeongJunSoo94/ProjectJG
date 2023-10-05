@@ -80,5 +80,4 @@ protected:
 	float EffectValue;
 
 	bool IsHitFromForward = false;
-	bool IsDie = false;
 };

@@ -3,21 +3,22 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AIController.h"
+#include "Character/Enemies/AIController/BaseAIController.h"
 #include "RangeEnemyAIController.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTJG_API ARangeEnemyAIController : public AAIController
+class PROJECTJG_API ARangeEnemyAIController : public ABaseAIController
 {
 	GENERATED_BODY()
-protected:
-	UPROPERTY(VisibleDefaultsOnly, Category = "BT")
-		class UBehaviorTree* BT;
 public:
 	ARangeEnemyAIController();
+	virtual void OnPossess(APawn* InPawn) override;
+	virtual void OnUnPossess() override;
+	virtual void StartAI()override;
+	virtual void StopAI()override;
 protected:
 	virtual void BeginPlay() override;
 };

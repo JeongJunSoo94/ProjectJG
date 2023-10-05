@@ -76,7 +76,7 @@ ARangeEnemyCharacter::ARangeEnemyCharacter()
 	
 
 	TSubclassOf<ARangeEnemyAIController> aicontroller;
-	CHelpers::GetClass<ARangeEnemyAIController>(&aicontroller, "Blueprint'/Game/Developers/GohyeongJu/Characters/Enemy/RangeEnemy/RangeEnemyAIController.RangeEnemyAIController_C'");
+	CHelpers::GetClass<ARangeEnemyAIController>(&aicontroller, "Blueprint'/Game/Developers/GohyeongJu/Characters/Enemy/RangeEnemy/BP_RangeEnemyAIController.BP_RangeEnemyAIController_C'");
 	AIControllerClass = aicontroller;
 
 	CHelpers::CreateActorComponent<URangeEnemyWeaponComponent>(this, &Weapon, "Weapon");
@@ -288,11 +288,13 @@ void ARangeEnemyCharacter::DoEffect()
 
 void ARangeEnemyCharacter::Die()
 {
-	
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	isFullBody = true;
-	IsDie = true;
+	//
+	//GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//IsFullBody = true;
+	//IsDie = true;
+	Super::Die();
+	StopAnimMontage();
 	if (IsHitFromForward)
 	{
 		Clog::Log("Die Forward");
@@ -315,6 +317,10 @@ void ARangeEnemyCharacter::MiddleNotifyAction()
 
 void ARangeEnemyCharacter::EndNotifyAction()
 {
-	if(IsDie)
+	if (IsDie)
+	{
+		Clog::Log("IsDie");
 		GetMesh()->GetAnimInstance()->Montage_Pause();
+		ReturnPool();
+	}
 }

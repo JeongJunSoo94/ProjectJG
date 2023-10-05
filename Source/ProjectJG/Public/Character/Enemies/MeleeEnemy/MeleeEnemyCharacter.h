@@ -15,8 +15,6 @@ class PROJECTJG_API AMeleeEnemyCharacter : public ABaseEnemyCharacter,public IMe
 	GENERATED_BODY()
 protected:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Melee")
-		TSubclassOf<AMeleeEnemyAIController> aicontroller;
-	UPROPERTY(VisibleDefaultsOnly, Category = "Melee")
 		class UAnimMontage* DeathMontage;
 	UPROPERTY(VisibleDefaultsOnly)
 		class UMeleeAttackActionComponent* MeleeActionComponent;
@@ -35,7 +33,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void MeleeAttack()override;
 	virtual void Die()override;
-	virtual void RegistBlackBoardDatas(class UBlackboardComponent* blackboard)override;
+	//virtual void RegistBlackBoardDatas(class UBlackboardComponent* blackboard)override;
+	virtual void Init()override;
 private:
 	UCActionComponent* GetActionComponent();
 	virtual void BeginNotifyAction()override;

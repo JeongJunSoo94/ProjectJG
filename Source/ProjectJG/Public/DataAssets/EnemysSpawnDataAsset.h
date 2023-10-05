@@ -32,7 +32,6 @@ public:
 	UPROPERTY(EditAnywhere)
 		float MaxSpawnTime = 0.0f;
 	bool IsCoolTiming = false;
-	FTimerHandle SpawnTimeHandle;
 };
 
 

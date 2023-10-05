@@ -1,29 +1,34 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Character/Enemies/RangeEnemy/RangeEnemyAIController.h"
 #include "Global.h"
-#include "BehaviorTree/BlackboardComponent.h"
-#include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BehaviorTree.h"
-#include "Character/Enemies/RangeEnemy/RangeEnemyCharacter.h"
+#include "BehaviorTree/BlackboardData.h"
 
 ARangeEnemyAIController::ARangeEnemyAIController()
 {
-	UBlackboardComponent* blackboard;
-	CHelpers::CreateActorComponent<UBlackboardComponent>(this, &blackboard, "Blackboard");
-	Blackboard = blackboard;
-
-	CHelpers::GetAsset<UBehaviorTree>(&BT, "BehaviorTree'/Game/Developers/GohyeongJu/Characters/Enemy/RangeEnemy/BehaviorTree/RangeBehaviorTree.RangeBehaviorTree'");
-
+	CHelpers::GetAsset<UBehaviorTree>(&BTree, "BehaviorTree'/Game/Developers/GohyeongJu/Characters/Enemy/RangeEnemy/BehaviorTree/RangeBehaviorTree.RangeBehaviorTree'");
+	CHelpers::GetAsset<UBlackboardData>(&BlackboardDataAsset, "BlackboardData'/Game/Developers/GohyeongJu/Characters/Enemy/RangeEnemy/BehaviorTree/RangeBlackboardData.RangeBlackboardData'");
 }
 
 void ARangeEnemyAIController::BeginPlay()
 {
 	Super::BeginPlay();
+}
 
-	Clog::Log(GetPawn());
-	Clog::Log(BT);
+void ARangeEnemyAIController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+}
 
-	RunBehaviorTree(BT);
+void ARangeEnemyAIController::OnUnPossess()
+{
+	Super::OnUnPossess();
+}
+
+void ARangeEnemyAIController::StartAI()
+{
+	Super::StartAI();
+}
+void ARangeEnemyAIController::StopAI()
+{
+	Super::StopAI();
 }

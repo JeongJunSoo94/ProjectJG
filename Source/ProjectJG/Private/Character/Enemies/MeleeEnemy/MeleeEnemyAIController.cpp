@@ -1,49 +1,40 @@
 #include "Character/Enemies/MeleeEnemy/MeleeEnemyAIController.h"
 #include "Global.h"
 #include "BehaviorTree/BehaviorTree.h"
-#include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Character/Enemies/BaseEnemyCharacter.h"
 
 AMeleeEnemyAIController::AMeleeEnemyAIController()
 {
-	UBlackboardComponent* blackboard;
-	CHelpers::CreateActorComponent<UBlackboardComponent>(this, &blackboard, "BlackboardComponent");
-	Blackboard = blackboard;
-	BlackboardComp = blackboard;
-
-	CHelpers::GetAsset<UBehaviorTree>(&BT, "BehaviorTree'/Game/Developers/JJS/Enemy/MeleeEnemyBehaviorTree.MeleeEnemyBehaviorTree'");
-	
-	CHelpers::GetAsset<UBlackboardData>(&BDAsset, "BlackboardData'/Game/Developers/JJS/Enemy/MeleeEnemyBlackBoard.MeleeEnemyBlackBoard'");
-
+	CHelpers::GetAsset<UBehaviorTree>(&BTree, "BehaviorTree'/Game/Developers/JJS/Enemy/MeleeEnemyBehaviorTree.MeleeEnemyBehaviorTree'");
+	CHelpers::GetAsset<UBlackboardData>(&BlackboardDataAsset, "BlackboardData'/Game/Developers/JJS/Enemy/MeleeEnemyBlackBoard.MeleeEnemyBlackBoard'");
 }
-//
 void AMeleeEnemyAIController::BeginPlay()
 {
 	Super::BeginPlay();
-	//if (RunBehaviorTree(BT))
-	//{
-	//}
 }
 
 void AMeleeEnemyAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
-	if (UseBlackboard(BDAsset, BlackboardComp))
-	{
-		ABaseEnemyCharacter* character = Cast<ABaseEnemyCharacter>(InPawn);
-		CheckNull(character);
-		character->RegistBlackBoardDatas(BlackboardComp);
-		if (!RunBehaviorTree(BT))
-		{
-			Clog::Log("No");
-		}
-	}
 }
 
 void AMeleeEnemyAIController::OnUnPossess()
 {
 	Super::OnUnPossess();
+}
 
+void AMeleeEnemyAIController::StartAI()
+{
+	Super::StartAI();
+}
+void AMeleeEnemyAIController::StopAI() 
+{
+	Super::StopAI();
+}
+
+void AMeleeEnemyAIController::Initialize()
+{
+	BlackboardComp->SetValueAsBool(TEXT("IsAttacked"), false);
+	BlackboardComp->SetValueAsObject(TEXT("TargetFollow"), nullptr);
 }

@@ -16,7 +16,7 @@ void URangeEnemyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 	CheckNull(RangeEnemyCharacter);
-	FullBody = RangeEnemyCharacter->isFullBody;
-	IsDie = RangeEnemyCharacter->isDie;
+	FullBody = RangeEnemyCharacter->IsFullBody;
+	IsDie = RangeEnemyCharacter->IsDie;
 }
 

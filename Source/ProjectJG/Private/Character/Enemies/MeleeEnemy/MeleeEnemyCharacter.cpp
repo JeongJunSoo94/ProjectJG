@@ -6,9 +6,6 @@
 #include "Character/Interface/Damageable.h"
 #include "Character/Enemies/MeleeEnemy/MeleeAttackActionComponent.h"
 #include "Animation/AnimMontage.h"
-#include "BehaviorTree/BehaviorTree.h"
-#include "BehaviorTree/BehaviorTreeComponent.h"
-#include "BehaviorTree/BlackboardComponent.h"
 #include "Character/Components/StatusComponent.h"
 
 void AMeleeEnemyCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -33,7 +30,8 @@ AMeleeEnemyCharacter::AMeleeEnemyCharacter()
 	
 	CHelpers::CreateComponent<UBoxComponent>(this, &WeaponCollisionBox, "WeaponCollisionBox",GetCapsuleComponent());
 	WeaponCollisionBox->bHiddenInGame = false;
-	
+
+	TSubclassOf<AMeleeEnemyAIController> aicontroller;
 	CHelpers::GetClass<AMeleeEnemyAIController>(&aicontroller, "Blueprint'/Game/Developers/JJS/Enemy/BP_MeleeEnemyAIController.BP_MeleeEnemyAIController_C'");
 	AIControllerClass = aicontroller;
 
@@ -53,7 +51,7 @@ void AMeleeEnemyCharacter::BeginPlay()
 			FAttachmentTransformRules(EAttachmentRule::KeepRelative, true),
 		WeaponCollisionSocket);
 	WeaponCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AMeleeEnemyCharacter::OnComponentBeginOverlap);
-	isFullBody = false;
+	IsFullBody = false;
 	isAttacked = false;
 	CollisionStateNotifyEnd();
 }
@@ -80,11 +78,15 @@ UCActionComponent* AMeleeEnemyCharacter::GetActionComponent()
 
 void AMeleeEnemyCharacter::Die()
 {
-	eCharacterStateFlags = ECharacterStateFlags::DEAD;
-	isFullBody = true;
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Super::Die();
+	StopAnimMontage();
 	PlayAnimMontage(DeathMontage);
+}
+
+void AMeleeEnemyCharacter::Init()
+{
+	Super::Init();
+	isAttacked =false;
 }
 
 void AMeleeEnemyCharacter::BeginNotifyAction()
@@ -100,7 +102,7 @@ void AMeleeEnemyCharacter::BeginNotifyAction()
 		break;
 		case ECharacterStateFlags::DEAD:
 		{
-			isFullBody = true;
+			IsFullBody = true;
 			int num = FMath::RandRange(0, 2);
 			switch (num)
 			{
@@ -149,7 +151,7 @@ void AMeleeEnemyCharacter::EndNotifyAction()
 	{
 		GetMesh()->GetAnimInstance()->Montage_Pause(DeathMontage);//MontagePause(DeathMontage);
 		ReturnPool();
-		//isFullBody = false;
+		//IsFullBody = false;
 		//Destroy();
 	}
 	break;
@@ -165,7 +167,7 @@ void AMeleeEnemyCharacter::CollisionStateNotifyEnd()
 	WeaponCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
-void AMeleeEnemyCharacter::RegistBlackBoardDatas(class UBlackboardComponent* blackboard)
-{
-	blackboard->SetValueAsObject(TEXT("Status"), Status);
-}
+//void AMeleeEnemyCharacter::RegistBlackBoardDatas(class UBlackboardComponent* blackboard)
+//{
+//	//blackboardComp = blackboard;
+//}

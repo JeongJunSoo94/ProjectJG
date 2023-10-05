@@ -30,6 +30,8 @@ protected:
 		class UWidgetComponent* HealthWidget;
 	UPROPERTY(EditAnywhere)
 		ECharacterStateFlags eCharacterStateFlags;
+	UPROPERTY(VisibleDefaultsOnly)
+		class ABaseAIController* BaseAIController;
 public:
 	UPROPERTY(VisibleDefaultsOnly)
 		class UPoolObjectActorComponent* PoolObject;
@@ -52,7 +54,9 @@ public:
 	virtual void RegistBlackBoardDatas(class UBlackboardComponent* blackboard);
 protected:
 	float DamageValue;
+	UPROPERTY(VisibleDefaultsOnly)
+		class UBlackboardComponent* blackboardComp;
 public:
-	bool isFullBody;
-	bool isDie;
+	bool IsFullBody;
+	bool IsDie;
 };

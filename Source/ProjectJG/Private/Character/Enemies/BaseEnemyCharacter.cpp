@@ -6,6 +6,8 @@
 #include "Widgets/HealthWidget.h"
 #include "Components/WidgetComponent.h"
 #include "BaseSystem/PoolObjectActorComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Character/Enemies/AIController/BaseAIController.h"
 
 ABaseEnemyCharacter::ABaseEnemyCharacter()
 {
@@ -28,6 +30,8 @@ void ABaseEnemyCharacter::BeginPlay()
 	Super::BeginPlay();
 	HealthWidget->InitWidget();
 	Cast<UHealthWidget>(HealthWidget->GetUserWidgetObject())->Update(Status->GetHealth(), Status->GetMaxHealth());
+	BaseAIController = Cast<ABaseAIController>(GetController());
+	Clog::Log(BaseAIController);
 }
 
 void ABaseEnemyCharacter::SetHealthWidgetSizeAndLocation(FVector location, FVector2D size)
@@ -74,17 +78,39 @@ void ABaseEnemyCharacter::Damaged(float totalAmount)
 {
 	Status->SubHealth(totalAmount);
 	Cast<UHealthWidget>(HealthWidget->GetUserWidgetObject())->Update(Status->GetHealth(), Status->GetMaxHealth());
+	if (Status->GetHealth() <= 0)
+	{
+		Die();
+	}
 	DamageValue = 0;
 }
 
 void ABaseEnemyCharacter::Die()
 {
+	CheckNull(BaseAIController);
+	eCharacterStateFlags = ECharacterStateFlags::DEAD;
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	IsFullBody = true;
+	IsDie = true;
+	BaseAIController->StopAI();
 }
 void ABaseEnemyCharacter::Init()
 {
+	Status->AddHealth(100);
+	Cast<UHealthWidget>(HealthWidget->GetUserWidgetObject())->Update(Status->GetHealth(), Status->GetMaxHealth());
+	IsFullBody = false;
+	IsDie = false;
+	CheckNull(BaseAIController);
+	BaseAIController->StartAI();
+	StopAnimMontage();
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }
 
 void ABaseEnemyCharacter::ReturnPool()
 {
+	OnReturnSpawner.Execute(this);
+	CheckNull(PoolObject);
 	PoolObject->OnReturnToPool.Execute(this);
 }

@@ -1,24 +1,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AIController.h"
+#include "Character/Enemies/AIController/BaseAIController.h"
 #include "MeleeEnemyAIController.generated.h"
 
 UCLASS()
-class PROJECTJG_API AMeleeEnemyAIController : public AAIController
+class PROJECTJG_API AMeleeEnemyAIController : public ABaseAIController
 {
 	GENERATED_BODY()
-protected:
-		UPROPERTY(VisibleDefaultsOnly, Category = "BT")
-			class UBehaviorTree* BT;
-		UPROPERTY()
-			class UBlackboardComponent* BlackboardComp;
-		UPROPERTY()
-			class UBlackboardData* BDAsset;
+
 public:
 	AMeleeEnemyAIController();
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnUnPossess() override;
+	virtual void StartAI()override;
+	virtual void StopAI()override;
+	virtual void Initialize()override;
 protected:
 	virtual void BeginPlay() override;
 

@@ -28,6 +28,9 @@ protected:
 		bool IsAccelerating;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
+		bool IsDie= false;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
 		bool FullBody;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
 		bool bEquipped;
