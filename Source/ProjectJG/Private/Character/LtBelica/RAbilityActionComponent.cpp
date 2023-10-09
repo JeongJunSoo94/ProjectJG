@@ -62,6 +62,7 @@ void URAbilityActionComponent::BeginPlay()
 void URAbilityActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	CheckFalse(IsAbiliting);
+
 }
 
 void URAbilityActionComponent::SetOwnerCharacter(ACharacter* character)
@@ -76,16 +77,16 @@ void URAbilityActionComponent::OnStartAction()
 		return;
 	if (!IsAbiliting)
 	{
+		IsAbiliting = true;
 		OwnerCharacter->bUseControllerRotationYaw = true;
 		OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
-		IsAbiliting = true;
 		SetComponentTickEnabled(true);
 	}
 	else
 	{
+		IsAbiliting = false;
 		OwnerCharacter->bUseControllerRotationYaw = false;
 		OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
-		IsAbiliting = false;
 		SetComponentTickEnabled(false);
 	}
 }
@@ -101,6 +102,11 @@ void URAbilityActionComponent::HologramAction()
 }
 
 void URAbilityActionComponent::BeginNotifyAction()
+{
+	
+}
+
+void URAbilityActionComponent::MiddleNotifyAction()
 {
 	FVector start, end, direction;
 	OwnerCharacter->GetLocationAndDirection(start, end, direction, true, 0.3f, 0.4f);

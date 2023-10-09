@@ -119,7 +119,7 @@ void UCQAbliltyActionComponent::BeginNotifyAction()
 	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 }
 
-void UCQAbliltyActionComponent::EndNotifyAction()
+void UCQAbliltyActionComponent::MiddleNotifyAction()
 {
 	FVector box = EruptionHologramActor->GetHologramBoxScale();
 	FVector startLocation, intervalLocation, rayStart, rayEnd;
@@ -159,9 +159,14 @@ void UCQAbliltyActionComponent::EndNotifyAction()
 	FRotator handRotator = transform.Rotator();
 
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), GroundPunchParticle, handLocation, handRotator + FRotator(0, 0, 180));
-	
+
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EruptionBeamParticle, handLocation, handRotator);
-	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EruptionRocksParticle, handLocation, handRotator + FRotator(45, 0, 0));
+	//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EruptionRocksParticle, handLocation, handRotator + FRotator(45, 0, 0));
+
+}
+
+void UCQAbliltyActionComponent::EndNotifyAction()
+{
 
 	HandParticleComponent->Activate(false);
 	OwnerCharacter->bUseControllerRotationYaw = true;

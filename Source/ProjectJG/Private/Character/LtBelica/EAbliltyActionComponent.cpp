@@ -87,23 +87,26 @@ void UEAbliltyActionComponent::HologramAction()
 	IsAbiliting = false;
 	SetComponentTickEnabled(false);
 	ManaBombHologramActor->SetActive(false);
+
+	IsCoolTiming = true;
+	GetWorld()->GetTimerManager().SetTimer(CoolTimeHandle, this, &UEAbliltyActionComponent::CoolTimeUpdate, IntervalCoolTime, true);
+
+	OwnerCharacter->PlayAnimMontage(EAbliltyMontage);
+}
+
+void UEAbliltyActionComponent::BeginNotifyAction()
+{
+}
+
+void UEAbliltyActionComponent::MiddleNotifyAction()
+{
 	AManaBombObject* manaBomb;
 	manaBomb = Cast<AManaBombObject>(ObjectPoolFactory->SpawnObject(ManaBombClass));
 
 	manaBomb->SetBombLocation(ManaBombHologramActor->GetActorLocation());
 	manaBomb->SetBombScale(ManaBombHologramActor->GetActorScale().X * 50.0f);
 	manaBomb->PoolObject->SetActorLifeTime(3.0f);
-
-	IsCoolTiming = true;
-	GetWorld()->GetTimerManager().SetTimer(CoolTimeHandle, this, &UEAbliltyActionComponent::CoolTimeUpdate, IntervalCoolTime, true);
-
-	OwnerCharacter->PlayAnimMontage(EAbliltyMontage);
 	manaBomb->PoolObject->SetActive(true);
-}
-
-void UEAbliltyActionComponent::BeginNotifyAction()
-{
-	Clog::Log("E");
 }
 
 void UEAbliltyActionComponent::EndNotifyAction()

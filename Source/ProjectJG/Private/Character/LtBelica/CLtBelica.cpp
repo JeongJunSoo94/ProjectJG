@@ -69,6 +69,12 @@ void ACLtBelica::OnFire()
 			LtBelicaWeapon->Begin_Fire();
 		}
 		break;
+		default:
+		{	
+			CheckFalse(IsSkilling);
+			EndNotifyAction();
+		}
+		break;
 	}
 }
 

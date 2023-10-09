@@ -34,6 +34,7 @@ public:
     virtual void OnStartAction() override;
     void HologramAction();
     virtual void BeginNotifyAction()override;
+    virtual void MiddleNotifyAction()override;
     virtual void EndNotifyAction()override;
     bool GetIsAbiliting() { return IsAbiliting; }
     virtual void SetOwnerCharacter(ACharacter* character) override;
