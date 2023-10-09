@@ -9,12 +9,14 @@
 #include "Character/Components/StatusComponent.h"
 #include "BaseSystem/GameHUD.h"
 
+#include "GameFramework/Controller.h"
+
 ACBaseCharacter::ACBaseCharacter()
 {
  	PrimaryActorTick.bCanEverTick = true;
 	CHelpers::CreateComponent<USpringArmComponent>(this, &SpringArm, "SpringArm",GetCapsuleComponent());
 	CHelpers::CreateComponent<UCameraComponent>(this, &PlayerMainCamera, "Camera", SpringArm);
-	
+
 	CHelpers::CreateActorComponent<UStatusComponent>(this, &StatusComp, "StatusComp");
 	//CHelpers::CreateComponent<UWidgetComponent>(this, &HealthWidget, "HealthWidget", GetMesh());
 
@@ -45,6 +47,7 @@ void ACBaseCharacter::BeginPlay()
 
 	AGameHUD* hud = UGameplayStatics::GetPlayerController(this, 0)->GetHUD<AGameHUD>();
 	hud->HealthBarUpdate(StatusComp->GetHealth(), StatusComp->GetMaxHealth());
+
 }
 
 void ACBaseCharacter::Tick(float DeltaTime)

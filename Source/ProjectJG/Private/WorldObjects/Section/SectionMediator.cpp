@@ -2,6 +2,7 @@
 #include "WorldObjects/Section/SectionMediator.h"
 #include "Global.h"
 #include "WorldObjects/Section/InteractObject.h"
+#include "BaseSystem/GameStateBase/InGameStateBase.h"
 
 ASectionMediator::ASectionMediator()
 {
@@ -49,6 +50,10 @@ void ASectionMediator::InitSection()
 }
 void ASectionMediator::StartSectionEvent()
 {
+	AInGameStateBase* gameState = Cast<AInGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
+
+
+	gameState->StartSection(this);
 	// ex) begin Spawn Enemy
 	Clog::Log("Spawn enemy");
 }
@@ -57,6 +62,7 @@ void ASectionMediator::OnSolveSectionProblem()
 {
 	// ex) kill Enemy
 	Clog::Log("Solve Problem");
+	EndSectionEvent();
 }
 
 

@@ -65,13 +65,15 @@ void AInGameStateBase::PostInitializeComponents()
 
 void AInGameStateBase::StartSection(ASectionMediator *SectionData)
 {
-	//init Section Data And Score
-	curSection = SectionData;
+	if(SectionData!=curSection)
+		curSection = SectionData;
 
+	
 	
 }
 
 void AInGameStateBase::EndSection()
 {
+	curSection->EndSectionEvent();
 	// SectionEnd trigger Or End Effect ...
 }
