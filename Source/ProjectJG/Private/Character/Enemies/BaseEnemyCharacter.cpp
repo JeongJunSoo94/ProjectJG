@@ -5,9 +5,12 @@
 #include "Widgets/StatusUserWidget.h"
 #include "Widgets/HealthWidget.h"
 #include "Components/WidgetComponent.h"
-#include "BaseSystem/PoolObjectActorComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Character/Enemies/AIController/BaseAIController.h"
+#include "WorldObjects/FXActor/DamageFXActor.h"
+#include "BaseSystem/ObjectPoolFactory.h"
+#include "BaseSystem/InGameModeBase.h"
+#include "BaseSystem/PoolObjectActorComponent.h"
 
 ABaseEnemyCharacter::ABaseEnemyCharacter()
 {
@@ -15,6 +18,8 @@ ABaseEnemyCharacter::ABaseEnemyCharacter()
 	CHelpers::CreateActorComponent<UStatusComponent>(this, &Status, "Status");
 
 	CHelpers::CreateComponent<UWidgetComponent>(this, &HealthWidget, "HealthWidget", GetMesh());
+
+	CHelpers::GetClass<ADamageFXActor>(&DamageWidgetClass, "Blueprint'/Game/Developers/JJS/FXActor/BP_DamageActor.BP_DamageActor_C'");
 
 	TSubclassOf<UHealthWidget> healthClass;
 	CHelpers::GetClass<UHealthWidget>(&healthClass, "WidgetBlueprint'/Game/Developers/USER/Character/WB_Health.WB_Health_C'");
@@ -28,10 +33,14 @@ ABaseEnemyCharacter::ABaseEnemyCharacter()
 void ABaseEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	HealthWidget->InitWidget();
-	Cast<UHealthWidget>(HealthWidget->GetUserWidgetObject())->Update(Status->GetHealth(), Status->GetMaxHealth());
+	//HealthWidget->InitWidget();
+	//Cast<UHealthWidget>(HealthWidget->GetUserWidgetObject())->Update(Status->GetHealth(), Status->GetMaxHealth());
 	BaseAIController = Cast<ABaseAIController>(GetController());
-	Clog::Log(BaseAIController);
+	ObjectPoolFactory = CHelpers::GetComponent<UObjectPoolFactory>(GetWorld()->GetAuthGameMode());
+	if (ObjectPoolFactory != nullptr)
+	{
+		ObjectPoolFactory->CreateObject(5, DamageWidgetClass);
+	}
 }
 
 void ABaseEnemyCharacter::SetHealthWidgetSizeAndLocation(FVector location, FVector2D size)
@@ -65,6 +74,27 @@ void ABaseEnemyCharacter::RegistBlackBoardDatas(UBlackboardComponent* blackboard
 float ABaseEnemyCharacter::TakeDamage(float Damage)
 {
 	DamageValue += Damage;
+	if (ObjectPoolFactory == nullptr)
+	{
+		return DamageValue;
+	}
+	ADamageFXActor* DamageActor = Cast<ADamageFXActor>(ObjectPoolFactory->SpawnObject(DamageWidgetClass));
+	if (DamageActor == nullptr)
+	{
+		return DamageValue;
+	}
+	DamageActor->SetDamageText(Damage);
+
+	FTransform Transform = DamageActor->GetTransform();
+	DamageActor->SetActorTransform(GetActorTransform());
+	//DamageActor->SetDamageWidgetSizeAndLocation(GetActorLocation(), FVector2D(120, 20));
+	DamageActor->PoolObject->SetActorLifeTime(2.0f);
+
+	DamageActor->PoolObject->SetActive(true);
+
+	if(!HealthWidget->GetUserWidgetObject()->GetIsVisible())
+		HealthWidget->GetUserWidgetObject()->SetVisibility(ESlateVisibility::HitTestInvisible);
+
 	return DamageValue;
 
 	//DamageInstigator = EventInstigator;
@@ -99,6 +129,7 @@ void ABaseEnemyCharacter::Init()
 {
 	Status->AddHealth(100);
 	Cast<UHealthWidget>(HealthWidget->GetUserWidgetObject())->Update(Status->GetHealth(), Status->GetMaxHealth());
+	HealthWidget->GetUserWidgetObject()->SetVisibility(ESlateVisibility::Collapsed);
 	IsFullBody = false;
 	IsDie = false;
 	CheckNull(BaseAIController);

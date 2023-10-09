@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Character/Components/StatusComponent.h"
 #include "BaseSystem/GameHUD.h"
+#include "WorldObjects/FXActor/DamageFXActor.h"
 
 ACBaseCharacter::ACBaseCharacter()
 {
@@ -17,6 +18,7 @@ ACBaseCharacter::ACBaseCharacter()
 	
 	CHelpers::CreateActorComponent<UStatusComponent>(this, &StatusComp, "StatusComp");
 	//CHelpers::CreateComponent<UWidgetComponent>(this, &HealthWidget, "HealthWidget", GetMesh());
+	CHelpers::GetClass<ADamageFXActor>(&DamageWidgetClass, "Blueprint'/Game/Developers/JJS/FXActor/BP_DamageActor.BP_DamageActor_C'");
 
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -176,6 +178,7 @@ void ACBaseCharacter::GetLocationAndDirection(FVector& OutStart, FVector& OutEnd
 
 	bool IsHit = GetWorld()->LineTraceSingleByChannel(OutHit, OutStart, OutEnd, ECC_Visibility,CollisionParams);
 	
+
 	if (IsHit)
 	{
 		

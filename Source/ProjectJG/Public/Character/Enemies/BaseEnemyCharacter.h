@@ -32,9 +32,15 @@ protected:
 		ECharacterStateFlags eCharacterStateFlags;
 	UPROPERTY(VisibleDefaultsOnly)
 		class ABaseAIController* BaseAIController;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "DamageWidget")
+		TSubclassOf<class ADamageFXActor> DamageWidgetClass;
+
 public:
 	UPROPERTY(VisibleDefaultsOnly)
 		class UPoolObjectActorComponent* PoolObject;
+	UPROPERTY(VisibleDefaultsOnly)
+		class UObjectPoolFactory* ObjectPoolFactory;
 public:
 	ABaseEnemyCharacter();
 	virtual float TakeDamage(float Damage)override;

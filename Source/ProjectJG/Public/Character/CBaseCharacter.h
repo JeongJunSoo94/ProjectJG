@@ -19,6 +19,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly,VisibleDefaultsOnly, Category = "equipedWeaponIdex")
 		int32 equipedWeaponIdex;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = "DamageWidget")
+		TSubclassOf<class ADamageFXActor> DamageWidgetClass;
 
 	UPROPERTY(VisibleDefaultsOnly)
 		class UStatusComponent* StatusComp;

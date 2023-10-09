@@ -60,7 +60,9 @@ void AInGameModeBase::InitGame(const FString& MapName, const FString& Options, F
 	}
 	break;
 	default:
-	{}
+	{
+		DefaultPawnClass = characterDataAsset->CharacterDatas[0].Pawn; 
+	}
 	break;
 	}
 
