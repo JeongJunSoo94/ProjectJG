@@ -23,13 +23,18 @@ protected:
 	bool SpawnCheck();
 	void SpawnLayer();
 	void SpawnActor();
+	void Initailized();
 public:	
-	virtual void Tick(float DeltaTime) override;
+	void StartSpawn(bool bAutoSpawn,bool binitailized);
+	void StopSpawn();
 public:
 	UPROPERTY(BlueprintReadOnly,EditAnywhere, Category = "Spawns")
 		UEnemysSpawnDataAsset* SpawnDataAsset;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Spawns")
 		bool IsInfiniteSpawn = false;
+	UPROPERTY(EditAnywhere, Category = "Spawns")
+		bool IsAutoSpawn = false;
+protected:
 		bool IsEnemysSpawnable = true;
 		int EnemysSpawnCount=0;
 		int SpawnerSpawnCount = 0;

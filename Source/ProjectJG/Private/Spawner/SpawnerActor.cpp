@@ -21,16 +21,9 @@ void ASpawnerActor::BeginPlay()
 	ObjectPoolFactory = CHelpers::GetComponent<UObjectPoolFactory>(GetWorld()->GetAuthGameMode());
 	if (ObjectPoolFactory != nullptr)
 	{
-		GetWorld()->GetTimerManager().SetTimer(SpawnTimeHandle, this, &ASpawnerActor::SpawnActor, SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].SpawnIntervalTime, IsInfiniteSpawn);
-		SpawnerSpawnCount = SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].SpawnCount;
+		if(IsAutoSpawn)
+			StartSpawn(IsAutoSpawn,true);
 	}
-
-}
-
-void ASpawnerActor::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
 }
 
 bool ASpawnerActor::SpawnCheck()
@@ -105,11 +98,32 @@ void ASpawnerActor::SpawnActor()
 	}
 }
 
+void ASpawnerActor::StartSpawn(bool bAutoSpawn, bool binitailized)
+{
+	IsAutoSpawn = bAutoSpawn;
+	IsEnemysSpawnable = true;
+	if (binitailized)
+		Initailized();
+
+	if (IsAutoSpawn)
+	{
+		GetWorld()->GetTimerManager().SetTimer(SpawnTimeHandle, this, &ASpawnerActor::SpawnActor, SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].SpawnIntervalTime, IsInfiniteSpawn);
+	}
+	else
+	{
+		SpawnActor();
+	}
+}
+
+void ASpawnerActor::StopSpawn()
+{
+	IsEnemysSpawnable = false;
+}
 
 void ASpawnerActor::OnReturnEnemyCount(AActor* actor)
 {
 	--EnemysSpawnCount;
-	if (EnemysSpawnCount == 0)
+	if (IsAutoSpawn && EnemysSpawnCount == 0)
 	{
 		if (!IsInfiniteSpawn)
 		{
@@ -117,4 +131,12 @@ void ASpawnerActor::OnReturnEnemyCount(AActor* actor)
 			GetWorld()->GetTimerManager().SetTimer(SpawnTimeHandle, this, &ASpawnerActor::SpawnActor, SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].SpawnIntervalTime, false);
 		}
 	}
+}
+
+void ASpawnerActor::Initailized()
+{
+	EnemysSpawnLayer = 0;
+	SpawnerSpawnCount = SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].SpawnCount;
+	EnemysSpawnCount = 0;
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
