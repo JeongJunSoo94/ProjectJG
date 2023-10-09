@@ -19,6 +19,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = "TriggerActors")
 		TArray <class AInteractObject*> TriggerActors;
 
+	UPROPERTY(EditAnywhere, Category = "SpawnerActors")
+		TArray<class ASpawnerActor*> SpawnerActors;
+
+
+
 protected:
 	virtual void BeginPlay() override;
 

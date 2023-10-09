@@ -3,6 +3,7 @@
 #include "Global.h"
 #include "WorldObjects/Section/InteractObject.h"
 #include "BaseSystem/GameStateBase/InGameStateBase.h"
+#include "Spawner/SpawnerActor.h"
 
 ASectionMediator::ASectionMediator()
 {
@@ -20,6 +21,11 @@ void ASectionMediator::InitSection()
 {
 	for (AInteractObject* actor : TriggerActors)
 	{
+		if (!actor)
+		{
+			continue;
+		}
+
 		if (actor->IsStartInterface)
 		{
 			if (Cast<ISectionStart_Interface>(actor))
@@ -50,11 +56,15 @@ void ASectionMediator::InitSection()
 }
 void ASectionMediator::StartSectionEvent()
 {
+
 	AInGameStateBase* gameState = Cast<AInGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
 
 
 	gameState->StartSection(this);
-	// ex) begin Spawn Enemy
+	for (ASpawnerActor* Spawner : SpawnerActors)
+	{
+		//Spawner->
+	}
 	Clog::Log("Spawn enemy");
 }
 
