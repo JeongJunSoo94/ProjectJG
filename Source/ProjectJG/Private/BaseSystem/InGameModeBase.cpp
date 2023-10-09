@@ -30,15 +30,15 @@ void AInGameModeBase::BeginPlay()
 	
 		
 
-	Test.SetNum(256);
+	//Test.SetNum(256);
 
 	
 
 
-	AActor* T = nullptr;
-	Test[1].Enqueue(T);
+	//AActor* T = nullptr;
+	//Test[1].Enqueue(T);
 
-	Clog::Log(Test[1].IsEmpty());
+	//Clog::Log(Test[1].IsEmpty());
 }
 
 void AInGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
@@ -61,7 +61,8 @@ void AInGameModeBase::InitGame(const FString& MapName, const FString& Options, F
 	break;
 	default:
 	{
-		DefaultPawnClass = characterDataAsset->CharacterDatas[0].Pawn; 
+		DefaultPawnClass = characterDataAsset->CharacterDatas[1].Pawn;
+		Clog::Log("Murdock");
 	}
 	break;
 	}

@@ -26,5 +26,6 @@ class PROJECTJG_API ISectionStart_Interface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	FOnStartTrigger OnTriggerSection;
-
+	UFUNCTION()
+		virtual void CallBackStartSection() = 0;
 };

@@ -30,5 +30,5 @@ public:
 	UPROPERTY(EditAnywhere)
 		class UCharacterDataAsset* characterDataAsset;
 
-	TArray<TQueue<AActor*>> Test;
+	//TArray<TQueue<AActor*>> Test;
 };

@@ -6,6 +6,7 @@
 #include "WorldObjects/Section/InteractObject.h"
 #include "WorldObjects/Section/SectionStart_Interface.h"
 #include "WorldObjects/Section/SectionEnd_Interface.h"
+#include "MovieSceneSequencePlayer.h"
 #include "DoorObject.generated.h"
 
 /**
@@ -18,17 +19,29 @@ class PROJECTJG_API ADoorObject : public AInteractObject ,public ISectionStart_I
 
 protected:
 	UPROPERTY(VisibleDefaultsOnly)
-		class UBoxComponent* BoxTrigger;
+		class UBoxComponent* SectionStart_BoxTrigger;
+	UPROPERTY(VisibleDefaultsOnly)
+		class UBoxComponent* SectionEnd_BoxTrigger;
+	UPROPERTY(EditAnywhere)
+		AActor* DoorOpenedActor;
 
 	UFUNCTION()
-		void OnEndOverlapBox(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+		void OnEndOverlapStartBoxTrigger(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	UFUNCTION()
+		void OnBeginOverlapEndBoxTrigger( UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 
 	virtual void BeginPlay() override;
 
-	virtual void SettingSequences(class ULevelSequence* Sequence,class ALevelSequenceActor* OutActor) override;
+	virtual void SettingSequences(class ULevelSequence* Sequence, FMovieSceneSequencePlaybackSettings Settings, ETriggerType TriggerType) override;
 public:
 	ADoorObject();
 
 	UFUNCTION()
 		virtual void PlayEndTrigger() override;
+
+	UFUNCTION()
+		virtual void CallBackStartSection() override;
+
+	virtual void InteractObjectEvent_Implementation();
 };
