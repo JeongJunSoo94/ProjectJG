@@ -3,7 +3,6 @@
 #include "Global.h"
 #include "WorldObjects/Section/InteractObject.h"
 #include "BaseSystem/GameStateBase/InGameStateBase.h"
-#include "Spawner/SpawnerActor.h"
 
 ASectionMediator::ASectionMediator()
 {
@@ -43,23 +42,25 @@ void ASectionMediator::InitSection()
 
 	for (ISectionStart_Interface* StartTrigger : StartTriggers)
 	{
-		StartTrigger->OnTriggerSection.BindUObject(this, &ASectionMediator::StartSectionEvent);
-		
+		StartTrigger->OnStartSection.BindUObject(this, &ASectionMediator::StartSectionEvent);
+	}
+
+	for (ISectionEnd_Interface* EndTrigger : EndTriggers)
+	{
+		EndTrigger->OnEndSection.BindUObject(this, &ASectionMediator::EndSectionEvent);
 	}
 
 }
 void ASectionMediator::StartSectionEvent()
 {
+	for (ISectionStart_Interface* StartTrigger : StartTriggers)
+	{
+		StartTrigger->OnStartSection.Unbind();
+	}
+
 	Clog::Log("StartSectionEvent");
 	AInGameStateBase* gameState = Cast<AInGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
 	gameState->StartSection(this);
-
-	for (ASpawnerActor* Spawner : SpawnerActors)
-	{
-		Clog::Log(Spawner);
-		Clog::Log("StartSpawn");
-		Spawner->StartSpawn();
-	}
 }
 
 void ASectionMediator::OnSolveSectionProblem()
@@ -75,6 +76,7 @@ void ASectionMediator::EndSectionEvent()
 {
 	for (ISectionEnd_Interface* EndTrigger : EndTriggers)
 	{
+		EndTrigger->OnEndSection.Unbind();
 		EndTrigger->PlayEndTrigger();
 	}
 }
