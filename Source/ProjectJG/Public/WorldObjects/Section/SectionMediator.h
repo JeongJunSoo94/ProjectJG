@@ -8,6 +8,15 @@
 #include "WorldObjects/Section/SectionEnd_Interface.h"
 #include "SectionMediator.generated.h"
 
+
+UENUM(BlueprintType,meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
+enum class ESectionState : uint8
+{
+	ENone = 0,
+	EProceedingSection = 1 << 0,
+	EClearSection = 1 << 1
+};
+
 UCLASS()
 class PROJECTJG_API ASectionMediator : public AActor
 {
@@ -21,8 +30,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "SpawnerActors")
 		TArray<class ASpawnerActor*> SpawnerActors;
-
-
 
 protected:
 	virtual void BeginPlay() override;

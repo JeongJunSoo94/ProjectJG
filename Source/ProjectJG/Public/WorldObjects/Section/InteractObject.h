@@ -52,8 +52,6 @@ public:
 
 	AInteractObject();
 
-	bool IsStartInterface = false;
-	bool IsEndInterface = false;
 protected:
 	virtual void BeginPlay() override;
 	void PlaySequence(ETriggerType TriggerType = ETriggerType::None);
@@ -61,7 +59,7 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable)
-		void InteractObjectEvent();
+		void OnSequenceEvent();
 
-	virtual void InteractObjectEvent_Implementation() {}
+	virtual void OnSequenceEvent_Implementation() {}
 };

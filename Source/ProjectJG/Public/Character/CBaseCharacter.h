@@ -54,6 +54,8 @@ public:
 	void Stop();
 	void SolveStop();
 
+	bool isStop() { return bMove; }
+
 	float GetLookYaw();
 
 	virtual void BeginHitEffect(AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit) override;

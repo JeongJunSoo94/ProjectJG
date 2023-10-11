@@ -23,9 +23,9 @@ protected:
 	bool SpawnCheck();
 	void SpawnLayer();
 	void SpawnActor();
-	void Initailized();
 public:	
-	void StartSpawn(bool bAutoSpawn,bool binitailized);
+	void Initailized();
+	void StartSpawn();
 	void StopSpawn();
 public:
 	UPROPERTY(BlueprintReadOnly,EditAnywhere, Category = "Spawns")
@@ -34,6 +34,8 @@ public:
 		bool IsInfiniteSpawn = false;
 	UPROPERTY(EditAnywhere, Category = "Spawns")
 		bool IsAutoSpawn = false;
+	UPROPERTY(EditAnywhere, Category = "Spawns")
+		bool IsInitSpawn = false;
 protected:
 		bool IsEnemysSpawnable = true;
 		int EnemysSpawnCount=0;

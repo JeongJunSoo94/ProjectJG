@@ -60,7 +60,7 @@ void AInteractObject::SettingSequences(ULevelSequence* Sequence, FMovieSceneSequ
 	LevelSequenceArray[Sequence] = data;
 }
 
-void AInteractObject::InteractObjectEvent()
+void AInteractObject::OnSequenceEvent()
 {
-	InteractObjectEvent_Implementation();
+	OnSequenceEvent_Implementation();
 }

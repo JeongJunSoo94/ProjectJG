@@ -10,28 +10,32 @@
 #include "LevelSequenceActor.h"
 #include "BaseSystem/GameStateBase/InGameStateBase.h"
 
+#include "Character/CBaseCharacter.h"
+
 ADoorObject::ADoorObject()
 {
 	CHelpers::CreateComponent<UBoxComponent>(this, &SectionStart_BoxTrigger, "SectionStart_BoxTrigger");
 	SectionStart_BoxTrigger->bHiddenInGame = false;
 	CHelpers::CreateComponent<UBoxComponent>(this, &SectionEnd_BoxTrigger, "SectionEnd_BoxTrigger");
 	SectionEnd_BoxTrigger->bHiddenInGame = false;
-
-	IsStartInterface = true;
-	IsEndInterface = true;
 }
 
 void ADoorObject::OnEndOverlapStartBoxTrigger(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	Clog::Log("OnEndOverlapBox");
+	CheckNull(gameState);
+	CheckFalse(OtherActor->IsA<ACBaseCharacter>());
 	PlaySequence(ETriggerType::Start);
 	DoorOpenedActor = OtherActor;
+	SectionStart_BoxTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 }
 
 void ADoorObject::OnBeginOverlapEndBoxTrigger(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AInGameStateBase* gameState = Cast<AInGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
+	CheckNull(gameState);
+	CheckFalse(OtherActor->IsA<ACBaseCharacter>());
 	gameState->EndSection();
+	SectionEnd_BoxTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ADoorObject::BeginPlay()
@@ -41,6 +45,8 @@ void ADoorObject::BeginPlay()
 	SectionStart_BoxTrigger->OnComponentEndOverlap.AddDynamic(this, &ADoorObject::OnEndOverlapStartBoxTrigger);
 
 	SectionEnd_BoxTrigger->OnComponentBeginOverlap.AddDynamic(this, &ADoorObject::OnBeginOverlapEndBoxTrigger);
+
+	gameState = Cast<AInGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
 }
 
 void ADoorObject::PlayEndTrigger()
@@ -77,10 +83,16 @@ void ADoorObject::SettingSequences(ULevelSequence* Sequence, FMovieSceneSequence
 
 }
 
-void ADoorObject::InteractObjectEvent_Implementation()
+void ADoorObject::OnSequenceEvent_Implementation()
 {
-	Clog::Log("InteractObjectEvent_Implementation");
+	Clog::Log(DoorOpenedActor);
 	CheckNull(DoorOpenedActor);
-	SectionEnd_BoxTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	ACBaseCharacter* player = Cast<ACBaseCharacter>(DoorOpenedActor);
+
+	Clog::Log(player->isStop());
+	player->isStop() ? player->Stop() : player->SolveStop();
+	
+
+	//SectionEnd_BoxTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 }

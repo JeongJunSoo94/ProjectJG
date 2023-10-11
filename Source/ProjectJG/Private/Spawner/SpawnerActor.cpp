@@ -21,8 +21,9 @@ void ASpawnerActor::BeginPlay()
 	ObjectPoolFactory = CHelpers::GetComponent<UObjectPoolFactory>(GetWorld()->GetAuthGameMode());
 	if (ObjectPoolFactory != nullptr)
 	{
-		if(IsAutoSpawn)
-			StartSpawn(IsAutoSpawn,true);
+		Initailized();
+		if(IsInitSpawn)
+			StartSpawn();
 	}
 }
 
@@ -98,12 +99,10 @@ void ASpawnerActor::SpawnActor()
 	}
 }
 
-void ASpawnerActor::StartSpawn(bool bAutoSpawn, bool binitailized)
+void ASpawnerActor::StartSpawn()
 {
-	IsAutoSpawn = bAutoSpawn;
+	
 	IsEnemysSpawnable = true;
-	if (binitailized)
-		Initailized();
 
 	if (IsAutoSpawn)
 	{
@@ -111,6 +110,7 @@ void ASpawnerActor::StartSpawn(bool bAutoSpawn, bool binitailized)
 	}
 	else
 	{
+		
 		SpawnActor();
 	}
 }

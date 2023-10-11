@@ -13,7 +13,7 @@ ASectionMediator::ASectionMediator()
 void ASectionMediator::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	InitSection();
 }
 
@@ -26,51 +26,46 @@ void ASectionMediator::InitSection()
 			continue;
 		}
 
-		if (actor->IsStartInterface)
+		ISectionStart_Interface* StartInterface = Cast<ISectionStart_Interface>(actor);
+		if (!!StartInterface)
 		{
-			if (Cast<ISectionStart_Interface>(actor))
-			{
-				Clog::Log("InitSection : actor is startInterface, Not Null");
-			}
-			AddSectionStartTrigger(Cast<ISectionStart_Interface>(actor));
+			Clog::Log("InitSection : actor is startInterface, Not Null");
+			AddSectionStartTrigger(StartInterface);
 		}
-
-		if (actor->IsEndInterface)
+		
+		ISectionEnd_Interface* EndInterface = Cast<ISectionEnd_Interface>(actor);
+		if (!!EndInterface)
 		{
-			if (Cast<ISectionEnd_Interface>(actor))
-			{
-				Clog::Log("InitSection : actor is EndInterface, Not Null");
-			}
-			AddSectionEndTrigger(Cast<ISectionEnd_Interface>(actor));
+			Clog::Log("InitSection : actor is startInterface, Not Null");
+			AddSectionEndTrigger(EndInterface);
 		}
 	}
-
-
-
 
 	for (ISectionStart_Interface* StartTrigger : StartTriggers)
 	{
 		StartTrigger->OnTriggerSection.BindUObject(this, &ASectionMediator::StartSectionEvent);
 		
 	}
+
 }
 void ASectionMediator::StartSectionEvent()
 {
-
+	Clog::Log("StartSectionEvent");
 	AInGameStateBase* gameState = Cast<AInGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
-
-
 	gameState->StartSection(this);
+
 	for (ASpawnerActor* Spawner : SpawnerActors)
 	{
-		//Spawner->
+		Clog::Log(Spawner);
+		Clog::Log("StartSpawn");
+		Spawner->StartSpawn();
 	}
-	Clog::Log("Spawn enemy");
 }
 
 void ASectionMediator::OnSolveSectionProblem()
 {
 	// ex) kill Enemy
+
 	Clog::Log("Solve Problem");
 	EndSectionEvent();
 }
