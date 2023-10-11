@@ -11,6 +11,7 @@
 #include "BaseSystem/GameStateBase/InGameStateBase.h"
 
 #include "Character/CBaseCharacter.h"
+#include "WorldObjects/Section/InteractObjectTypes/Abstract_Spawn_Object.h"
 
 ADoorObject::ADoorObject()
 {
@@ -20,12 +21,14 @@ ADoorObject::ADoorObject()
 	SectionEnd_BoxTrigger->bHiddenInGame = false;
 }
 
+
 void ADoorObject::OnEndOverlapStartBoxTrigger(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	CheckNull(gameState);
 	CheckFalse(OtherActor->IsA<ACBaseCharacter>());
 	PlaySequence(ETriggerType::Start);
 	DoorOpenedActor = OtherActor;
+	SpawnEnemy();
 	SectionStart_BoxTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 }
@@ -59,7 +62,7 @@ void ADoorObject::PlayEndTrigger()
 
 void ADoorObject::CallBackStartSection()
 {
-	OnTriggerSection.ExecuteIfBound();
+	OnStartSection.ExecuteIfBound();
 }
 
 void ADoorObject::SettingSequences(ULevelSequence* Sequence, FMovieSceneSequencePlaybackSettings Settings, ETriggerType TriggerType)
