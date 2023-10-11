@@ -22,7 +22,7 @@ void ASpawnerActor::BeginPlay()
 	if (ObjectPoolFactory != nullptr)
 	{
 		Initailized();
-		if(IsInitSpawn)
+		if(bInitSpawn)
 			StartSpawn();
 	}
 }
@@ -31,21 +31,39 @@ bool ASpawnerActor::SpawnCheck()
 {
 	if (SpawnDataAsset==nullptr)
 		return false;
-	if (IsInfiniteSpawn)
-	{
-		--SpawnerSpawnCount;
-		return true;
-	}
 
+	if (!bEnemysSpawnable)
+	{
+		return false;
+	}
+	
+	if (bWaitUntilSpawnedEnemysDies)
+	{
+		if (EnemysSpawnCount > 0)
+		{
+			return false;
+		}
+	}
 	if (SpawnerSpawnCount > 0)
 	{
-		IsEnemysSpawnable = false;
 		--SpawnerSpawnCount;
+		GetWorld()->GetTimerManager().SetTimer(SpawnTimeHandle, this, &ASpawnerActor::SpawnActor, SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].SpawnIntervalTime, false);
 		return true;
 	}
 	else if (SpawnerSpawnCount == -1)
 	{
+		GetWorld()->GetTimerManager().SetTimer(SpawnTimeHandle, this, &ASpawnerActor::SpawnActor, SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].SpawnIntervalTime, false);
 		return true;
+	}
+	else if (SpawnerSpawnCount == 0)
+	{
+		if (bWaitUntilSpawnedLayerEnemysDies)
+		{
+			if(LayerEnemysMaxCount>0)
+				return false;
+		}
+		SpawnCountInitailized();
+		GetWorld()->GetTimerManager().SetTimer(SpawnTimeHandle, this, &ASpawnerActor::SpawnActor, SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].SpawnIntervalTime, false);
 	}
 	return false;
 }
@@ -58,26 +76,17 @@ void ASpawnerActor::SpawnLayer()
 			++EnemysSpawnLayer;
 		else
 		{
-			if (!IsInfiniteSpawn)
+			bEnemysSpawnable = false;
+			if (!bAllLayerLoopSpawn)
 				return;
+			bEnemysSpawnable = true;
 			EnemysSpawnLayer = 0;
-		}
-		SpawnerSpawnCount = SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].SpawnCount;
-		if (IsInfiniteSpawn)
-		{
-			GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
-			GetWorld()->GetTimerManager().SetTimer(SpawnTimeHandle, this, &ASpawnerActor::SpawnActor, SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].SpawnIntervalTime, IsInfiniteSpawn);
 		}
 	}
 }
 
 void ASpawnerActor::SpawnActor()
 {
-	if (!IsEnemysSpawnable)
-	{
-		return;
-	}
-
 	if (SpawnCheck())
 	{
 		for (int i=0; i < SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].Enemys.Num(); ++i)
@@ -101,42 +110,53 @@ void ASpawnerActor::SpawnActor()
 
 void ASpawnerActor::StartSpawn()
 {
-	
-	IsEnemysSpawnable = true;
-
-	if (IsAutoSpawn)
-	{
-		GetWorld()->GetTimerManager().SetTimer(SpawnTimeHandle, this, &ASpawnerActor::SpawnActor, SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].SpawnIntervalTime, IsInfiniteSpawn);
-	}
-	else
-	{
-		
-		SpawnActor();
-	}
+	bEnemysSpawnable = true;
+	GetWorld()->GetTimerManager().SetTimer(SpawnTimeHandle, this, &ASpawnerActor::SpawnActor, SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].SpawnIntervalTime, false);
 }
 
 void ASpawnerActor::StopSpawn()
 {
-	IsEnemysSpawnable = false;
+	bEnemysSpawnable = false;
 }
 
 void ASpawnerActor::OnReturnEnemyCount(AActor* actor)
 {
 	--EnemysSpawnCount;
-	if (IsAutoSpawn && EnemysSpawnCount == 0)
+	--LayerEnemysMaxCount;
+	if (EnemysSpawnCount == 0)
 	{
-		if (!IsInfiniteSpawn)
+		if (bWaitUntilSpawnedLayerEnemysDies)
 		{
-			IsEnemysSpawnable = true;
+			if (LayerEnemysMaxCount==0)
+			{
+				GetWorld()->GetTimerManager().SetTimer(SpawnTimeHandle, this, &ASpawnerActor::SpawnActor, SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].SpawnIntervalTime, false);
+
+				return;
+			}
+		}
+		if (bWaitUntilSpawnedEnemysDies)
+		{
 			GetWorld()->GetTimerManager().SetTimer(SpawnTimeHandle, this, &ASpawnerActor::SpawnActor, SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].SpawnIntervalTime, false);
+			return;
 		}
 	}
 }
 
 void ASpawnerActor::Initailized()
 {
+	CheckNull(SpawnDataAsset);
 	EnemysSpawnLayer = 0;
+	SpawnCountInitailized();
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+}
+
+void ASpawnerActor::SpawnCountInitailized()
+{
 	SpawnerSpawnCount = SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].SpawnCount;
 	EnemysSpawnCount = 0;
-	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+	LayerEnemysMaxCount = 0;
+	for (auto Enemy : SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].Enemys)
+	{
+		LayerEnemysMaxCount += Enemy.EnemyCount * SpawnerSpawnCount;
+	}
 }

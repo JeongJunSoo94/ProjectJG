@@ -23,6 +23,7 @@ protected:
 	bool SpawnCheck();
 	void SpawnLayer();
 	void SpawnActor();
+	void SpawnCountInitailized();
 public:	
 	void Initailized();
 	void StartSpawn();
@@ -30,16 +31,23 @@ public:
 public:
 	UPROPERTY(BlueprintReadOnly,EditAnywhere, Category = "Spawns")
 		UEnemysSpawnDataAsset* SpawnDataAsset;
+
 	UPROPERTY(EditAnywhere, Category = "Spawns")
-		bool IsInfiniteSpawn = false;
+		bool bAllLayerLoopSpawn = false;
+
 	UPROPERTY(EditAnywhere, Category = "Spawns")
-		bool IsAutoSpawn = false;
+		bool bWaitUntilSpawnedLayerEnemysDies = false;
+
 	UPROPERTY(EditAnywhere, Category = "Spawns")
-		bool IsInitSpawn = false;
+		bool bWaitUntilSpawnedEnemysDies = false;
+
+	UPROPERTY(EditAnywhere, Category = "Spawns")
+		bool bInitSpawn = false;
 protected:
-		bool IsEnemysSpawnable = true;
+		bool bEnemysSpawnable = true;
 		int EnemysSpawnCount=0;
 		int SpawnerSpawnCount = 0;
 		int EnemysSpawnLayer = 0;
+		int LayerEnemysMaxCount = 0;
 		FTimerHandle SpawnTimeHandle;
 };
