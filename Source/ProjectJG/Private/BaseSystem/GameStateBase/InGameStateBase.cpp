@@ -67,9 +67,6 @@ void AInGameStateBase::StartSection(ASectionMediator *SectionData)
 {
 	if(SectionData!=curSection)
 		curSection = SectionData;
-
-	
-	
 }
 
 void AInGameStateBase::EndSection()

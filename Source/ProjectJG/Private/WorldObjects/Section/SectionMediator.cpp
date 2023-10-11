@@ -12,7 +12,7 @@ ASectionMediator::ASectionMediator()
 void ASectionMediator::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	InitSection();
 }
 
@@ -20,47 +20,53 @@ void ASectionMediator::InitSection()
 {
 	for (AInteractObject* actor : TriggerActors)
 	{
-		if (actor->IsStartInterface)
+		if (!actor)
 		{
-			if (Cast<ISectionStart_Interface>(actor))
-			{
-				Clog::Log("InitSection : actor is startInterface, Not Null");
-			}
-			AddSectionStartTrigger(Cast<ISectionStart_Interface>(actor));
+			continue;
 		}
 
-		if (actor->IsEndInterface)
+		ISectionStart_Interface* StartInterface = Cast<ISectionStart_Interface>(actor);
+		if (!!StartInterface)
 		{
-			if (Cast<ISectionEnd_Interface>(actor))
-			{
-				Clog::Log("InitSection : actor is EndInterface, Not Null");
-			}
-			AddSectionEndTrigger(Cast<ISectionEnd_Interface>(actor));
+			Clog::Log("InitSection : actor is startInterface, Not Null");
+			AddSectionStartTrigger(StartInterface);
+		}
+		
+		ISectionEnd_Interface* EndInterface = Cast<ISectionEnd_Interface>(actor);
+		if (!!EndInterface)
+		{
+			Clog::Log("InitSection : actor is startInterface, Not Null");
+			AddSectionEndTrigger(EndInterface);
 		}
 	}
-
-
-
 
 	for (ISectionStart_Interface* StartTrigger : StartTriggers)
 	{
-		StartTrigger->OnTriggerSection.BindUObject(this, &ASectionMediator::StartSectionEvent);
-		
+		StartTrigger->OnStartSection.BindUObject(this, &ASectionMediator::StartSectionEvent);
 	}
+
+	for (ISectionEnd_Interface* EndTrigger : EndTriggers)
+	{
+		EndTrigger->OnEndSection.BindUObject(this, &ASectionMediator::EndSectionEvent);
+	}
+
 }
 void ASectionMediator::StartSectionEvent()
 {
+	for (ISectionStart_Interface* StartTrigger : StartTriggers)
+	{
+		StartTrigger->OnStartSection.Unbind();
+	}
+
+	Clog::Log("StartSectionEvent");
 	AInGameStateBase* gameState = Cast<AInGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
-
-
 	gameState->StartSection(this);
-	// ex) begin Spawn Enemy
-	Clog::Log("Spawn enemy");
 }
 
 void ASectionMediator::OnSolveSectionProblem()
 {
 	// ex) kill Enemy
+
 	Clog::Log("Solve Problem");
 	EndSectionEvent();
 }
@@ -70,6 +76,7 @@ void ASectionMediator::EndSectionEvent()
 {
 	for (ISectionEnd_Interface* EndTrigger : EndTriggers)
 	{
+		EndTrigger->OnEndSection.Unbind();
 		EndTrigger->PlayEndTrigger();
 	}
 }

@@ -38,5 +38,4 @@ public:
 
 	void StartSection(class ASectionMediator* SectionData);
 	void EndSection();
-
 };

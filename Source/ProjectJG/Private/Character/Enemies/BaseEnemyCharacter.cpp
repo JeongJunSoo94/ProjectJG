@@ -39,7 +39,7 @@ void ABaseEnemyCharacter::BeginPlay()
 	ObjectPoolFactory = CHelpers::GetComponent<UObjectPoolFactory>(GetWorld()->GetAuthGameMode());
 	if (ObjectPoolFactory != nullptr)
 	{
-		ObjectPoolFactory->CreateObject(5, DamageWidgetClass);
+		ObjectPoolFactory->SpawnObject(DamageWidgetClass);
 	}
 }
 

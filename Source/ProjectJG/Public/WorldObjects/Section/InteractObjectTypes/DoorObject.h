@@ -13,7 +13,7 @@
  * 
  */
 UCLASS()
-class PROJECTJG_API ADoorObject : public AInteractObject ,public ISectionStart_Interface, public ISectionEnd_Interface
+class PROJECTJG_API ADoorObject : public AAbstract_Spawn_Object,public ISectionStart_Interface, public ISectionEnd_Interface
 {
 	GENERATED_BODY()
 
@@ -30,6 +30,7 @@ protected:
 	UFUNCTION()
 		void OnBeginOverlapEndBoxTrigger( UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	class AInGameStateBase* gameState;
 
 	virtual void BeginPlay() override;
 
@@ -41,7 +42,7 @@ public:
 		virtual void PlayEndTrigger() override;
 
 	UFUNCTION()
-		virtual void CallBackStartSection() override;
+		void CallBackStartSection();
 
-	virtual void InteractObjectEvent_Implementation();
+	virtual void OnSequenceEvent_Implementation() override;
 };

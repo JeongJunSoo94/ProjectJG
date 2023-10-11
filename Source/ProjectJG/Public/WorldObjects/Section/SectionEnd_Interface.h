@@ -6,6 +6,8 @@
 #include "UObject/Interface.h"
 #include "SectionEnd_Interface.generated.h"
 
+DECLARE_DELEGATE(FOnStartTrigger);
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class USectionEnd_Interface : public UInterface
@@ -22,6 +24,7 @@ class PROJECTJG_API ISectionEnd_Interface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	FOnStartTrigger OnEndSection;
 	UFUNCTION()
 		virtual void PlayEndTrigger() = 0;
 };

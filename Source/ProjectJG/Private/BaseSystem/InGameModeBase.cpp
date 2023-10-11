@@ -61,8 +61,8 @@ void AInGameModeBase::InitGame(const FString& MapName, const FString& Options, F
 	break;
 	default:
 	{
-		DefaultPawnClass = characterDataAsset->CharacterDatas[1].Pawn;
-		Clog::Log("Murdock");
+		DefaultPawnClass = characterDataAsset->CharacterDatas[0].Pawn;
+		
 	}
 	break;
 	}
