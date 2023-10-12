@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "WorldObjects/Section/SectionStart_Interface.h"
 #include "WorldObjects/Section/SectionEnd_Interface.h"
+#include "BaseSystem/GameStateBase/InGameStateBase.h"
+
 #include "SectionMediator.generated.h"
 
 
@@ -28,6 +30,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "TriggerActors")
 		TArray <class AInteractObject*> TriggerActors;
 
+	UPROPERTY(EditAnywhere, Category = "ClearCondition")
+		FClearCondition ClearCondition;
 
 protected:
 	virtual void BeginPlay() override;

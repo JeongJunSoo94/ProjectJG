@@ -7,9 +7,7 @@
 #include "Widgets/Title/UserWidget_MainTitle.h"
 #include "projectJG_GameInstance.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class PROJECTJG_API UprojectJG_GameInstance : public UGameInstance
 {

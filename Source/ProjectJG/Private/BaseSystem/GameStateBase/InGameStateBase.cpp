@@ -65,12 +65,41 @@ void AInGameStateBase::PostInitializeComponents()
 
 void AInGameStateBase::StartSection(ASectionMediator *SectionData)
 {
-	if(SectionData!=curSection)
+	if (SectionData != curSection)
+	{
 		curSection = SectionData;
+		Map_SectionClearConditions.Add(SectionData, SectionData->ClearCondition);
+	}
+
 }
 
 void AInGameStateBase::EndSection()
 {
 	curSection->EndSectionEvent();
 	// SectionEnd trigger Or End Effect ...
+}
+
+void AInGameStateBase::TakeKey(uint8 KeyNumber)
+{
+	Map_SectionClearConditions[curSection].StoreKey(KeyNumber);
+}
+
+FClearCondition* AInGameStateBase::GetClearCondition()
+{
+	return &Map_SectionClearConditions[curSection];
+}
+
+void FClearCondition::StoreKey(uint8 KeyNumber)
+{
+	curKeyValue |= KeyNumber;
+}
+
+void FClearCondition::KillEnemy(int killScore)
+{
+	curKillNumber += killScore;
+}
+
+bool FClearCondition::IsGoal()
+{
+	return ((GoalKillNumber <= curKillNumber || GoalKillNumber == -1) && (GoalKeyValue == curKeyValue || GoalKeyValue == 0));
 }

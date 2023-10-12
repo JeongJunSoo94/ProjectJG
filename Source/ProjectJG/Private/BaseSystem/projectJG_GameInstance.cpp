@@ -22,3 +22,4 @@ void UprojectJG_GameInstance::SetGameData(FGameSettingData Data)
 	StaticData.SelectCharacter = Data.SelectCharacter;
 	StaticData.Difficulty = Data.Difficulty;
 }
+
