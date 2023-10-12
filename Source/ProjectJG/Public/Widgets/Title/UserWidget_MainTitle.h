@@ -33,8 +33,8 @@ enum class ECharacterSelect : uint8
 	None = 0			UMETA(DisplayName = "None"),
 	EBelica 			UMETA(DisplayName = "Belica"),
 	EMurdock			UMETA(DisplayName = "Murdock"),
-	EUnkonwn_0			UMETA(DisplayName = "Unkonwn_0"),
-	EUnkonwn_1			UMETA(DisplayName = "Unkonwn_1"),
+	EGadget				UMETA(DisplayName = "Gadget"),
+	EKallari			UMETA(DisplayName = "Kallari"),
 };
 
 USTRUCT(BlueprintType)
@@ -76,7 +76,7 @@ protected:
 		//class UComboBoxKey* StageComboBox_Key;
 
 	TArray<FName> StageFNameData; // 외부 데이터에 있다고 생각
-
+	class AStartGameModeBase* StartGameModeBase;
 public:
 	UFUNCTION(BlueprintCallable)
 		void SelectStage(FName StageNumber);
@@ -84,6 +84,8 @@ public:
 		void SelectDifficulty(FName Difficulty);
 	UFUNCTION(BlueprintCallable)
 		void SelectCharacter(ECharacterSelect SelectCharacterEnum);
+	UFUNCTION(BlueprintCallable)
+		void SelectCharacterWorldSpawn(ECharacterSelect SelectCharacterEnum);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		FGameSettingData GameData;

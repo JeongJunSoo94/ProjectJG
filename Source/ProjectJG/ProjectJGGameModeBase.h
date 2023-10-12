@@ -10,5 +10,4 @@ class PROJECTJG_API AProjectJGGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 public:
 	AProjectJGGameModeBase();
-	//TAAActor* UIWidget;
 };

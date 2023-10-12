@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Widgets/Title/UserWidget_MainTitle.h"
 #include "Global.h"
 #include "Components/VerticalBox.h"
@@ -10,6 +7,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/GameStateBase.h"
 #include "BaseSystem/projectJG_GameInstance.h"
+#include "BaseSystem/StartGameModeBase.h"
 
 UUserWidget_MainTitle::UUserWidget_MainTitle(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -24,7 +22,6 @@ UUserWidget_MainTitle::UUserWidget_MainTitle(const FObjectInitializer& ObjectIni
 		StageComboBox_Key->AddOption(Name);
 	}*/
 }
-
 void UUserWidget_MainTitle::SelectStage(FName StageNumber)
 {
 
@@ -87,4 +84,33 @@ void UUserWidget_MainTitle::OnStartButton(FName StageName)
 
 
 	UGameplayStatics::OpenLevel(GetWorld(), StageName);
+}
+
+void UUserWidget_MainTitle::SelectCharacterWorldSpawn(ECharacterSelect SelectCharacterEnum)
+{
+	if(StartGameModeBase==nullptr)
+		StartGameModeBase = Cast<AStartGameModeBase>(GetWorld()->GetAuthGameMode());
+	switch(SelectCharacterEnum)
+	{
+		case ECharacterSelect::EBelica:
+		{
+			StartGameModeBase->SpawnSelectActor(0);
+		}
+		break;
+		case ECharacterSelect::EMurdock:
+		{
+			StartGameModeBase->SpawnSelectActor(1);
+		}
+		break;
+		case ECharacterSelect::EGadget:
+		{
+			StartGameModeBase->SpawnSelectActor(2);
+		}
+		break;
+		case ECharacterSelect::EKallari:
+		{
+			StartGameModeBase->SpawnSelectActor(3);
+		}
+		break;
+	}
 }

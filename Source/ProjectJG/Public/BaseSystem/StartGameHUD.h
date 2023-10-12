@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
+#include "DataAssets/SelectCharacterDataAsset.h"
 #include "StartGameHUD.generated.h"
 
 UCLASS()
