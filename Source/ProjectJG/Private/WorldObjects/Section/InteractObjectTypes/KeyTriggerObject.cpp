@@ -7,7 +7,8 @@
 #include "Character/CBaseCharacter.h"
 
 #include "BaseSystem/GameStateBase/InGameStateBase.h"
-
+#include "Materials/MaterialInstanceDynamic.h"
+#include "Engine/StaticMeshActor.h"
 
 AKeyTriggerObject::AKeyTriggerObject()
 {
@@ -26,6 +27,7 @@ void AKeyTriggerObject::OnBeginOverlap_KeyBoxTrigger(UPrimitiveComponent* Overla
 	}
 	takebyPlayer(player);
 	SpawnEnemy();
+	OffLight_Object();
 }
 
 
@@ -36,6 +38,9 @@ void AKeyTriggerObject::BeginPlay()
 	CHelpers::CheckNullComponent<UBoxComponent>(this, &Key_BoxTrigger);
 
 	Key_BoxTrigger->OnComponentBeginOverlap.AddDynamic(this, &AKeyTriggerObject::OnBeginOverlap_KeyBoxTrigger);
+
+	SetUpLightMaterial();
+	OnLight_Object();
 }
 
 void AKeyTriggerObject::takebyPlayer(ACBaseCharacter* Player)
@@ -48,4 +53,31 @@ void AKeyTriggerObject::takebyPlayer(ACBaseCharacter* Player)
 	}
 	GameState->TakeKey(KeyNumber);
 
+}
+
+void AKeyTriggerObject::SetUpLightMaterial()
+{
+	int32 arrayNum = 0;
+	for (AStaticMeshActor* object : KeyObjects)
+	{
+		UMaterialInstanceDynamic* materialDynamic = object->GetStaticMeshComponent()->CreateDynamicMaterialInstance(arrayNum);
+		++arrayNum;
+		MaterialInstanceDynamic_KeyObjects.Add(materialDynamic);
+	}
+}
+
+void AKeyTriggerObject::OnLight_Object()
+{
+	for (UMaterialInstanceDynamic* material : MaterialInstanceDynamic_KeyObjects)
+	{
+		material->SetScalarParameterValue(TEXT("IsGlow"), 1.0f);
+	}
+}
+
+void AKeyTriggerObject::OffLight_Object()
+{
+	for (UMaterialInstanceDynamic* material : MaterialInstanceDynamic_KeyObjects)
+	{
+		material->SetScalarParameterValue(TEXT("IsGlow"), -1.0f);
+	}
 }

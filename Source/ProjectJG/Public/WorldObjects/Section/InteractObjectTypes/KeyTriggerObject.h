@@ -16,7 +16,8 @@ class PROJECTJG_API AKeyTriggerObject : public AAbstract_Spawn_Object
 	
 public:
 	UPROPERTY(EditAnywhere)
-		TArray<class UMaterialInstanceDynamic*> KeyObjects;
+		TArray<class AStaticMeshActor*> KeyObjects;
+		TArray<class UMaterialInstanceDynamic*> MaterialInstanceDynamic_KeyObjects;
 	UPROPERTY(VisibleDefaultsOnly)
 		class UBoxComponent* Key_BoxTrigger;
 	UPROPERTY(EditAnywhere)
@@ -30,4 +31,8 @@ public:
 
 
 	void takebyPlayer(class ACBaseCharacter* Player);
+
+	void SetUpLightMaterial();
+	void OnLight_Object();
+	void OffLight_Object();
 };
