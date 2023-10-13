@@ -6,6 +6,7 @@
 #include "GameFramework/GameStateBase.h"
 #include "InGameStateBase.generated.h"
 
+DECLARE_DELEGATE(FOnUpdateQuest);
 /**
  * 
  */
@@ -16,6 +17,32 @@ enum class EGameState :uint8
 	GamePlay,
 	GamePause,
 	GameOver,
+};
+
+USTRUCT(BlueprintType)
+struct FClearCondition
+{
+	GENERATED_BODY()
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		int curKillNumber = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		uint8 curKeyValue = 0;
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		int GoalKillNumber = -1;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		uint8 GoalKeyValue = 0;
+
+	void StoreKey(uint8 KeyNumber);
+	void KillEnemy(int killScore);
+
+	bool IsGoal();
+	
+	int GetCurKillNumber() { return curKillNumber; }
+	uint8 GetCurKeyValue() { return curKeyValue; }
+
 };
 
 UCLASS()
@@ -29,6 +56,9 @@ private:
 		void ChangeGameState(EGameState NextState);
 	UPROPERTY(EditAnywhere)
 		class ASectionMediator* curSection;
+	UPROPERTY(EditAnywhere)
+		TMap<ASectionMediator*,FClearCondition> Map_SectionClearConditions;
+
 
 public:
 	UPROPERTY(Transient, BlueprintReadOnly, Category = GameState)
@@ -37,5 +67,13 @@ public:
 	virtual void PostInitializeComponents() override;
 
 	void StartSection(class ASectionMediator* SectionData);
-	void EndSection();
+	bool EndSection();
+
+	void TakeKey(uint8 KeyNumber);
+	FClearCondition* GetClearCondition();
+	void UpdateKillScore();
+
+	FOnUpdateQuest OnEventUpdateSection;
+	FOnUpdateQuest OnEventUpdateData;
+
 };

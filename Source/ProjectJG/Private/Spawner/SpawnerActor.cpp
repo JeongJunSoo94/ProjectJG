@@ -9,6 +9,8 @@
 #include "Components/BoxComponent.h"
 #include "BaseSystem/ObjectPoolFunctions.h"
 
+#include "BaseSystem/GameStateBase/InGameStateBase.h"
+
 ASpawnerActor::ASpawnerActor()
 {
 	CHelpers::CreateActorComponent(this, &BoxComp, "BoxComponent");
@@ -119,6 +121,14 @@ void ASpawnerActor::StopSpawn()
 	bEnemysSpawnable = false;
 }
 
+void ASpawnerActor::UpdateKillCount()
+{
+	if(!GameState)
+		GameState = Cast<AInGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
+
+	GameState->UpdateKillScore();
+}
+
 void ASpawnerActor::OnReturnEnemyCount(AActor* actor)
 {
 	--EnemysSpawnCount;
@@ -140,6 +150,8 @@ void ASpawnerActor::OnReturnEnemyCount(AActor* actor)
 			return;
 		}
 	}
+
+	UpdateKillCount();
 }
 
 void ASpawnerActor::Initailized()
