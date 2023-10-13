@@ -4,6 +4,7 @@
 #include "DataAssets/SelectCharacterDataAsset.h"
 #include "Camera/CameraActor.h"
 #include "GameFramework/Actor.h"
+#include "Sound/SoundCue.h"
 
 AStartGameModeBase::AStartGameModeBase()
 {
@@ -11,7 +12,7 @@ AStartGameModeBase::AStartGameModeBase()
 	DefaultPawnClass = nullptr;
 	//PlayerControllerClass = AController_StartMenu::StaticClass();
 	CHelpers::GetAsset<USelectCharacterDataAsset>(&SelectCharacterDataAsset, "SelectCharacterDataAsset'/Game/Developers/JJS/CharacterUI/DA_SelectCharacter.DA_SelectCharacter'");
-
+	CHelpers::GetAsset<USoundCue>(&BGM, "SoundCue'/Game/Developers/JJS/BGM/LobbyBGM.LobbyBGM'");
 }
 
 void AStartGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
@@ -44,4 +45,10 @@ void AStartGameModeBase::SetActive(AActor* actor, bool value)
 {
 	actor->SetActorHiddenInGame(!value);
 	actor->SetActorEnableCollision(value);
+}
+
+void AStartGameModeBase::BeginPlay()
+{
+	Super::BeginPlay();
+	UGameplayStatics::SpawnSound2D(GetWorld(), BGM, 1.f, 1.f, 0.f, nullptr, true, true);
 }

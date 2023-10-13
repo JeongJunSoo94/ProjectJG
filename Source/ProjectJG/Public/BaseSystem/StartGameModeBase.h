@@ -26,5 +26,9 @@ public:
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 	void SpawnSelectActor(int value);
 protected:
+	virtual void BeginPlay()override;
 	void SetActive(AActor* actor, bool value);
+private:
+	UPROPERTY()
+		class USoundCue* BGM;
 };

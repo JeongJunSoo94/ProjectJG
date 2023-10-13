@@ -22,6 +22,7 @@ private:
 	//uint8 CharacterData;
 	//uint8 Difficulty;
 public:
+	UprojectJG_GameInstance();
 	void SetBackgroundVolume(float value);
 	void SetEffectVolume(float value);
 
@@ -31,5 +32,6 @@ public:
 	float GetBackgroundVolume() {return BackgroundVolume;}
 	float GetEffectVolume() { return EffectVolume; }
 
+	virtual void OnStart() override;
 
 };

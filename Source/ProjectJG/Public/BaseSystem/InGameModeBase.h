@@ -22,6 +22,7 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly)
 		class UObjectPoolFactory* ObjectPoolFactory;
+
 public:
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 
@@ -31,4 +32,10 @@ public:
 		class UCharacterDataAsset* characterDataAsset;
 
 	//TArray<TQueue<AActor*>> Test;
+
+
+private:
+	UPROPERTY()
+		class USoundCue* BGM;
+
 };

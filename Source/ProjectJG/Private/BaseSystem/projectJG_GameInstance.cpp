@@ -1,10 +1,15 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "BaseSystem/projectJG_GameInstance.h"
 #include "Global.h"
 
+UprojectJG_GameInstance::UprojectJG_GameInstance()
+{
+}
 
+void UprojectJG_GameInstance::OnStart()
+{
+	Super::OnStart();
+
+}
 
 void UprojectJG_GameInstance::SetBackgroundVolume(float value)
 {

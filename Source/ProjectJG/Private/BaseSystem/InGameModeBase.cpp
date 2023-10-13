@@ -6,6 +6,7 @@
 #include "DataAssets/CharacterDataAsset.h"
 #include "Widgets/Title/UserWidget_MainTitle.h"
 #include "BaseSystem/ObjectPoolFactory.h"
+#include "Sound/SoundCue.h"
 
 AInGameModeBase::AInGameModeBase()
 {
@@ -18,27 +19,16 @@ AInGameModeBase::AInGameModeBase()
 	
 	//PlayerControllerClass = AController_StartMenu::StaticClass();
 	CHelpers::CreateActorComponent<UObjectPoolFactory>(this, &ObjectPoolFactory, "ObjectPoolFactory");
+
+	CHelpers::GetAsset<USoundCue>(&BGM, "SoundCue'/Game/Developers/JJS/BGM/InGameBGM.InGameBGM'");
+
+
 }
 
 void AInGameModeBase::BeginPlay()
 {
-
-
-
 	Super::BeginPlay();
-	
-	
-		
-
-	//Test.SetNum(256);
-
-	
-
-
-	//AActor* T = nullptr;
-	//Test[1].Enqueue(T);
-
-	//Clog::Log(Test[1].IsEmpty());
+	UGameplayStatics::SpawnSound2D(GetWorld(), BGM, 1.f, 1.f, 0.f, nullptr, true, true);
 }
 
 void AInGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
