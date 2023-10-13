@@ -92,7 +92,7 @@ void UMurdockWeapon::Begin_Fire()
 {
 	CheckTrue(IsFiring);
 
-	OwnerCharacter->bUseControllerRotationYaw = true;
+	//OwnerCharacter->bUseControllerRotationYaw = true;
 	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 	IsFiring = true;
 	Firing();
@@ -123,9 +123,14 @@ void UMurdockWeapon::Firing()
 		AMurdockBullet* bullet;
 		bullet = Cast<AMurdockBullet>(ObjectPoolFactory->SpawnObject(BulletClass));
 	
+
+
 		//bullet->TeleportTo(muzzleLocation, direction.Rotation());
 		FTransform Transform = bullet->GetTransform();
 		Transform.SetLocation(muzzleLocation);
+
+		direction = UKismetMathLibrary::GetDirectionUnitVector(muzzleLocation, end);
+
 		Transform.SetRotation(FQuat(direction.Rotation()));
 		bullet->SetActorTransform(Transform);
 		bullet->PoolObject->SetActorLifeTime(3.0f);
@@ -147,7 +152,7 @@ void UMurdockWeapon::Firing()
 
 void UMurdockWeapon::End_Fire()
 {
-	OwnerCharacter->bUseControllerRotationYaw = false;
+	//OwnerCharacter->bUseControllerRotationYaw = false;
 	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 	IsFiring = false;
 	OwnerCharacter->StopAnimMontage(FireMontage);

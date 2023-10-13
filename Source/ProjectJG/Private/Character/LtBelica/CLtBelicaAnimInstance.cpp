@@ -19,4 +19,13 @@ void UCLtBelicaAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	IsFiring = LtBelicaCharacter->GetLtBelicaWeaponIsFiring();
 
 	IsQAbiliting = LtBelicaCharacter->GetLtBelicaIsAbiliting();
+
+	if (OwnerCharacter->GetBaseAimRotation().Pitch > 0)
+		Pitch = OwnerCharacter->GetBaseAimRotation().Pitch;
+	else if (OwnerCharacter->GetBaseAimRotation().Pitch >= -56)
+		Pitch = OwnerCharacter->GetBaseAimRotation().Pitch * 1.6;
+
+	Yaw = LtBelicaCharacter->SetFocusActorYawDegree();
+
+
 }

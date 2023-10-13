@@ -201,3 +201,9 @@ void ACLtBelica::EndNotifyAction()
 	IsSkilling = false;
 	eBelicaAbilityState = EBelicaAbilityState::None;
 }
+
+void ACLtBelica::OnSubMenu()
+{
+	Super::OnSubMenu();
+	OffFire();
+}

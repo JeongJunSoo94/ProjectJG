@@ -8,11 +8,15 @@
 #include "Widgets/StatusUserWidget.h"
 #include "Components/WidgetComponent.h"
 #include "Character/Components/CActionComponent.h"
+#include "Widgets/Pause/InGameMenuUserWidget.h"
+#include "Widgets/Pause/SoundControlWidget.h"
 
 AGameHUD::AGameHUD()
 {
 	CHelpers::GetClass<UPlayerInGameWidget>(&PlayerInGameClass, "WidgetBlueprint'/Game/Developers/JJS/Widgets/WB_PlayerInGameUI.WB_PlayerInGameUI_C'");
 	CHelpers::GetClass<UUserWidget_CrossHair>(&CrossHairClass, "WidgetBlueprint'/Game/Developers/USER/Character/WB_CrossHair.WB_CrossHair_C'");
+	CHelpers::GetClass<UInGameMenuUserWidget>(&InGameMenuClass, "WidgetBlueprint'/Game/Developers/JJS/Widgets/WB_InGameMenu.WB_InGameMenu_C'");
+	CHelpers::GetClass<USoundControlWidget>(&SoundControlClass, "WidgetBlueprint'/Game/Developers/GohyeongJu/Characters/Level/Wigets/WB_SoundWidget.WB_SoundWidget_C'");
 
 }
 
@@ -25,18 +29,38 @@ void AGameHUD::BeginPlay()
 		if (PlayerInGameUI)
 		{
 			PlayerInGameUI->AddToViewport();
-			PlayerInGameUI->SetVisibility(ESlateVisibility::Visible);
+			PlayerInGameUI->SetVisibility(ESlateVisibility::HitTestInvisible);
 			//PlayerInGameUI->SetInit(this);
 		}
 	}
 
 	if (CrossHairClass)
 	{
-		CrossHair = CreateWidget<UUserWidget_CrossHair>(GetWorld(), CrossHairClass);
+		CrossHair = CreateWidget<UUserWidget_CrossHair>(PlayerInGameUI, CrossHairClass);
 		if (CrossHair)
 		{
 			CrossHair->AddToViewport();
 			CrossHair->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
+
+	if (InGameMenuClass)
+	{
+		InGameMenuUI = CreateWidget<UInGameMenuUserWidget>(PlayerInGameUI, InGameMenuClass);
+		if (InGameMenuUI)
+		{
+			InGameMenuUI->AddToViewport();
+			InGameMenuUI->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
+
+	if (SoundControlClass)
+	{
+		SoundControlUI = CreateWidget<USoundControlWidget>(PlayerInGameUI, SoundControlClass);
+		if (SoundControlUI)
+		{
+			SoundControlUI->AddToViewport();
+			SoundControlUI->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
 }
@@ -55,4 +79,29 @@ void AGameHUD::HealthBarUpdate(float curHealth, float maxHealth)
 {
 	CheckNull(PlayerInGameUI);
 	PlayerInGameUI->GetWB_Health()->Update(curHealth, maxHealth);
+}
+
+void AGameHUD::IsMenuBarActive(bool isActive)
+{
+	bPause = bPause ? false : true;
+	if (isActive)
+		InGameMenuUI->SetVisibility(ESlateVisibility::Visible);
+	else
+		InGameMenuUI->SetVisibility(ESlateVisibility::Collapsed);
+
+	UGameplayStatics::SetGamePaused(GetWorld(), isActive);
+	UGameplayStatics::GetPlayerController(this, 0)->SetShowMouseCursor(isActive);
+}
+
+void AGameHUD::IsSoundActive(bool isActive)
+{
+	if (isActive)
+	{
+		SoundControlUI->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		SoundControlUI->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
 }

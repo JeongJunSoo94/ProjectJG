@@ -44,7 +44,7 @@ protected:
 	virtual void BeginNotifyAction()override;
 	virtual void MiddleNotifyAction()override;
 	virtual void EndNotifyAction()override;
-
+	virtual void OnSubMenu()override;
 public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

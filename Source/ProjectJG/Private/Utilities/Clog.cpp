@@ -39,6 +39,11 @@ void Clog::Log(float InValue)
 	UE_LOG(GameObject, Warning, L"%f", InValue);
 }
 
+void Clog::Log(double InValue)
+{
+	UE_LOG(GameObject, Warning, L"%lf", InValue);
+}
+
 void Clog::Log(const FString& InValue)
 {
 	UE_LOG(GameObject, Warning, L"%s", *InValue);

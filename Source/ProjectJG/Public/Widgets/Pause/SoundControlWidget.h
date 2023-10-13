@@ -14,7 +14,8 @@ UCLASS()
 class PROJECTJG_API USoundControlWidget : public UUserWidget
 {
 	GENERATED_BODY()
-
+public:
+	USoundControlWidget(const FObjectInitializer& ObjectInitializer);
 protected:
 
 

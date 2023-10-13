@@ -26,7 +26,22 @@ private:
 
 	class UPlayerInGameWidget* PlayerInGameUI;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+		TSubclassOf<class UInGameMenuUserWidget> InGameMenuClass;
+
+	class UInGameMenuUserWidget* InGameMenuUI;
+
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+		TSubclassOf<class USoundControlWidget> SoundControlClass;
+
+	class USoundControlWidget* SoundControlUI;
+
 public:
 	virtual void SetHUDPlayerControllerSkillBind(UActorComponent* Weapon = nullptr, UCActionComponent* Left = nullptr, UCActionComponent* Mid = nullptr, UCActionComponent* Right = nullptr);
 	virtual void HealthBarUpdate(float curHealth, float maxHealth);
+	void IsMenuBarActive(bool isActive);
+	void IsSoundActive(bool isActive);
+public:
+	bool bPause = false;
 };

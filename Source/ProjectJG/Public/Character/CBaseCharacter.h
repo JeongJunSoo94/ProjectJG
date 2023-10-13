@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Character/Interface/Damageable.h"
+#include "BaseSystem/GameHUD.h"
 #include "CBaseCharacter.generated.h"
 
 UCLASS()
@@ -24,7 +25,6 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly)
 		class UStatusComponent* StatusComp;
-
 public:
 	ACBaseCharacter();
 	//float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
@@ -36,6 +36,7 @@ protected:
 	virtual void UnEquip();
 	virtual void Damaged(float totalAmount);
 	virtual void Die();
+	virtual void OnSubMenu();
 
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -49,6 +50,7 @@ private:
 	void OnEquipNum2();
 	void OnUnEquip();
 public:
+	float SetFocusActorYawDegree();
 	void GetLocationAndDirection(FVector& OutStart, FVector& OutEnd, FVector& OutDirection, bool IsRandom = false, float MaxYawInDegrees = 0.0f, float MaxPitchInDegrees = 0.0f);
 	void GetLocationAndDirection(FVector muzzleLocation,FVector& OutStart, FVector& OutEnd, FVector& OutDirection, bool IsRandom = false, float MaxYawInDegrees = 0.0f, float MaxPitchInDegrees = 0.0f);
 	void Stop();
@@ -60,7 +62,10 @@ public:
 
 	virtual void BeginHitEffect(AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit) override;
 	virtual void SetImpactVectorFrom(FVector& ProjectileVector) override;
+	FRotator GetAimRotation() {return CharacterRotation;}
 private:
+	class AGameHUD* GameHUD;
 	bool bMove = true;
 	float DamageValue;
+	FRotator CharacterRotation;
 };

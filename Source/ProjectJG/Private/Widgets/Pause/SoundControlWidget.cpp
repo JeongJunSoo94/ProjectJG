@@ -6,6 +6,9 @@
 #include "Components/Slider.h"
 #include "Sound/SoundClass.h"
 
+USoundControlWidget::USoundControlWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+{
+}
 void USoundControlWidget::Change_BackgroundSound(float value)
 {
 	if (!GameInstance)

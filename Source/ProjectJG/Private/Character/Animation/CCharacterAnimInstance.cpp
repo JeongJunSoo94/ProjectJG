@@ -2,7 +2,6 @@
 #include "Global.h"
 #include "GameFramework/Character.h"
 
-
 void UCCharacterAnimInstance::NativeBeginPlay()
 {
 	Super::NativeBeginPlay();
@@ -24,6 +23,7 @@ void UCCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		IsAccelerating = false;
 
 	Direction = CalculateDirection(OwnerCharacter->GetVelocity(), OwnerCharacter->GetControlRotation());
+
 	Pitch = OwnerCharacter->GetBaseAimRotation().Pitch;
-	//Yaw = OwnerCharacter->GetBaseAimRotation().Yaw;
+
 }

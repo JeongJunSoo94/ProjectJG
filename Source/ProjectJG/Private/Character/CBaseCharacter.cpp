@@ -9,7 +9,6 @@
 #include "Character/Components/StatusComponent.h"
 #include "BaseSystem/GameHUD.h"
 #include "WorldObjects/FXActor/DamageFXActor.h"
-
 #include "GameFramework/Controller.h"
 
 ACBaseCharacter::ACBaseCharacter()
@@ -47,8 +46,9 @@ void ACBaseCharacter::BeginPlay()
 	CHelpers::CheckNullComponent<UCameraComponent>(this,&PlayerMainCamera);
 	CHelpers::CheckNullComponent<USpringArmComponent>(this, &SpringArm);
 
-	AGameHUD* hud = UGameplayStatics::GetPlayerController(this, 0)->GetHUD<AGameHUD>();
-	hud->HealthBarUpdate(StatusComp->GetHealth(), StatusComp->GetMaxHealth());
+	GameHUD = UGameplayStatics::GetPlayerController(this, 0)->GetHUD<AGameHUD>();
+	CheckNull(GameHUD);
+	GameHUD->HealthBarUpdate(StatusComp->GetHealth(), StatusComp->GetMaxHealth());
 
 }
 
@@ -57,6 +57,7 @@ void ACBaseCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if(DamageValue>0)
 		Damaged(DamageValue);
+
 }
 
 void ACBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -70,6 +71,8 @@ void ACBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 	PlayerInputComponent->BindAction("OnEquipNum1", EInputEvent::IE_Pressed, this, &ACBaseCharacter::OnEquipNum1);
 	PlayerInputComponent->BindAction("OnUnEquip", EInputEvent::IE_Pressed, this, &ACBaseCharacter::OnUnEquip);
+
+	PlayerInputComponent->BindAction("P", EInputEvent::IE_Pressed, this, &ACBaseCharacter::OnSubMenu);
 }
 
 void ACBaseCharacter::OnMoveForward(float Axis)
@@ -113,6 +116,11 @@ void ACBaseCharacter::OnUnEquip()
 	UnEquip();
 }
 
+void ACBaseCharacter::OnSubMenu()
+{
+	GameHUD->IsMenuBarActive(true);
+}
+
 void ACBaseCharacter::Equip(int32 weaponIndex)
 {
 	UnEquip();
@@ -143,6 +151,21 @@ float ACBaseCharacter::TakeDamage(float Damage)
 
 	//State->SetHittedMode();
 	//return Status->GetHealth();
+}
+
+float ACBaseCharacter::SetFocusActorYawDegree()
+{
+	FVector start, end, direction;
+	GetLocationAndDirection(start, end, direction);
+	direction = end-GetActorLocation();
+	direction.Z = 0;
+	direction.Normalize();
+	start = GetActorForwardVector();
+	start.Z = 0;
+	float Dot = FVector::DotProduct(start, direction);
+	float AcosAngle = FMath::Acos(Dot);
+	float AngleDegree = FMath::RadiansToDegrees(AcosAngle);
+	return AngleDegree;
 }
 
 void ACBaseCharacter::GetLocationAndDirection(FVector& OutStart, FVector& OutEnd, FVector& OutDirection, bool IsRandom, float MaxYawInDegrees, float MaxPitchInDegrees)
@@ -188,7 +211,6 @@ void ACBaseCharacter::GetLocationAndDirection(FVector& OutStart, FVector& OutEnd
 		OutEnd = OutHit.ImpactPoint;
 		//DrawDebugLine(GetWorld(), OutStart, OutEnd, FColor::Blue, false, 1, 0, 1);
 	}
-
 }
 
 void ACBaseCharacter::GetLocationAndDirection(FVector muzzleLocation, FVector& OutStart, FVector& OutEnd, FVector& OutDirection, bool IsRandom , float MaxYawInDegrees , float MaxPitchInDegrees )
@@ -206,10 +228,11 @@ void ACBaseCharacter::Damaged(float totalAmount)
 	//StatusUI->Update(Status->GetHealth(), Status->GetMaxHealth());
 
 	//HUDComp->HealthBarUpdate(StatusComp->GetHealth(), StatusComp->GetMaxHealth());
-	AGameHUD* hud = UGameplayStatics::GetPlayerController(this, 0)->GetHUD<AGameHUD>();
-	hud->HealthBarUpdate(StatusComp->GetHealth(), StatusComp->GetMaxHealth());
-
 	DamageValue = 0;
+	
+	CheckNull(GameHUD);
+	GameHUD->HealthBarUpdate(StatusComp->GetHealth(), StatusComp->GetMaxHealth());
+
 }
 
 void ACBaseCharacter::Stop()
