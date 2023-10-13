@@ -46,8 +46,8 @@ public:
 		virtual void StartSectionEvent();
 	UFUNCTION(BlueprintCallable)
 		virtual void OnSolveSectionProblem();
-
-	virtual void EndSectionEvent();
+	UFUNCTION(BlueprintCallable)
+		virtual void EndSectionEvent();
 
 	virtual void AddSectionStartTrigger(ISectionStart_Interface* StartTrigger);
 	virtual void AddSectionEndTrigger(ISectionEnd_Interface* EndTrigger);

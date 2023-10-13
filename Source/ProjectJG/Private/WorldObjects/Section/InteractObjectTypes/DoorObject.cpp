@@ -26,19 +26,22 @@ void ADoorObject::OnEndOverlapStartBoxTrigger(UPrimitiveComponent* OverlappedCom
 {
 	CheckNull(gameState);
 	CheckFalse(OtherActor->IsA<ACBaseCharacter>());
+
 	PlaySequence(ETriggerType::Start);
 	DoorOpenedActor = OtherActor;
 	SpawnEnemy();
 	SectionStart_BoxTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
 }
 
 void ADoorObject::OnBeginOverlapEndBoxTrigger(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	CheckNull(gameState);
 	CheckFalse(OtherActor->IsA<ACBaseCharacter>());
-	gameState->EndSection();
-	SectionEnd_BoxTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	if (gameState->EndSection())
+	{
+		Clog::Log("BoxTrigger can't Collide");
+		SectionEnd_BoxTrigger->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 }
 
 void ADoorObject::BeginPlay()

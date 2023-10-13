@@ -50,4 +50,8 @@ protected:
 		int EnemysSpawnLayer = 0;
 		int LayerEnemysMaxCount = 0;
 		FTimerHandle SpawnTimeHandle;
+
+		class AInGameStateBase* GameState;
+public:
+	void UpdateKillCount();
 };

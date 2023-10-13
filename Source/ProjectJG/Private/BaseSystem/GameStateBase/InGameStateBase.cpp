@@ -5,6 +5,7 @@
 #include "Global.h"
 #include "BaseSystem/PlayerState/InGamePlayerState.h"
 #include "WorldObjects/Section/SectionMediator.h"
+#include "Widgets/Character/QuestWidget.h"
 
 void AInGameStateBase::ChangeGameState(EGameState NextState)
 {
@@ -69,24 +70,45 @@ void AInGameStateBase::StartSection(ASectionMediator *SectionData)
 	{
 		curSection = SectionData;
 		Map_SectionClearConditions.Add(SectionData, SectionData->ClearCondition);
+		OnEventUpdateSection.ExecuteIfBound();
 	}
 
 }
 
-void AInGameStateBase::EndSection()
+bool AInGameStateBase::EndSection()
 {
-	curSection->EndSectionEvent();
+	if (!curSection)
+	{
+		Clog::Log("Section not set");
+		return false;
+	}
+	if (Map_SectionClearConditions[curSection].IsGoal())
+	{
+		curSection->EndSectionEvent();
+		return true;
+	}
+	return false;
 	// SectionEnd trigger Or End Effect ...
 }
 
 void AInGameStateBase::TakeKey(uint8 KeyNumber)
 {
 	Map_SectionClearConditions[curSection].StoreKey(KeyNumber);
+	OnEventUpdateData.ExecuteIfBound();
 }
 
 FClearCondition* AInGameStateBase::GetClearCondition()
 {
+	if (!curSection )
+		return nullptr;
 	return &Map_SectionClearConditions[curSection];
+}
+
+void AInGameStateBase::UpdateKillScore()
+{
+	CheckNull(curSection);
+	Map_SectionClearConditions[curSection].KillEnemy(1);
+	OnEventUpdateData.ExecuteIfBound();
 }
 
 void FClearCondition::StoreKey(uint8 KeyNumber)
