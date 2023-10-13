@@ -37,6 +37,11 @@ private:
 
 	class USoundControlWidget* SoundControlUI;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+		TSubclassOf<class UQuestWidget> QuestWidgetClass;
+
+	class UQuestWidget* QuestWidgetUI;
+
 public:
 	virtual void SetHUDPlayerControllerSkillBind(UActorComponent* Weapon = nullptr, UCActionComponent* Left = nullptr, UCActionComponent* Mid = nullptr, UCActionComponent* Right = nullptr);
 	virtual void HealthBarUpdate(float curHealth, float maxHealth);
