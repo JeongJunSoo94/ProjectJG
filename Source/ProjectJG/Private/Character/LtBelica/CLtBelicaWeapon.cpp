@@ -46,7 +46,7 @@ void UCLtBelicaWeapon::OnHitPaticle(UPrimitiveComponent* HitComponent, AActor* O
 	UGameplayStatics::SpawnDecalAtLocation(GetWorld(), DecalMaterial, FVector(5), Hit.Location, rotator, 10.0f);
 	IDamageable* character = Cast<IDamageable>(OtherActor);
 	CheckNull(character);
-	character->TakeDamage(10.0f);
+	character->TakeDamage(UKismetMathLibrary::RandomIntegerInRange(10,20));
 
 }
 

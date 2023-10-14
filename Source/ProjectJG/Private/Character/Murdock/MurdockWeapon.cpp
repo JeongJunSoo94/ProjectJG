@@ -56,7 +56,7 @@ void UMurdockWeapon::OnHitPaticle(UPrimitiveComponent* HitComponent, AActor* Oth
 
 	IDamageable* character = Cast<IDamageable>(OtherActor);
 	CheckNull(character);
-	character->TakeDamage(1.0f);
+	character->TakeDamage(UKismetMathLibrary::RandomIntegerInRange(10, 20));
 	character->BeginHitEffect(OwnerCharacter, NormalImpulse, Hit);
 	
 }
