@@ -7,6 +7,7 @@
 #include "Widgets/Title/UserWidget_MainTitle.h"
 #include "BaseSystem/ObjectPoolFactory.h"
 #include "Sound/SoundCue.h"
+#include "Components/AudioComponent.h"
 
 AInGameModeBase::AInGameModeBase()
 {
@@ -21,14 +22,13 @@ AInGameModeBase::AInGameModeBase()
 	CHelpers::CreateActorComponent<UObjectPoolFactory>(this, &ObjectPoolFactory, "ObjectPoolFactory");
 
 	CHelpers::GetAsset<USoundCue>(&BGM, "SoundCue'/Game/Developers/JJS/BGM/InGameBGM.InGameBGM'");
-
-
 }
 
 void AInGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
-	UGameplayStatics::SpawnSound2D(GetWorld(), BGM, 1.f, 1.f, 0.f, nullptr, true, true);
+	AudioComponent = UGameplayStatics::SpawnSound2D(GetWorld(), BGM, 1.f, 1.f, 0.f, nullptr, true, true);
+	//AudioComponent->OnAudioFinished.AddDynamic(this,&AInGameModeBase::AudioGame);//.IsBound(AInGameModeBase::AudioGame);
 }
 
 void AInGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
@@ -61,3 +61,7 @@ void AInGameModeBase::InitGame(const FString& MapName, const FString& Options, F
 }
 
 
+void AInGameModeBase::AudioGame()
+{
+	Clog::Log("end");
+}

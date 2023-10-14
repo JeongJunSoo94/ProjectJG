@@ -50,5 +50,5 @@ void AStartGameModeBase::SetActive(AActor* actor, bool value)
 void AStartGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
-	UGameplayStatics::SpawnSound2D(GetWorld(), BGM, 1.f, 1.f, 0.f, nullptr, true, true);
+	AudioComponent =UGameplayStatics::SpawnSound2D(GetWorld(), BGM, 1.f, 1.f, 0.f, nullptr, true, true);
 }

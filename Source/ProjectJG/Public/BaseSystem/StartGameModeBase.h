@@ -31,4 +31,6 @@ protected:
 private:
 	UPROPERTY()
 		class USoundCue* BGM;
+	UPROPERTY()
+		class UAudioComponent* AudioComponent;
 };

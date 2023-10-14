@@ -52,7 +52,7 @@ void AEruptionObject::Explosion()
 		{
 			IDamageable* character = Cast<IDamageable>(actor.Key);
 			CheckNull(character);
-			character->TakeDamage(10.0f);
+			character->TakeDamage(20.0f);
 		}
 	}
 }

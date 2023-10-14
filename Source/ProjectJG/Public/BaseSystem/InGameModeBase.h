@@ -33,9 +33,12 @@ public:
 
 	//TArray<TQueue<AActor*>> Test;
 
-
+	void AudioGame();
 private:
 	UPROPERTY()
 		class USoundCue* BGM;
+
+	UPROPERTY()
+		class UAudioComponent* AudioComponent;
 
 };
