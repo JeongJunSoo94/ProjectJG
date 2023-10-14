@@ -46,7 +46,7 @@ void UCQAbliltyActionComponent::BeginPlay()
 	IsCoolTiming = false;
 	IntervalCoolTime = 0.1f;
 	CurCoolTime = 0;
-	MaxCoolTime = 5.0f;
+	MaxCoolTime = 3.0f;
 
 	ObjectPoolFactory = CHelpers::GetComponent<UObjectPoolFactory>(GetWorld()->GetAuthGameMode());
 	if (ObjectPoolFactory != nullptr)

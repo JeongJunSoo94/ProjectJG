@@ -32,11 +32,11 @@ UEAbliltyActionComponent::UEAbliltyActionComponent()
 void UEAbliltyActionComponent::BeginPlay()
 {
 	ManaBombHologramActor = GetWorld()->SpawnActor<AManaBombHologram>(ManaBombHologramClass, FVector::ZeroVector, FRotator::ZeroRotator);
-	ManaBombHologramActor->SetHologramScale(FVector(3));
+	ManaBombHologramActor->SetHologramScale(FVector(6));
 	IsCoolTiming = false;
 	IntervalCoolTime = 0.1f;
 	CurCoolTime = 0;
-	MaxCoolTime = 5.0f;
+	MaxCoolTime = 3.0f;
 	ObjectPoolFactory = CHelpers::GetComponent<UObjectPoolFactory>(GetWorld()->GetAuthGameMode());
 	if (ObjectPoolFactory != nullptr)
 	{
