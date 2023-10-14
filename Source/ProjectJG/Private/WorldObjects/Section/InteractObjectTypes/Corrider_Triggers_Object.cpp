@@ -22,6 +22,7 @@ void ACorrider_Triggers_Object::OnEndOverlap_EndBoxTrigger(UPrimitiveComponent* 
 {
 	if (OtherActor->IsA<ACBaseCharacter>())
 	{
+		Clog::Log("Stop Spawner");
 		StopSpawnEnemy();
 		CallBackEndSection();
 	}
@@ -62,6 +63,7 @@ void ACorrider_Triggers_Object::CallBackStartSection()
 void ACorrider_Triggers_Object::CallBackEndSection()
 {
 	OnEndSection.ExecuteIfBound();
+	//StopSpawnEnemy();
 }
 
 void ACorrider_Triggers_Object::OnSequenceEvent_Implementation()

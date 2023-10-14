@@ -182,6 +182,7 @@ void AMurdock::OnUltimate()
 	else if (BehaviorState == MurdockBehaviorState::EUltimate)
 	{
 		OnEndActionMontage(MurdockBehaviorState::EUltimate);
+		GetCharacterMovement()->bOrientRotationToMovement = true;
 		//SolveStop();
 	}
 }

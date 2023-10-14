@@ -19,12 +19,14 @@ void UMurdockAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	behaviorState = Murdock->GetBehaviorState();
 
-
-	if (OwnerCharacter->GetBaseAimRotation().Pitch > 0)
-		Pitch = OwnerCharacter->GetBaseAimRotation().Pitch;
-	else if (OwnerCharacter->GetBaseAimRotation().Pitch >= -56)
-		Pitch = OwnerCharacter->GetBaseAimRotation().Pitch * 1.6;
-	Yaw = Murdock->SetFocusActorYawDegree();
+	if (behaviorState == MurdockBehaviorState::EFire)
+	{
+		if (OwnerCharacter->GetBaseAimRotation().Pitch > 0)
+			Pitch = OwnerCharacter->GetBaseAimRotation().Pitch;
+		else if (OwnerCharacter->GetBaseAimRotation().Pitch >= -56)
+			Pitch = OwnerCharacter->GetBaseAimRotation().Pitch * 1.6;
+		Yaw = Murdock->SetFocusActorYawDegree();
+	}
 
 	if (behaviorState == MurdockBehaviorState::EUltimate)
 	{

@@ -48,7 +48,7 @@ void UMurdockSpreadShotSkillComponent::OnHitPaticle(UPrimitiveComponent* HitComp
 
 	IDamageable* character = Cast<IDamageable>(OtherActor);
 	CheckNull(character);
-	character->TakeDamage(10.0f);
+	character->TakeDamage(50.0f);
 
 
 	//ParticleSystem->SetRelativeScale3D(ParticleSystem->GetRelativeScale3D() * currentLifeTime);
@@ -124,8 +124,8 @@ void UMurdockSpreadShotSkillComponent::BeginPlay()
 void UMurdockSpreadShotSkillComponent::ZoomInSpreadShot()
 {
 	
-	OwnerCharacter->bUseControllerRotationYaw = true;
-	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
+	//OwnerCharacter->bUseControllerRotationYaw = true;
+	//OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 
 	OwnerCharacter->PlayAnimMontage(SpreadShotAnim);
 
@@ -147,8 +147,8 @@ void UMurdockSpreadShotSkillComponent::ShootSpreadShot()
 	OwnerCharacter->StartCameraFOV(30.0f, 1.0f);
 
 
-	OwnerCharacter->bUseControllerRotationYaw = false;
-	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
+	//OwnerCharacter->bUseControllerRotationYaw = false;
+	//OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	// >> Fire
 	

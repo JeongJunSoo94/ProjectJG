@@ -183,7 +183,7 @@ void UMurdockUltimateSkillComponent::ShotLaser()
 
 			IDamageable* character = Cast<IDamageable>(OutHit.GetActor());
 			if(character)
-				character->TakeDamage(10.0f);
+				character->TakeDamage(100.0f);
 		}
 
 	}
