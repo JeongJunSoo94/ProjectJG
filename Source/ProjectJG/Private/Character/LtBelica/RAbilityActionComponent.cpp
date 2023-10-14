@@ -21,10 +21,12 @@
 
 void URAbilityActionComponent::OnHitPaticle(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	Clog::Log("hit");
 	FRotator rotator = Hit.ImpactNormal.Rotation();
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, Hit.Location, rotator, true, EPSCPoolMethod::AutoRelease);
 	UGameplayStatics::SpawnDecalAtLocation(GetWorld(), DecalMaterial, FVector(5), Hit.Location, rotator, 10.0f);
+	IDamageable* character = Cast<IDamageable>(OtherActor);
+	CheckNull(character);
+	character->TakeDamage(UKismetMathLibrary::RandomIntegerInRange(10000, 15000));
 }
 
 URAbilityActionComponent::URAbilityActionComponent()
@@ -51,7 +53,7 @@ void URAbilityActionComponent::BeginPlay()
 	IsCoolTiming = false;
 	IntervalCoolTime = 0.1f;
 	CurCoolTime = 0;
-	MaxCoolTime = 10.0f;
+	MaxCoolTime = 5.0f;
 	ObjectPoolFactory = CHelpers::GetComponent<UObjectPoolFactory>(GetWorld()->GetAuthGameMode());
 	if (ObjectPoolFactory != nullptr)
 	{
