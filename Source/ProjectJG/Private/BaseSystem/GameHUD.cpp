@@ -10,13 +10,14 @@
 #include "Character/Components/CActionComponent.h"
 #include "Widgets/Pause/InGameMenuUserWidget.h"
 #include "Widgets/Pause/SoundControlWidget.h"
-
+#include "Widgets/Character/QuestWidget.h"
 AGameHUD::AGameHUD()
 {
 	CHelpers::GetClass<UPlayerInGameWidget>(&PlayerInGameClass, "WidgetBlueprint'/Game/Developers/JJS/Widgets/WB_PlayerInGameUI.WB_PlayerInGameUI_C'");
 	CHelpers::GetClass<UUserWidget_CrossHair>(&CrossHairClass, "WidgetBlueprint'/Game/Developers/USER/Character/WB_CrossHair.WB_CrossHair_C'");
 	CHelpers::GetClass<UInGameMenuUserWidget>(&InGameMenuClass, "WidgetBlueprint'/Game/Developers/JJS/Widgets/WB_InGameMenu.WB_InGameMenu_C'");
 	CHelpers::GetClass<USoundControlWidget>(&SoundControlClass, "WidgetBlueprint'/Game/Developers/GohyeongJu/Characters/Level/Wigets/WB_SoundWidget.WB_SoundWidget_C'");
+	CHelpers::GetClass<UQuestWidget>(&QuestWidgetClass, "WidgetBlueprint'/Game/Developers/GohyeongJu/Characters/Level/Wigets/WB_Quest_window.WB_Quest_window_C'");
 
 }
 
@@ -61,6 +62,16 @@ void AGameHUD::BeginPlay()
 		{
 			SoundControlUI->AddToViewport();
 			SoundControlUI->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
+
+	if (QuestWidgetClass)
+	{
+		QuestWidgetUI = CreateWidget<UQuestWidget>(PlayerInGameUI, QuestWidgetClass);
+		if (QuestWidgetUI)
+		{
+			QuestWidgetUI->AddToViewport();
+			QuestWidgetUI->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
 }
