@@ -141,7 +141,7 @@ void UMurdockUltimateSkillComponent::ShotLaser()
 
 	if (currentLaserCount > 0 && OwnerCharacter->GetCurrentMontage() == UltimateLoopAnim)
 	{
-		FHitResult OutHit;
+		TArray<FHitResult> OutHits;
 
 		FTransform muzzleTransform = OwnerCharacter->GetMesh()->GetSocketTransform("Muzzle");
 		FVector muzzleLocation = muzzleTransform.GetLocation();
@@ -150,8 +150,7 @@ void UMurdockUltimateSkillComponent::ShotLaser()
 
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSoundCue, muzzleLocation);
 
-		FCollisionQueryParams CollisionParams;
-		CollisionParams.AddIgnoredActor(this->GetOwner());
+		
 
 		
 		
@@ -170,20 +169,45 @@ void UMurdockUltimateSkillComponent::ShotLaser()
 	
 		--currentLaserCount;
 
+		FCollisionQueryParams CollisionParams_Wall;
+		CollisionParams_Wall.AddIgnoredActor(this->GetOwner());
+		//CollisionParams_Wall.;
+
+		
+		
 		//bullet->GetMesh()->OnComponentHit.AddDynamic(this, &UMurdockSpreadShotSkillComponent::OnHitPaticle);
+		//FHitResult WallHit;
+		//GetWorld()->LineTraceSingleByChannel(WallHit, muzzleLocation, RayEnd, ECC_Pawn, CollisionParams_Wall);
+		//FCollisionResponseParams ResponCollisionParams;
+		//ResponCollisionParams;
 
-		if (GetWorld()->LineTraceSingleByChannel(OutHit, muzzleLocation, RayEnd, ECC_Pawn, CollisionParams))
+
+		FVector RayVector = (RayEnd - muzzleLocation);
+		RayVector.Normalize();
+		float RayDistance = 10000.0f;
+		RayVector *= RayDistance;
+		
+		FCollisionQueryParams CollisionParams;
+		CollisionParams.AddIgnoredActor(this->GetOwner());
+
+		if (GetWorld()->LineTraceMultiByChannel(OutHits, muzzleLocation, RayVector + muzzleLocation, ECC_Pawn, CollisionParams))
 		{
-			FRotator ImpactDirection = (-OutHit.ImpactNormal).Rotation();
+			Clog::Log(OutHits.Num());
+			for (FHitResult& OutHit : OutHits)
+			{
+				Clog::Log(OutHit.GetActor());
+				IDamageable* character = Cast<IDamageable>(OutHit.GetActor());
+				if (character)
+				{
+					FRotator ImpactDirection = (-OutHit.ImpactNormal).Rotation();
 
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), UltimateLaserImpact, OutHit.ImpactPoint + 12.0f*OutHit.ImpactNormal, ImpactDirection, true, EPSCPoolMethod::AutoRelease);
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), UltimateLaserImpact, OutHit.ImpactPoint + 12.0f*OutHit.ImpactNormal, ImpactDirection, true, EPSCPoolMethod::AutoRelease);
 			
-			DrawDebugLine(GetWorld(), muzzleLocation, RayEnd, FColor::Green, false, 2, 0, 2);
-			Clog::Log(OutHit.GetActor());
+					DrawDebugLine(GetWorld(), muzzleLocation, RayVector + muzzleLocation, FColor::Green, false, 2, 0, 2);
+					character->TakeDamage(100.0f);
+				}
 
-			IDamageable* character = Cast<IDamageable>(OutHit.GetActor());
-			if(character)
-				character->TakeDamage(100.0f);
+			}
 		}
 
 	}

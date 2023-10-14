@@ -22,7 +22,9 @@ void AKeyDoorObject::OnBeginOverlap_KeyDoor_BoxTrigger(UPrimitiveComponent* Over
 			SpawnTrigger->StopSpawnEnemy();
 		}
 		PlaySequence(ETriggerType::End);
-		Clog::Log("Clear game");
+		
+		UGameplayStatics::OpenLevel(GetWorld(), TEXT("Title"));
+
 	}
 }
 
