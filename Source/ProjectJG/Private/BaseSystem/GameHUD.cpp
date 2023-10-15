@@ -71,7 +71,7 @@ void AGameHUD::BeginPlay()
 		if (QuestWidgetUI)
 		{
 			QuestWidgetUI->AddToViewport();
-			QuestWidgetUI->SetVisibility(ESlateVisibility::Visible);
+			QuestWidgetUI->SetVisibility(ESlateVisibility::HitTestInvisible);
 		}
 	}
 }

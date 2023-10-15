@@ -71,7 +71,7 @@ ARangeEnemyCharacter::ARangeEnemyCharacter()
 
 
 	CHelpers::CreateComponent<USphereComponent>(this, &Sphere, "Sphere", GetCapsuleComponent());
-	Sphere->bHiddenInGame = false;
+	Sphere->bHiddenInGame = true;
 	Sphere->SetSphereRadius(2000.0f);
 	
 
@@ -176,7 +176,7 @@ void ARangeEnemyCharacter::RayToPlayer()
 			FVector End = Elem.Key->GetActorLocation();
 			//FVector Extension = End - Start;
 			//Extension.Normalize(1.0f);
-			DrawDebugLine(GetWorld(), Start, End , FColor::Red, false, 1, 0, 1);
+			//DrawDebugLine(GetWorld(), Start, End , FColor::Red, false, 1, 0, 1);
 			
 			bool IsHit = GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams);
 

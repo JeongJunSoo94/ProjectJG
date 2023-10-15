@@ -29,7 +29,7 @@ AMeleeEnemyCharacter::AMeleeEnemyCharacter()
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 	
 	CHelpers::CreateComponent<UBoxComponent>(this, &WeaponCollisionBox, "WeaponCollisionBox",GetCapsuleComponent());
-	WeaponCollisionBox->bHiddenInGame = false;
+	//WeaponCollisionBox->bHiddenInGame = false;
 
 	TSubclassOf<AMeleeEnemyAIController> aicontroller;
 	CHelpers::GetClass<AMeleeEnemyAIController>(&aicontroller, "Blueprint'/Game/Developers/JJS/Enemy/BP_MeleeEnemyAIController.BP_MeleeEnemyAIController_C'");

@@ -31,7 +31,7 @@ void AKeyDoorObject::OnBeginOverlap_KeyDoor_BoxTrigger(UPrimitiveComponent* Over
 AKeyDoorObject::AKeyDoorObject()
 {
 	CHelpers::CreateComponent<UBoxComponent>(this, &KeyDoor_BoxTrigger, "SectionStart_BoxTrigger");
-	KeyDoor_BoxTrigger->bHiddenInGame = false;
+	//KeyDoor_BoxTrigger->bHiddenInGame = false;
 }
 
 void AKeyDoorObject::BeginPlay()

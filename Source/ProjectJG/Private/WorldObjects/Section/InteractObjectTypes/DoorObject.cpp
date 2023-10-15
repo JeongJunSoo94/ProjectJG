@@ -16,9 +16,9 @@
 ADoorObject::ADoorObject()
 {
 	CHelpers::CreateComponent<UBoxComponent>(this, &SectionStart_BoxTrigger, "SectionStart_BoxTrigger");
-	SectionStart_BoxTrigger->bHiddenInGame = false;
+	//SectionStart_BoxTrigger->bHiddenInGame = false;
 	CHelpers::CreateComponent<UBoxComponent>(this, &SectionEnd_BoxTrigger, "SectionEnd_BoxTrigger");
-	SectionEnd_BoxTrigger->bHiddenInGame = false;
+	//SectionEnd_BoxTrigger->bHiddenInGame = false;
 }
 
 

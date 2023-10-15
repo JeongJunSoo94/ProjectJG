@@ -203,7 +203,7 @@ void UMurdockUltimateSkillComponent::ShotLaser()
 
 					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), UltimateLaserImpact, OutHit.ImpactPoint + 12.0f*OutHit.ImpactNormal, ImpactDirection, true, EPSCPoolMethod::AutoRelease);
 			
-					DrawDebugLine(GetWorld(), muzzleLocation, RayVector + muzzleLocation, FColor::Green, false, 2, 0, 2);
+					//DrawDebugLine(GetWorld(), muzzleLocation, RayVector + muzzleLocation, FColor::Green, false, 2, 0, 2);
 					character->TakeDamage(100.0f);
 				}
 

@@ -8,7 +8,7 @@
 ASpawnTrigger_Object::ASpawnTrigger_Object()
 {
 	CHelpers::CreateComponent<UBoxComponent>(this, &SpawnBoxTrigger, "SpawnBoxTrigger");
-	SpawnBoxTrigger->bHiddenInGame = false;
+	//SpawnBoxTrigger->bHiddenInGame = false;
 }
 
 void ASpawnTrigger_Object::OnBeginOverlapSpawnBoxTrigger(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

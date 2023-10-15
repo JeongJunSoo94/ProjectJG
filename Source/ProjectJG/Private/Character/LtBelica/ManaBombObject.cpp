@@ -17,7 +17,7 @@ AManaBombObject::AManaBombObject()
     CHelpers::CreateComponent<USphereComponent>(this, &Sphere, "Sphere");
     CHelpers::CreateComponent(this, &Mesh, "Mesh", Sphere);
 
-    Sphere->bHiddenInGame = false;
+    //Sphere->bHiddenInGame = false;
 
     UStaticMesh* mesh;
     CHelpers::GetAsset<UStaticMesh>(&mesh, "StaticMesh'/Game/Developers/JJS/LtBelica/FX/Meshes/SphereManaBomb.SphereManaBomb'");

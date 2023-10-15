@@ -14,7 +14,7 @@
 ASpawnerActor::ASpawnerActor()
 {
 	CHelpers::CreateActorComponent(this, &BoxComp, "BoxComponent");
-	BoxComp->bHiddenInGame = false;
+	//BoxComp->bHiddenInGame = false;
 }
 
 void ASpawnerActor::BeginPlay()

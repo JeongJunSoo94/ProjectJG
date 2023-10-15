@@ -13,7 +13,7 @@
 AKeyTriggerObject::AKeyTriggerObject()
 {
 	CHelpers::CreateComponent<UBoxComponent>(this, &Key_BoxTrigger, "Key_BoxTrigger");
-	Key_BoxTrigger->bHiddenInGame = false;
+	//Key_BoxTrigger->bHiddenInGame = false;
 }
 
 void AKeyTriggerObject::OnBeginOverlap_KeyBoxTrigger(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
