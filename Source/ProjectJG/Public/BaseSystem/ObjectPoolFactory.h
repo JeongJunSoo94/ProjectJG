@@ -11,8 +11,8 @@ struct FActorArray
 {
 	GENERATED_USTRUCT_BODY()
 public:
+	int SpawnPoolIndex=0;
 	TArray<AActor*> actorArray;
-	TArray<bool> actorIsActive;
 };
 
 
@@ -24,19 +24,14 @@ class PROJECTJG_API UObjectPoolFactory : public UActorComponent
 public:	
 	UObjectPoolFactory();
 	
-	UFUNCTION(BlueprintCallable, Category = "ObjectPool")
-		AActor* SpawnObject(TSubclassOf<class AActor> PooledObjectSubclass);
 	UFUNCTION()
 		void OnReturnToPool(AActor* PoolActor);
-	UFUNCTION()
-		void CreateObject(unsigned int createCount, TSubclassOf<class AActor> pooledObjectSubclass);
+	AActor* SpawnObject(TSubclassOf<class AActor> PooledObjectSubclass);
+	void CreateObject(unsigned int createCount, TSubclassOf<class AActor> pooledObjectSubclass);
 protected:
 	virtual void BeginPlay() override;
-	
+protected:
 	TMap<FName, FActorArray> ObjectPools;
-
 	TArray<TQueue<AActor*>> AvailableObjectPools;
-	//TMap<FName, FActorQueue> AvailableObjectPools;
-	TMap<FName, int> SpawnPoolIndexs;
 
 };
