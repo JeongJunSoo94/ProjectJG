@@ -33,9 +33,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
-	TMap<FName, FActorArray> ObjectPools;
+	TMap<FName, FActorArray> ObjectPools; // 오브젝트 이름 , 전체 오브젝트를 관리..
 
-	TArray<TQueue<AActor*>> AvailableObjectPools;
+	TArray<TQueue<AActor*>> AvailableObjectPools; //선입 선출을 위해 오브젝트들을 관리.. ObjectPools 안에있는 actor들 중 true인 녀석들만 가지고있음.
 	//TMap<FName, FActorQueue> AvailableObjectPools;
 	TMap<FName, int> SpawnPoolIndexs;
 

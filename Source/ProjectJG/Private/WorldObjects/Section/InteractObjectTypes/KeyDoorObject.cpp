@@ -7,7 +7,7 @@
 #include "WorldObjects/Section/InteractObjectTypes/SpawnTrigger_Object.h"
 #include "BaseSystem/GameStateBase/InGameStateBase.h"
 #include "Components/BoxComponent.h"
-#include "BaseSystem/GameStateBase/InGameStateBase.h"
+#include "Character/CBaseCharacter.h"
 
 
 
