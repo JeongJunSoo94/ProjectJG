@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "WorldObjects/Section/InteractObject.h"
 #include "WorldObjects/Section/SectionStart_Interface.h"
 #include "WorldObjects/Section/SectionEnd_Interface.h"
+#include "WorldObjects/Section/InteractObjectTypes/Abstract_Spawn_Object.h"
 #include "Corrider_Triggers_Object.generated.h"
 
 /**

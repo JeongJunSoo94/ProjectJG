@@ -65,15 +65,15 @@ void AGameHUD::BeginPlay()
 		}
 	}
 
-	if (QuestWidgetClass)
-	{
-		QuestWidgetUI = CreateWidget<UQuestWidget>(PlayerInGameUI, QuestWidgetClass);
-		if (QuestWidgetUI)
-		{
-			QuestWidgetUI->AddToViewport();
-			QuestWidgetUI->SetVisibility(ESlateVisibility::HitTestInvisible);
-		}
-	}
+	//if (QuestWidgetClass)
+	//{
+	//	QuestWidgetUI = CreateWidget<UQuestWidget>(PlayerInGameUI, QuestWidgetClass);
+	//	if (QuestWidgetUI)
+	//	{
+	//		QuestWidgetUI->AddToViewport();
+	//		QuestWidgetUI->SetVisibility(ESlateVisibility::HitTestInvisible);
+	//	}
+	//}
 }
 
 void AGameHUD::SetHUDPlayerControllerSkillBind(UActorComponent* Weapon, UCActionComponent* Left, UCActionComponent* Mid, UCActionComponent* Right)

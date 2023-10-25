@@ -1,11 +1,7 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "WorldObjects/Section/InteractObjectTypes/Corrider_Triggers_Object.h"
 #include "Global.h"
 #include "Character/CBaseCharacter.h"
 #include "Components/BoxComponent.h"
-
 #include "WorldObjects/Section/InteractObjectTypes/Abstract_Spawn_Object.h"
 
 void ACorrider_Triggers_Object::OnEndOverlap_StartBoxTrigger(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)

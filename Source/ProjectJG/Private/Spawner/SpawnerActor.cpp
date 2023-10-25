@@ -125,7 +125,7 @@ void ASpawnerActor::UpdateKillCount()
 {
 	if(!GameState)
 		GameState = Cast<AInGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
-
+	CheckNull(GameState);
 	GameState->UpdateKillScore();
 }
 
