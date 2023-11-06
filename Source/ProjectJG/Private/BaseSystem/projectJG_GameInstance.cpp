@@ -8,7 +8,7 @@ UprojectJG_GameInstance::UprojectJG_GameInstance()
 void UprojectJG_GameInstance::OnStart()
 {
 	Super::OnStart();
-
+	
 }
 
 void UprojectJG_GameInstance::SetBackgroundVolume(float value)
