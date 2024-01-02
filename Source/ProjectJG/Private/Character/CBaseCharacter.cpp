@@ -25,6 +25,7 @@ ACBaseCharacter::ACBaseCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxWalkSpeed = 400.0f;
 
+	GetCharacterMovement()->JumpZVelocity = 500.0f;
 	/*TSubclassOf<UAnimInstance> animInstance;
 	CHelpers::GetClass<UAnimInstance>(&animInstance, "AnimBlueprint'/Game/Developers/USER/Collections/TestCharacter/Revenant/Character/ABP_CPlayer.ABP_CPlayer_C'");
 	GetMesh()->SetAnimInstanceClass(animInstance);*/
@@ -73,6 +74,8 @@ void ACBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	PlayerInputComponent->BindAction("OnUnEquip", EInputEvent::IE_Pressed, this, &ACBaseCharacter::OnUnEquip);
 
 	PlayerInputComponent->BindAction("P", EInputEvent::IE_Pressed, this, &ACBaseCharacter::OnSubMenu);
+	PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Pressed, this, &ACBaseCharacter::StartJump);
+	PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Released, this, &ACBaseCharacter::StopJump);
 }
 
 void ACBaseCharacter::OnMoveForward(float Axis)
@@ -100,6 +103,17 @@ void ACBaseCharacter::OnHorizontalLook(float Axis)
 void ACBaseCharacter::OnVerticalLook(float Axis)
 {
 	AddControllerPitchInput(Axis);
+}
+
+
+void ACBaseCharacter::StartJump()
+{
+	bPressedJump = true;
+}
+
+void ACBaseCharacter::StopJump()
+{
+	bPressedJump = false;
 }
 
 void ACBaseCharacter::OnEquipNum1()

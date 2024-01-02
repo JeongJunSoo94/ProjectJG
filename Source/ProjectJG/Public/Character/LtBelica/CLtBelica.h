@@ -11,9 +11,10 @@ enum class EBelicaAbilityState : uint8
 {
 	None = 0,
 	Fire = 1,
-	QAbliity =2,
-	EAbliity =3,
-	RAbliity =4,
+	Aim = 2,
+	QAbliity =3,
+	EAbliity =4,
+	RAbliity =5,
 };
 
 UCLASS()
@@ -57,6 +58,7 @@ private:
 public:
 	bool GetLtBelicaWeaponIsFiring();
 	bool GetLtBelicaIsAbiliting();
+	EBelicaAbilityState GetAbilityState() { return eBelicaAbilityState; }
 private:
 	bool IsSkilling;
 

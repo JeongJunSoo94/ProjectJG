@@ -81,7 +81,7 @@ void UCQAbliltyActionComponent::OnStartAction()
 		return;
 	if (!IsAbiliting)
 	{
-		//OwnerCharacter->bUseControllerRotationYaw = true;
+		OwnerCharacter->bUseControllerRotationYaw = true;
 		OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 		IsAbiliting = true;
 		SetComponentTickEnabled(true);
@@ -89,12 +89,18 @@ void UCQAbliltyActionComponent::OnStartAction()
 	}
 	else
 	{
-		//OwnerCharacter->bUseControllerRotationYaw = false;
+		OwnerCharacter->bUseControllerRotationYaw = false;
 		OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 		IsAbiliting = false;
 		SetComponentTickEnabled(false);
 		EruptionHologramActor->SetActive(false);
 	}
+}
+
+void UCQAbliltyActionComponent::OnEndAction()
+{
+	HandParticleComponent->Activate(false);
+	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 }
 
 void UCQAbliltyActionComponent::HologramAction()
@@ -167,8 +173,7 @@ void UCQAbliltyActionComponent::MiddleNotifyAction()
 
 void UCQAbliltyActionComponent::EndNotifyAction()
 {
-
 	HandParticleComponent->Activate(false);
-	OwnerCharacter->bUseControllerRotationYaw = true;
+	//OwnerCharacter->bUseControllerRotationYaw = true;
 	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 }

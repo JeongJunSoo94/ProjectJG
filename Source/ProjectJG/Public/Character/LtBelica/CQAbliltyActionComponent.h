@@ -48,6 +48,7 @@ public:
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
     virtual void SetOwnerCharacter(ACharacter* character) override;
     virtual void OnStartAction() override;
+    virtual void OnEndAction() override;
     void HologramAction();
     virtual void BeginNotifyAction()override;
     virtual void MiddleNotifyAction()override;

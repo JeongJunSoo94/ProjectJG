@@ -20,12 +20,21 @@ void UCLtBelicaAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	IsQAbiliting = LtBelicaCharacter->GetLtBelicaIsAbiliting();
 
-	if (OwnerCharacter->GetBaseAimRotation().Pitch > 0)
+	/*if (OwnerCharacter->GetBaseAimRotation().Pitch > 0)
 		Pitch = OwnerCharacter->GetBaseAimRotation().Pitch;
 	else if (OwnerCharacter->GetBaseAimRotation().Pitch >= -56)
-		Pitch = OwnerCharacter->GetBaseAimRotation().Pitch * 1.6;
+		Pitch = OwnerCharacter->GetBaseAimRotation().Pitch * 1.6;*/
+	//
+	if (LtBelicaCharacter->GetAbilityState() == EBelicaAbilityState::Fire)
+	{
+		Clog::Log(WeaponRotation);
+		if (OwnerCharacter->GetBaseAimRotation().Pitch > 0)
+			Pitch = OwnerCharacter->GetBaseAimRotation().Pitch;
+		else if (OwnerCharacter->GetBaseAimRotation().Pitch >= -56)
+			Pitch = OwnerCharacter->GetBaseAimRotation().Pitch * 1.6;
 
-	Yaw = LtBelicaCharacter->SetFocusActorYawDegree();
+		Yaw = LtBelicaCharacter->SetFocusActorYawDegree();
+	}
 
-
+	//Yaw = LtBelicaCharacter->SetFocusActorYawDegree();
 }

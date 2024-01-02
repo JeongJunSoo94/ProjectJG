@@ -17,6 +17,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
 		bool IsQAbiliting;
+	
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation")
+		FVector WeaponRotation;
 
 public:
 	virtual void NativeBeginPlay() override;

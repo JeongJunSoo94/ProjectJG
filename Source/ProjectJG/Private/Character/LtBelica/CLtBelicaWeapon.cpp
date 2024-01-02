@@ -53,7 +53,7 @@ void UCLtBelicaWeapon::OnHitPaticle(UPrimitiveComponent* HitComponent, AActor* O
 void UCLtBelicaWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-	OwnerCharacter->bUseControllerRotationYaw = true;
+	//OwnerCharacter->bUseControllerRotationYaw = true;
 
 	ObjectPoolFactory = CHelpers::GetComponent<UObjectPoolFactory>(GetWorld()->GetAuthGameMode());
 	if (ObjectPoolFactory != nullptr)
@@ -78,7 +78,7 @@ void UCLtBelicaWeapon::SetOwnerCharacter(ACBaseCharacter* character)
 
 void UCLtBelicaWeapon::Begin_Fire()
 {
-	//OwnerCharacter->bUseControllerRotationYaw = true;
+	OwnerCharacter->bUseControllerRotationYaw = true;
 	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 	IsFiring = true;
 	Firing();
@@ -128,7 +128,7 @@ void UCLtBelicaWeapon::Firing()
 
 void UCLtBelicaWeapon::End_Fire()
 {
-	//OwnerCharacter->bUseControllerRotationYaw = false;
+	OwnerCharacter->bUseControllerRotationYaw = false;
 	OwnerCharacter->GetCharacterMovement()->bOrientRotationToMovement = true;
 	IsFiring = false;
 	OwnerCharacter->StopAnimMontage(FireMontage);

@@ -42,6 +42,11 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 private:
+	UFUNCTION()
+		void StartJump();
+	UFUNCTION()
+		void StopJump();
+
 	void OnMoveForward(float Axis);
 	void OnMoveRight(float Axis);
 	void OnHorizontalLook(float Axis);

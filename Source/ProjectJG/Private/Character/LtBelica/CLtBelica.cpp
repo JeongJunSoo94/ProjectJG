@@ -36,7 +36,7 @@ void ACLtBelica::BeginPlay()
 {
 	Super::BeginPlay();
 	eBelicaAbilityState = EBelicaAbilityState::None;
-	GetMesh()->HideBone(weaponBoneIdexs[2], PBO_None);
+	//GetMesh()->HideBone(weaponBoneIdexs[2], PBO_None);
 	IsSkilling = false;
 	AGameHUD* hud = UGameplayStatics::GetPlayerController(this, 0)->GetHUD<AGameHUD>();
 	hud->SetHUDPlayerControllerSkillBind(LtBelicaWeapon, LtBelicaQAbility, LtBelicaEAbility, LtBelicaRAbility);
@@ -66,6 +66,12 @@ void ACLtBelica::OnFire()
 	{
 		case EBelicaAbilityState::None:
 		{
+			eBelicaAbilityState = EBelicaAbilityState::Fire;
+			LtBelicaWeapon->Begin_Fire();
+		}
+		break;
+		case EBelicaAbilityState::Fire:
+		{
 			LtBelicaWeapon->Begin_Fire();
 		}
 		break;
@@ -85,6 +91,11 @@ void ACLtBelica::OffFire()
 	{
 		case EBelicaAbilityState::None:
 		{
+		}
+		break;
+		case EBelicaAbilityState::Fire:
+		{
+			eBelicaAbilityState = EBelicaAbilityState::None;
 			LtBelicaWeapon->End_Fire();
 		}
 		break;
