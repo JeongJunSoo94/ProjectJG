@@ -81,28 +81,36 @@ void ACBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 void ACBaseCharacter::OnMoveForward(float Axis)
 {
 	CheckFalse(bMove);
-	FRotator rotator = FRotator(0, GetControlRotation().Yaw, 0);
-	FVector direction = FQuat(rotator).GetForwardVector().GetSafeNormal2D();
-	AddMovementInput(direction, Axis);
+	if ((Controller != nullptr) && (Axis != 0.0f))
+	{
+		const FRotator YawRotation{ 0,Controller->GetControlRotation().Yaw,0 };
+		const FVector Direction{ FRotationMatrix{YawRotation}.GetUnitAxis(EAxis::X) };
+		AddMovementInput(Direction, Axis);
+	}
 }
 
 void ACBaseCharacter::OnMoveRight(float Axis)
 {
 	CheckFalse(bMove);
-	FRotator rotator = FRotator(0, GetControlRotation().Yaw, 0);
-	FVector direction = FQuat(rotator).GetRightVector().GetSafeNormal2D();
-	AddMovementInput(direction, Axis);
+	if ((Controller != nullptr) && (Axis != 0.0f))
+	{
+		const FRotator YawRotation{ 0, Controller->GetControlRotation().Yaw,0 };\
+		const FVector Direction{ FRotationMatrix{YawRotation}.GetUnitAxis(EAxis::Y) };
+		AddMovementInput(Direction, Axis);
+	}
 
 }
 
 void ACBaseCharacter::OnHorizontalLook(float Axis)
 {
 	AddControllerYawInput(Axis);
+	//AddControllerYawInput(Axis * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 void ACBaseCharacter::OnVerticalLook(float Axis)
 {
 	AddControllerPitchInput(Axis);
+	//AddControllerPitchInput(Axis * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
 

@@ -20,6 +20,6 @@ void UMeleeCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	//IsQAbiliting = LtBelicaCharacter->GetLtBelicaIsAbiliting();
 
-	FullBody = MeleeCharacter->IsFullBody;
-	IsDie = MeleeCharacter->IsDie;
+	bFullBody = MeleeCharacter->IsFullBody;
+	bIsDie = MeleeCharacter->IsDie;
 }
