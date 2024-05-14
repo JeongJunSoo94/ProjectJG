@@ -67,8 +67,8 @@ void ACBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ACBaseCharacter::OnMoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACBaseCharacter::OnMoveRight);
-	PlayerInputComponent->BindAxis("HorizontalLook", this, &ACBaseCharacter::OnHorizontalLook);
-	PlayerInputComponent->BindAxis("VerticalLook", this, &ACBaseCharacter::OnVerticalLook);
+	PlayerInputComponent->BindAxis("Turn", this, &ACBaseCharacter::OnHorizontalLook);
+	PlayerInputComponent->BindAxis("LookUp", this, &ACBaseCharacter::OnVerticalLook);
 
 	PlayerInputComponent->BindAction("OnEquipNum1", EInputEvent::IE_Pressed, this, &ACBaseCharacter::OnEquipNum1);
 	PlayerInputComponent->BindAction("OnUnEquip", EInputEvent::IE_Pressed, this, &ACBaseCharacter::OnUnEquip);

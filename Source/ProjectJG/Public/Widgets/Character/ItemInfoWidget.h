@@ -1,0 +1,26 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Blueprint/UserWidget.h"
+#include "ItemInfoWidget.generated.h"
+
+/**
+ * 
+ */
+UCLASS()
+class PROJECTJG_API UItemInfoWidget : public UUserWidget
+{
+	GENERATED_BODY()
+public:
+	virtual void NativeOnInitialized() override;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* ItemCountText;
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* CarriedItemCountText;
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* ItemTypeText;
+
+};

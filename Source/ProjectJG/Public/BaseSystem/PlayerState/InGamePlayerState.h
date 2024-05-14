@@ -15,5 +15,4 @@ class PROJECTJG_API AInGamePlayerState : public APlayerState
 {
 	GENERATED_BODY()
 
-
 };

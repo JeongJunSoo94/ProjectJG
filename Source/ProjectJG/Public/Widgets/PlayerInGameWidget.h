@@ -3,7 +3,8 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Widgets/CharacterSkillWidget.h"
-#include "Widgets/HealthWidget.h"
+#include "Widgets/Character/InventoryBarWidget.h"
+#include "Widgets/Character/ItemInfoWidget.h"
 #include "Character/Components/CActionComponent.h"
 #include "PlayerInGameWidget.generated.h"
 
@@ -15,18 +16,32 @@ public:
 	virtual void NativeOnInitialized() override;
 
 	UFUNCTION(BlueprintCallable)
-		void Update(float curTime, float maxTime);
+		void HealthUpdate(float CurHealth, float MaxHealth);
 
 	UFUNCTION(BlueprintCallable)
-		ACBaseCharacter* GetCharacter() {return player;}
+		void ShieldUpdate(float CurShield, float MaxShield);
 
-	UHealthWidget* GetWB_Health() { return WB_Health;}
-	UCharacterSkillWidget* GetWB_CharacterSkill_Left() {return WB_CharacterSkill_Left;}
-	UCharacterSkillWidget* GetWB_CharacterSkill_Mid() { return WB_CharacterSkill_Mid; }
-	UCharacterSkillWidget* GetWB_CharacterSkill_Right() { return WB_CharacterSkill_Right; }
+	/*UFUNCTION(BlueprintCallable)
+		void SetItemInfoCount(int32 ItemCount);
+
+	UFUNCTION(BlueprintCallable)
+		void SetItemInfoCarried(int32 Carried);
+
+	UFUNCTION(BlueprintCallable)
+		void SetItemInfoType(FString ItemType);*/
+
 protected:
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		UHealthWidget* WB_Health;
+	UPROPERTY(meta = (BindWidget))
+		class UProgressBar* HealthBar;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* HealthText;
+
+	UPROPERTY(meta = (BindWidget))
+		class UProgressBar* ShieldBar;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* ShieldText;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 		UCharacterSkillWidget* WB_CharacterSkill_Left;
@@ -36,6 +51,21 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 		UCharacterSkillWidget* WB_CharacterSkill_Right;
+
+	//UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	//	class UInventoryBarWidget* InventoryBar;
+
+	//UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	//	class UItemInfoWidget* ItemInfo;
+
 private:
-	ACBaseCharacter* player;
+	class ABaseCharacter* player;
+
+public:
+	FORCEINLINE ABaseCharacter* GetCharacter() { return player; }
+	FORCEINLINE UCharacterSkillWidget* GetWB_CharacterSkill_Left() { return WB_CharacterSkill_Left; }
+	FORCEINLINE UCharacterSkillWidget* GetWB_CharacterSkill_Mid() { return WB_CharacterSkill_Mid; }
+	FORCEINLINE UCharacterSkillWidget* GetWB_CharacterSkill_Right() { return WB_CharacterSkill_Right; }
+	//FORCEINLINE UInventoryBarWidget* GetInventoryBar() { return InventoryBar; }
+	//FORCEINLINE UItemInfoWidget* GetItemInfo() { return ItemInfo; }
 };
