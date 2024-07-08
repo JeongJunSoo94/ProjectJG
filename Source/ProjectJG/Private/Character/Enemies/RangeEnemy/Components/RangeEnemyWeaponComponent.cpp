@@ -16,15 +16,17 @@
 #include "BaseSystem/InGameModeBase.h"
 #include "BaseSystem/PoolObjectActorComponent.h"
 
+#include "Bullet/Projectile.h"
+
 void URangeEnemyWeaponComponent::OnHitPaticle(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	FRotator rotator = Hit.ImpactNormal.Rotation();
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, Hit.Location, rotator, true, EPSCPoolMethod::AutoRelease);
 
-	IDamageable* character = Cast<IDamageable>(OtherActor);
-	CheckNull(character);
-	character->TakeDamage(10.0f);
-	character->BeginHitEffect(OwnerCharacter,NormalImpulse, Hit);
+	//IDamageable* character = Cast<IDamageable>(OtherActor);
+	//CheckNull(character);
+	//character->TakeDamage(10.0f);
+	//character->BeginHitEffect(OwnerCharacter,NormalImpulse, Hit);
 }
 
 URangeEnemyWeaponComponent::URangeEnemyWeaponComponent()
@@ -37,7 +39,7 @@ URangeEnemyWeaponComponent::URangeEnemyWeaponComponent()
 
 	CHelpers::GetAsset<USoundCue>(&FireSoundCue, "SoundCue'/Game/Developers/GohyeongJu/Characters/Enemy/RangeEnemy/Sound/RangeEnemy_fire_Cue.RangeEnemy_fire_Cue'");
 
-	CHelpers::GetClass<ARangeEnemy_Bullet>(&BulletClass, "Blueprint'/Game/Developers/GohyeongJu/Characters/Enemy/RangeEnemy/Bullet/RangeEnemy_Bullet.RangeEnemy_Bullet_C'");
+	//CHelpers::GetClass<ARangeEnemy_Bullet>(&BulletClass, "Blueprint'/Game/Developers/JJS/Weapons/Projectiles/BP_ProjectileBullet.BP_ProjectileBullet_C'");
 
 	CHelpers::GetAsset<UParticleSystem>(&ImpactParticle, "ParticleSystem'/Game/ParagonWraith/FX/Particles/Abilities/Primary/FX/P_Wraith_Primary_HitCharacter.P_Wraith_Primary_HitCharacter'");
 }
@@ -48,11 +50,11 @@ void URangeEnemyWeaponComponent::BeginPlay()
 	if (OwnerCharacter == nullptr)
 		OwnerCharacter = Cast<ABaseEnemyCharacter>(GetOwner());
 
-	ObjectPoolFactory = CHelpers::GetComponent<UObjectPoolFactory>(GetWorld()->GetAuthGameMode());
-	if (ObjectPoolFactory != nullptr)
-	{
-		ObjectPoolFactory->CreateObject(20, BulletClass);
-	}
+	//ObjectPoolFactory = CHelpers::GetComponent<UObjectPoolFactory>(GetWorld()->GetAuthGameMode());
+	//if (ObjectPoolFactory != nullptr)
+	//{
+	//	ObjectPoolFactory->CreateObject(20, BulletClass);
+	//}
 }
 
 void URangeEnemyWeaponComponent::Fire()
@@ -72,26 +74,32 @@ void URangeEnemyWeaponComponent::Fire()
 	//muzzleLocation += 400 * direction;
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSoundCue, muzzleLocation);
 
-
-	if (!!BulletClass)
+	UWorld* World = GetWorld();
+	if (!!ProjectileClass)
 	{
-		ARangeEnemy_Bullet* bullet;
-		bullet = Cast<ARangeEnemy_Bullet>(ObjectPoolFactory->SpawnObject(BulletClass));
+		APawn* InstigatorPawn = Cast<APawn>(GetOwner());
 
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = GetOwner();
+		SpawnParams.Instigator = InstigatorPawn;
+
+		AProjectile* bullet;
+		bullet = World->SpawnActor<AProjectile>(ProjectileClass, muzzleLocation, direction.Rotation(), SpawnParams);//Cast<ARangeEnemy_Bullet>(ObjectPoolFactory->SpawnObject(BulletClass));
+		bullet->Damage = 10.0f;
 		//bullet->TeleportTo(muzzleLocation, direction.Rotation());
-		FTransform Transform = bullet->GetTransform();
-		Transform.SetLocation(muzzleLocation);
-		Transform.SetRotation(FQuat(direction.Rotation()));
-		bullet->SetActorTransform(Transform);
-		bullet->PoolObject->SetActorLifeTime(3.0f);
+		//FTransform Transform = bullet->GetTransform();
+		//Transform.SetLocation(muzzleLocation);
+		//Transform.SetRotation(FQuat(direction.Rotation()));
+		//bullet->SetActorTransform(Transform);
+		//bullet->PoolObject->SetActorLifeTime(3.0f);
 
-		if (!(bullet->bInitailized))
-		{
-			//Clog::Log("Bind");
-			bullet->bInitailized = true;
-			bullet->GetMesh()->OnComponentHit.AddDynamic(this, &URangeEnemyWeaponComponent::OnHitPaticle);
-		}
-		bullet->PoolObject->SetActive(true);
+		//if (!(bullet->bInitailized))
+		//{
+		//	//Clog::Log("Bind");
+		//	bullet->bInitailized = true;
+		//	bullet->GetMesh()->OnComponentHit.AddDynamic(this, &URangeEnemyWeaponComponent::OnHitPaticle);
+		//}
+		//bullet->PoolObject->SetActive(true);
 
 		//ACBullet* bullet= GetWorld()->SpawnActor<ACBullet>(BulletClass, muzzleLocation, direction.Rotation());
 		//bullet->GetMesh()->OnComponentHit.AddDynamic(this, &UCLtBelicaWeapon::OnHitPaticle);
@@ -100,16 +108,16 @@ void URangeEnemyWeaponComponent::Fire()
 
 }
 
-void URangeEnemyWeaponComponent::CreateObjectPool()
-{
-	if(OwnerCharacter==nullptr)
-		OwnerCharacter = Cast<ABaseEnemyCharacter>(GetOwner());
-
-	//CHelpers::CreateActorComponent<UObjectPoolFactory>(OwnerCharacter, &ObjectPoolFactory, "ObjectPoolFactory");
-
-	//ObjectPoolFactory->PoolSize = 20;
-
-	//ObjectPoolFactory->PooledObjectSubclass = BulletClass;
-	//ObjectPoolFactory->Initialized();
-
-}
+//void URangeEnemyWeaponComponent::CreateObjectPool()
+//{
+//	//if(OwnerCharacter==nullptr)
+//	//	OwnerCharacter = Cast<ABaseEnemyCharacter>(GetOwner());
+//
+//	//CHelpers::CreateActorComponent<UObjectPoolFactory>(OwnerCharacter, &ObjectPoolFactory, "ObjectPoolFactory");
+//
+//	//ObjectPoolFactory->PoolSize = 20;
+//
+//	//ObjectPoolFactory->PooledObjectSubclass = BulletClass;
+//	//ObjectPoolFactory->Initialized();
+//
+//}

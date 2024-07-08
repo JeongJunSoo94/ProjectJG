@@ -60,3 +60,40 @@ void ABaseAIController::StopAI()
 void ABaseAIController::Initialize()
 {
 }
+
+void ABaseAIController::SetHUDHealth(float Health, float MaxHealth)
+{
+	//GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
+	//if (GameHUD && GameHUD->GetPlayerInGameWidget())
+	//{
+	//	GameHUD->GetPlayerInGameWidget()->HealthUpdate(Health, MaxHealth);
+	//}
+	//else
+	//{
+	//	bInitializeHealth = true;
+	//	HUDHealth = Health;
+	//	HUDMaxHealth = MaxHealth;
+	//}
+}
+
+void ABaseAIController::SetHUDShield(float Shield, float MaxShield)
+{
+	//GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
+	//bool bHUDValid = GameHUD &&
+	//	GameHUD->GetCharacterOverlay() &&
+	//	GameHUD->GetCharacterOverlay()->ShieldBar &&
+	//	GameHUD->GetCharacterOverlay()->ShieldText;
+	//if (bHUDValid)
+	//{
+	//	const float ShieldPercent = Shield / MaxShield;
+	//	GameHUD->GetCharacterOverlay()->ShieldBar->SetPercent(ShieldPercent);
+	//	FString ShieldText = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Shield), FMath::CeilToInt(MaxShield));
+	//	GameHUD->GetCharacterOverlay()->ShieldText->SetText(FText::FromString(ShieldText));
+	//}
+	//else
+	//{
+	//	bInitializeShield = true;
+	//	HUDShield = Shield;
+	//	HUDMaxShield = MaxShield;
+	//}
+}

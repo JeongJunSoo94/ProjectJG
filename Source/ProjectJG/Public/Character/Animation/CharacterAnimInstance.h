@@ -87,12 +87,14 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Movement, meta = (AllowPrivateAccess = "true"))
 		ETurningInPlace TurningInPlace;
-
+	
 	float RotationCurve;
 	float RotationCurveLastFrame;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Turn In Place", meta = (AllowPrivateAccess = "true"))
 		bool bRotateRootBone;
+
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Turn In Place", meta = (AllowPrivateAccess = "true"))
 		bool bReloading;
 
@@ -132,8 +134,10 @@ protected:
 		bool bLocallyControlled;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation", meta = (AllowPrivateAccess = "true"))
 		bool bFullBody;
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation", meta = (AllowPrivateAccess = "true"))
-		bool bIsDie = false;
+		bool bElimmed;
+
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Animation", meta = (AllowPrivateAccess = "true"))
 		bool bEquipped;
 

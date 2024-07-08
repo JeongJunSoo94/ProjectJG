@@ -4,6 +4,7 @@
 #include "BaseSystem/InGamePlayerController.h"
 #include "Character/BaseCharacter.h"
 #include "Character/Components/LagCompensationComponent.h"
+#include "Character/Enemies/BaseEnemyCharacter.h"
 
 AProjectileBullet::AProjectileBullet()
 {
@@ -33,6 +34,7 @@ void AProjectileBullet::PostEditChangeProperty(FPropertyChangedEvent& Event)
 
 void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	Clog::Log(OtherActor);
 	ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(GetOwner());
 	if (OwnerCharacter)
 	{

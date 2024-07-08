@@ -38,9 +38,6 @@ struct FWeaponDataTable : public FTableRowBase
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		EAmmoType AmmoType;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int32 WeaponAmmo;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -149,8 +146,8 @@ public:
 	void SetHUDAmmo();
 	//void ShowPickupWidget(bool bShowWidget);
 	//virtual void Fire(const FVector& HitTarget);
-	//virtual void Dropped();
-	//void AddAmmo(int32 AmmoToAdd);
+	virtual void Dropped() override;
+	void AddAmmo(int32 AmmoToAdd);
 	//<<
 protected:
 	void StopFalling();

@@ -18,13 +18,14 @@ EBTNodeResult::Type UMeleeAttackTaskNode::ExecuteTask(UBehaviorTreeComponent& Ow
 {
 	UBlackboardComponent* ThisBlackboardComp = OwnerComp.GetAIOwner()->GetBlackboardComponent();
 	AMeleeEnemyCharacter* ThisAICharacter = Cast<AMeleeEnemyCharacter>(ThisBlackboardComp->GetValueAsObject("SelfActor"));
-
+	Clog::Log("ExecuteTask");
 	if (ThisBlackboardComp == nullptr || ThisAICharacter == nullptr)
 	{
 		return EBTNodeResult::Failed;
 	}
 
 	ThisAICharacter->MeleeAttack();
+
 	ThisBlackboardComp->SetValueAsBool(TEXT("IsAttacked"), true);
 
 	return EBTNodeResult::InProgress;
@@ -33,13 +34,14 @@ EBTNodeResult::Type UMeleeAttackTaskNode::ExecuteTask(UBehaviorTreeComponent& Ow
 void UMeleeAttackTaskNode::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
-	
+
 	UBlackboardComponent* ThisBlackboardComp = OwnerComp.GetAIOwner()->GetBlackboardComponent();
 	AMeleeEnemyCharacter* ThisAICharacter = Cast<AMeleeEnemyCharacter>(ThisBlackboardComp->GetValueAsObject("SelfActor"));
 	
 	if (!ThisAICharacter->isAttacked)
 	{
-		ThisBlackboardComp->SetValueAsBool(TEXT("IsAttacked"), false);
+		ThisAICharacter->MeleeAttack();
+		//ThisBlackboardComp->SetValueAsBool(TEXT("IsAttacked"), true);
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}
 }

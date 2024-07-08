@@ -13,6 +13,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void MenuSetup(int32 NumberOfPublicConnections = 4, FString TypeOfMatch = FString(TEXT("FreeForAll")), FString LobbyPath = FString(TEXT("/Game/Developers/JJS/TestMap/MultiLobby/MultiLobby")));
 
+	bool GetSearchResultsInfo(int32 Index, FString& OwningUserName, FString& NumOpenPublicConnections, FString& NumPublicConnections, FString& PingInMs);
+	//
+	//UPROPERTY(meta = (BindWidget))
+	//	class UTextBlock* TestTextBox;
+
+	UPROPERTY(meta = (BindWidget))
+		class UWidgetSwitcher* WidgetSwitcher;
+
+	UPROPERTY(meta = (BindWidget))
+		class UButton* UndoButton;
+
 protected:
 
 	virtual bool Initialize() override;
@@ -30,10 +41,13 @@ protected:
 private:
 
 	UPROPERTY(meta = (BindWidget))
-		class UButton* HostButton;
+		class UHomeMenuUserWidget* WB_Home;
 
 	UPROPERTY(meta = (BindWidget))
-		UButton* JoinButton;
+		class UMatcheMenuUserWidget* WB_Matche;
+
+	UFUNCTION()
+		void RefreshButtonClicked();
 
 	UFUNCTION()
 		void HostButtonClicked();
@@ -41,14 +55,12 @@ private:
 	UFUNCTION()
 		void JoinButtonClicked();
 
+	UFUNCTION()
+		void UndoButtonClicked();
+
 	void MenuTearDown();
 
 	class UMultiplayerSessionsSubsystem* MultiplayerSessionsSubsystem;
-
-	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-		int32 NumPublicConnections {
-		4
-	};
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		FString MatchType {
@@ -56,4 +68,6 @@ private:
 	};
 
 	FString PathToLobby{ TEXT("") };
+
+	 APlayerController*  PlayerController;
 };

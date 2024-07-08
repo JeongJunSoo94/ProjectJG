@@ -7,11 +7,13 @@
 #include "GameFramework/Character.h"
 #include "WorldObjects/Item/AmmoType.h"
 #include "Widgets/Character/CharacterHeadWidget.h"
-//#include "Character/Animation/CharacterAnimInstance.h"
+#include "Components/TimelineComponent.h"
 #include "WorldObjects/Item/Weapon.h"
 #include "Character/CombatState.h"
 #include "Character/TurningInPlace.h"
 #include "BaseCharacter.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLeftGame);
 
 UENUM(BlueprintType)
 enum class EMoveState : uint8
@@ -133,17 +135,20 @@ protected:
 	
 	//>>
 	//item ammo
-	void InitializeAmmoMap();
+	//void InitializeAmmoMap();
 	//<<
 
 	//>>
-	UFUNCTION(BlueprintCallable)
-		void FinishReloading();
+	//UFUNCTION(BlueprintCallable)
+	//	void FinishReloading();
 
-	UFUNCTION(BlueprintCallable)
-		void FinishEquipping();
+	//UFUNCTION(BlueprintCallable)
+	//	void FinishEquipping();
 	//<<
+	//>>Reload
+	void ReloadButtonPressed();
 
+	//<<
 	void CrouchButtonPressed();
 	void InterpCapsuleHalfHeight(float DeltaTime);
 
@@ -179,7 +184,6 @@ protected:
 
 	void QKeyPressed();
 	void EKeyPressed();
-	void RKeyPressed();
 
 	UPROPERTY(EditAnywhere)
 		class UBoxComponent* head;
@@ -257,14 +261,33 @@ public:
 	void PlaySwapMontage();
 	//void PlayThrowGrenadeMontage();
 	//<<
-
+	
 	virtual void OnRep_ReplicatedMovement() override;
+	
+	//>>
+	void Elim(bool bPlayerLeftGame);
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastElim(bool bPlayerLeftGame);
+	virtual void Destroyed() override;
 
+	UFUNCTION(Server, Reliable)
+		void ServerLeaveGame();
+
+	FOnLeftGame OnLeftGame;
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastGainedTheLead();
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastLostTheLead();
+	//<<
 	bool TraceScreenCrosshairCollision(FHitResult& OutHitResult, FVector& OutHitLocation);
 
 	void UpdateHUDHealth();
 	void UpdateHUDShield();
 	void UpdateHUDAmmo();
+
+	void InventoryDestroy();
 protected:
 	//UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -353,6 +376,11 @@ private:
 	//<<
 
 	//>>
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+		USceneComponent* ItemInterpComp;
+	//<<
+
+	//>>
 	//Fire
 	float ShootTimeDuration;
 	bool bFiringBullet;
@@ -367,6 +395,10 @@ private:
 
 	FTimerHandle AutoFireTimer;
 
+	//<<
+	//>>Reload Clip
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		USceneComponent* HandSceneComponent;
 	//<<
 	//>>
 	//Item
@@ -416,8 +448,8 @@ private:
 	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	//	TSubclassOf<AWeapon> DefaultWeaponClass;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
-		ECombatState CombatState;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	//	ECombatState CombatState;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 		class UAnimMontage* HipFireMontage;
@@ -526,7 +558,7 @@ private:
 
 	UFUNCTION()
 		void OnRep_Shield(float LastShield);
-
+	
 	UPROPERTY()
 		class AInGamePlayerController* BasePlayerController;
 
@@ -542,6 +574,33 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 		float ElimDelay = 3.f;
+
+	void ElimTimerFinished();
+
+	bool bLeftGame = false;
+
+	//>>
+	UPROPERTY(VisibleAnywhere)
+		UTimelineComponent* DissolveTimeline;
+	FOnTimelineFloat DissolveTrack;
+
+	UPROPERTY(EditAnywhere)
+		UCurveFloat* DissolveCurve;
+
+	UFUNCTION()
+		void UpdateDissolveMaterial(float DissolveValue);
+	void StartDissolve();
+
+	// Dynamic instance that we can change at runtime
+	UPROPERTY(VisibleAnywhere, Category = Elim)
+		UMaterialInstanceDynamic* DynamicDissolveMaterialInstance;
+
+	// Material instance set on the Blueprint, used with the dynamic material instance
+	UPROPERTY(VisibleAnywhere, Category = Elim)
+		UMaterialInstance* DissolveMaterialInstance;
+
+	//<<
+
 public:
 	FORCEINLINE USpringArmComponent* GetCameraSpringArm() const { return CameraSpringArm; }
 	FORCEINLINE UCameraComponent* GetCharacterCamera() const { return CharacterCamera; }
@@ -560,8 +619,8 @@ public:
 	//UFUNCTION(BlueprintCallable)
 	//	float GetCrosshairSpreadMultiplier() const;
 
-	FORCEINLINE ECombatState GetCombatState() const { return CombatState; }
-	FORCEINLINE bool GetCrouching() const { return bCrouching; }
+	//FORCEINLINE ECombatState GetCombatState() const { return CombatState; }
+	ECombatState GetCombatState() const;
 	FInterpLocation GetInterpLocation(int32 Index);
 
 	int32 GetInterpLocationIndex();
@@ -590,6 +649,9 @@ public:
 	FORCEINLINE float GetAO_Pitch() const { return AO_Pitch; }
 	FORCEINLINE bool GetRotateRootBone() const { return bRotateRootBone; }
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const{ return TurningInPlace; }
+
+	FORCEINLINE USceneComponent* GetHandSceneComponent() const { return HandSceneComponent; }
+
 	bool IsLocallyReloading();
 
 	void InitializeHitBoxsMap();

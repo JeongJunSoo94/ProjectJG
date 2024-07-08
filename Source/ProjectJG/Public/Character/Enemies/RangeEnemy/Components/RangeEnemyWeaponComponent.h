@@ -19,15 +19,15 @@ protected:
 		//class UParticleSystem* EjectParticle;
 	UPROPERTY(VisibleDefaultsOnly, Category = "EnemyFire")
 		class USoundCue* FireSoundCue;
-	UPROPERTY(VisibleDefaultsOnly, Category = "EnemyFire")
-		TSubclassOf<class ARangeEnemy_Bullet> BulletClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyFire", meta = (AllowPrivateAccess = "true"))
+		TSubclassOf<class AProjectile> ProjectileClass;
 	UPROPERTY(VisibleDefaultsOnly, Category = "ShotGun")
 		class UParticleSystem* ImpactParticle;
 
 	UFUNCTION()
 		void OnHitPaticle(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-	UPROPERTY(VisibleDefaultsOnly)
-		class UObjectPoolFactory* ObjectPoolFactory;
+	//UPROPERTY(VisibleDefaultsOnly)
+	//	class UObjectPoolFactory* ObjectPoolFactory;
 
 
 	class ABaseEnemyCharacter* OwnerCharacter = nullptr;
@@ -35,7 +35,7 @@ public:
 	URangeEnemyWeaponComponent();
 
 	void Fire();
-	void CreateObjectPool();
+	//void CreateObjectPool();
 protected:
 	
 	virtual void BeginPlay() override;

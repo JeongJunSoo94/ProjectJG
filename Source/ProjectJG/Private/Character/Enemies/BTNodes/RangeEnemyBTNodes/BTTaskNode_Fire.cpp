@@ -35,7 +35,10 @@ EBTNodeResult::Type UBTTaskNode_Fire::ExecuteTask(UBehaviorTreeComponent& OwnerC
 	}
 
 	ARangeEnemyCharacter* SelfActor = Cast<ARangeEnemyCharacter>(BBComp->GetValueAsObject("SelfActor"));
-
+	if (SelfActor == nullptr)
+	{
+		return EBTNodeResult::Failed;
+	}
 	SelfActor->Fire();
 
 	return EBTNodeResult::Succeeded;

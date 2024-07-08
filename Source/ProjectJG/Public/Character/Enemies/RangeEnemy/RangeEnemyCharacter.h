@@ -49,9 +49,8 @@ protected:
 	TArray<class UMaterialInstanceDynamic*> HitMaterial_Dynamics;
 public:
 	virtual void Tick(float DeltaTime) override;
-	virtual float TakeDamage(float Damage) override;
-	virtual void BeginHitEffect(AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit) override;
-	virtual void SetImpactVectorFrom(FVector& ProjectileVector) override;
+	//virtual void BeginHitEffect(AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit) override;
+	//virtual void SetImpactVectorFrom(FVector& ProjectileVector) override;
 
 	virtual void RegistBlackBoardDatas(class UBlackboardComponent* blackboard) override;
 

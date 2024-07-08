@@ -120,6 +120,11 @@ protected:
 	void EquipSecondaryWeapon(AWeapon* WeaponToEquip);
 
 	void ExchangeInventoryItems(int32 CurrentItemIndex, int32 NewItemIndex);
+
+	UFUNCTION(BlueprintCallable)
+		void GrabClip();
+	UFUNCTION(BlueprintCallable)
+		void ReleaseClip();
 private:
 	UPROPERTY()
 		class ABaseCharacter* Character;
@@ -218,10 +223,10 @@ private:
 		int32 StartingRocketAmmo = 0;
 
 	UPROPERTY(EditAnywhere)
-		int32 StartingPistolAmmo = 0;
+		int32 StartingPistolAmmo = 100;
 
 	UPROPERTY(EditAnywhere)
-		int32 StartingSMGAmmo = 0;
+		int32 StartingSMGAmmo = 100;
 
 	UPROPERTY(EditAnywhere)
 		int32 StartingShotgunAmmo = 0;
@@ -262,11 +267,16 @@ private:
 
 	UPROPERTY()
 		AWeapon* TheFlag;
+	//>>
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		FTransform ClipTransform;
 
+	//<<
 public:
 	FORCEINLINE int32 GetGrenades() const { return Grenades; }
 	FORCEINLINE bool GetAiming() const { return bAiming; }
 	FORCEINLINE AWeapon* GetEquippedWeapon() const { return EquippedWeapon; }
+	FORCEINLINE TMap<EWeaponType, int32> GetCarriedAmmoMap() const { return CarriedAmmoMap; }
 	FVector GetHitTarget() { return HitTarget; }
 	bool ShouldSwapWeapons();
 

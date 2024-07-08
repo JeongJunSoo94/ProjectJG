@@ -8,9 +8,6 @@
 #include "WorldObjects/Item/Item.h"
 #include "InGamePlayerController.generated.h"
 
-/**
- * 
- */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHighPingDelegate, bool, bPingTooHigh);
 
 UCLASS()
@@ -29,6 +26,7 @@ public:
 
 	void SetHUDHealth(float Health, float MaxHealth);
 	void SetHUDShield(float Shield, float MaxShield);
+	void SetHUDScore(float Score);
 	void SetHUDDefeats(int32 Defeats);
 	void SetHUDWeaponAmmo(int32 Ammo);
 	void SetHUDCarriedAmmo(int32 Ammo);

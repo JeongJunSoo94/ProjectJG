@@ -76,7 +76,7 @@ void AInGamePlayerController::PollInit()
 			{
 				if (bInitializeHealth) SetHUDHealth(HUDHealth, HUDMaxHealth);
 				if (bInitializeShield) SetHUDShield(HUDShield, HUDMaxShield);
-				//if (bInitializeScore) SetHUDScore(HUDScore);
+				if (bInitializeScore) SetHUDScore(HUDScore);
 				if (bInitializeDefeats) SetHUDDefeats(HUDDefeats);
 				if (bInitializeCarriedAmmo) SetHUDCarriedAmmo(HUDCarriedAmmo);
 				if (bInitializeWeaponAmmo) SetHUDWeaponAmmo(HUDWeaponAmmo);
@@ -93,6 +93,10 @@ void AInGamePlayerController::PollInit()
 
 void AInGamePlayerController::SetupInputComponent()
 {
+	Super::SetupInputComponent();
+	
+	InputComponent->BindAction("ESC", EInputEvent::IE_Pressed, this, &AInGamePlayerController::ShowReturnToMainMenu);
+
 }
 
 void AInGamePlayerController::ServerReportPingStatus_Implementation(bool bHighPing)
@@ -197,6 +201,26 @@ void AInGamePlayerController::CheckPing(float DeltaTime)
 
 void AInGamePlayerController::ShowReturnToMainMenu()
 {
+	if (ReturnToMainMenu && ReturnToMainMenu->IsInViewport())
+	{
+		ReturnToMainMenu->RemoveFromViewport();
+		bShowMouseCursor = false;
+		SetInputMode(FInputModeGameOnly());
+	}
+	else
+	{
+		if (!ReturnToMainMenu && ReturnToMainMenuWidget)
+		{
+			ReturnToMainMenu = CreateWidget<UUserWidget>(this, ReturnToMainMenuWidget);
+		}
+
+		if (ReturnToMainMenu)
+		{
+			ReturnToMainMenu->AddToViewport();
+			bShowMouseCursor = true;
+			SetInputMode(FInputModeUIOnly());
+		}
+	}
 }
 
 void AInGamePlayerController::ClientElimAnnouncement_Implementation(APlayerState* Attacker, APlayerState* Victim)
@@ -297,28 +321,59 @@ void AInGamePlayerController::OnMatchStateSet(FName State, bool bTeamsMatch)
 void AInGamePlayerController::HandleMatchHasStarted(bool bTeamsMatch)
 {
 	//if (HasAuthority()) bShowTeamScores = bTeamsMatch;
-	//GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
-	//if (GameHUD)
-	//{
-	//	if (GameHUD->CharacterOverlay == nullptr) GameHUD->AddCharacterOverlay();
-	//	if (GameHUD->Announcement)
-	//	{
-	//		//GameHUD->Announcement->SetVisibility(ESlateVisibility::Hidden);
-	//	}
-	//	if (!HasAuthority()) return;
-	//	//if (bTeamsMatch)
-	//	//{
-	//	//	InitTeamScores();
-	//	//}
-	//	//else
-	//	//{
-	//	//	HideTeamScores();
-	//	//}
-	//}
+	GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
+	if (GameHUD)
+	{
+		if (GameHUD->GetPlayerInGameWidget() == nullptr) GameHUD->AddPlayerInGameWidget();
+		/*if (GameHUD->Announcement)
+		{
+			GameHUD->Announcement->SetVisibility(ESlateVisibility::Hidden);
+		}
+		if (!HasAuthority()) return;
+		if (bTeamsMatch)
+		{
+			InitTeamScores();
+		}
+		else
+		{
+			HideTeamScores();
+		}*/
+	}
 }
 
 void AInGamePlayerController::HandleCooldown()
 {
+	//BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+	//if (BlasterHUD)
+	//{
+	//	BlasterHUD->CharacterOverlay->RemoveFromParent();
+	//	bool bHUDValid = BlasterHUD->Announcement &&
+	//		BlasterHUD->Announcement->AnnouncementText &&
+	//		BlasterHUD->Announcement->InfoText;
+
+	//	if (bHUDValid)
+	//	{
+	//		BlasterHUD->Announcement->SetVisibility(ESlateVisibility::Visible);
+	//		FString AnnouncementText = Announcement::NewMatchStartsIn;
+	//		BlasterHUD->Announcement->AnnouncementText->SetText(FText::FromString(AnnouncementText));
+
+	//		ABlasterGameState* BlasterGameState = Cast<ABlasterGameState>(UGameplayStatics::GetGameState(this));
+	//		ABlasterPlayerState* BlasterPlayerState = GetPlayerState<ABlasterPlayerState>();
+	//		if (BlasterGameState && BlasterPlayerState)
+	//		{
+	//			TArray<ABlasterPlayerState*> TopPlayers = BlasterGameState->TopScoringPlayers;
+	//			FString InfoTextString = bShowTeamScores ? GetTeamsInfoText(BlasterGameState) : GetInfoText(TopPlayers);
+
+	//			BlasterHUD->Announcement->InfoText->SetText(FText::FromString(InfoTextString));
+	//		}
+	//	}
+	//}
+	//ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(GetPawn());
+	//if (BlasterCharacter && BlasterCharacter->GetCombat())
+	//{
+	//	BlasterCharacter->bDisableGameplay = true;
+	//	BlasterCharacter->GetCombat()->FireButtonPressed(false);
+	//}
 }
 
 void AInGamePlayerController::SetHUDHealth(float Health, float MaxHealth)
@@ -358,8 +413,41 @@ void AInGamePlayerController::SetHUDShield(float Shield, float MaxShield)
 	//}
 }
 
+void AInGamePlayerController::SetHUDScore(float Score)
+{
+	GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
+	//bool bHUDValid = BlasterHUD &&
+	//	GameHUD->CharacterOverlay &&
+	//	GameHUD->CharacterOverlay->ScoreAmount;
+
+	if (GameHUD && GameHUD->GetPlayerInGameWidget())
+	{
+		FString ScoreText = FString::Printf(TEXT("%d"), FMath::FloorToInt(Score));
+		GameHUD->GetPlayerInGameWidget()->ScoreAmount->SetText(FText::FromString(ScoreText));
+	}
+	else
+	{
+		bInitializeScore = true;
+		HUDScore = Score;
+	}
+}
+
 void AInGamePlayerController::SetHUDDefeats(int32 Defeats)
 {
+	GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
+	//bool bHUDValid = BlasterHUD &&
+	//	BlasterHUD->CharacterOverlay &&
+	//	BlasterHUD->CharacterOverlay->DefeatsAmount;
+	if (GameHUD && GameHUD->GetPlayerInGameWidget())
+	{
+		FString DefeatsText = FString::Printf(TEXT("%d"), Defeats);
+		GameHUD->GetPlayerInGameWidget()->DefeatsAmount->SetText(FText::FromString(DefeatsText));
+	}
+	else
+	{
+		bInitializeDefeats = true;
+		HUDDefeats = Defeats;
+	}
 }
 
 void AInGamePlayerController::SetHUDWeaponAmmo(int32 Ammo)
@@ -367,7 +455,7 @@ void AInGamePlayerController::SetHUDWeaponAmmo(int32 Ammo)
 	GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
 	if (GameHUD && GameHUD->GetPlayerInGameWidget())
 	{
-		//GameHUD->GetPlayerInGameWidget()->SetItemInfoCount(Ammo);
+		GameHUD->GetPlayerInGameWidget()->SetItemInfoCount(Ammo);
 	}
 	else
 	{
@@ -381,7 +469,7 @@ void AInGamePlayerController::SetHUDCarriedAmmo(int32 Ammo)
 	GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
 	if (GameHUD && GameHUD->GetPlayerInGameWidget())
 	{
-		//GameHUD->GetPlayerInGameWidget()->SetItemInfoCarried(Ammo);
+		GameHUD->GetPlayerInGameWidget()->SetItemInfoCarried(Ammo);
 	}
 	else
 	{

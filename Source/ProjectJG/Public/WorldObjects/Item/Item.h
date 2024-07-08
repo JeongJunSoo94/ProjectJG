@@ -122,7 +122,8 @@ public:
 	void PlayEquipSound(bool bForcePlaySound = false);
 
 	virtual void Dropped();
-
+public:
+	void SetItemTransform(FTransform NewTransform);
 protected:
 	UPROPERTY(ReplicatedUsing = OnRep_ItemState, VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 		EItemState ItemState;

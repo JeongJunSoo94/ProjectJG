@@ -20,8 +20,10 @@ ASpawnerActor::ASpawnerActor()
 void ASpawnerActor::BeginPlay()
 {
 	Super::BeginPlay();
-	ObjectPoolFactory = CHelpers::GetComponent<UObjectPoolFactory>(GetWorld()->GetAuthGameMode());
-	if (ObjectPoolFactory != nullptr)
+	//ObjectPoolFactory = CHelpers::GetComponent<UObjectPoolFactory>(GetWorld()->GetAuthGameMode());
+
+	//if (ObjectPoolFactory != nullptr)
+	if(HasAuthority())
 	{
 		Initailized();
 		if(bInitSpawn)
@@ -89,6 +91,7 @@ void ASpawnerActor::SpawnLayer()
 
 void ASpawnerActor::SpawnActor()
 {
+	UWorld* const World = GetWorld();
 	if (SpawnCheck())
 	{
 		for (int i=0; i < SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].Enemys.Num(); ++i)
@@ -96,13 +99,14 @@ void ASpawnerActor::SpawnActor()
 			for (int j=0; j < SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].Enemys[i].EnemyCount; ++j)
 			{
 				CheckNull(SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].Enemys[i].Enemy);
-				AActor* actor = ObjectPoolFactory->SpawnObject(SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].Enemys[i].Enemy);
+				//AActor* actor = ObjectPoolFactory->SpawnObject(SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].Enemys[i].Enemy);
+				AActor* actor = World->SpawnActor<AActor>(SpawnDataAsset->EnemysSpawnDatas[EnemysSpawnLayer].Enemys[i].Enemy, FVector::ZeroVector, FRotator::ZeroRotator);
 				FVector spawnLocation =UKismetMathLibrary::RandomPointInBoundingBox(BoxComp->Bounds.Origin, BoxComp->Bounds.BoxExtent);
 				IObjectPoolFunctions* object = Cast<IObjectPoolFunctions>(actor);
 				object->OnReturnSpawner.Unbind();
 				object->OnReturnSpawner.BindUObject(this, &ASpawnerActor::OnReturnEnemyCount);
 				actor->SetActorLocation(spawnLocation);
-				Cast<ABaseEnemyCharacter>(actor)->PoolObject->SetActive(true);
+				//Cast<ABaseEnemyCharacter>(actor)->PoolObject->SetActive(true);
 				++EnemysSpawnCount;
 			}
 		}

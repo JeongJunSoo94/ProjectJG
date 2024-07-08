@@ -11,6 +11,8 @@
 #include "Widgets/Pause/InGameMenuUserWidget.h"
 #include "Widgets/Pause/SoundControlWidget.h"
 #include "Widgets/Character/QuestWidget.h"
+#include "GameFramework/PlayerController.h"
+
 
 AGameHUD::AGameHUD()
 {
@@ -25,16 +27,6 @@ AGameHUD::AGameHUD()
 void AGameHUD::BeginPlay()
 {
 	Super::BeginPlay();
-	if (PlayerInGameClass)
-	{
-		PlayerInGameUI = CreateWidget<UPlayerInGameWidget>(GetWorld(), PlayerInGameClass);
-		if (PlayerInGameUI)
-		{
-			PlayerInGameUI->AddToViewport();
-			PlayerInGameUI->SetVisibility(ESlateVisibility::HitTestInvisible);
-			//PlayerInGameUI->SetInit(this);
-		}
-	}
 
 	//if (CrossHairClass)
 	//{
@@ -75,6 +67,18 @@ void AGameHUD::BeginPlay()
 	//		QuestWidgetUI->SetVisibility(ESlateVisibility::HitTestInvisible);
 	//	}
 	//}
+}
+
+
+void AGameHUD::AddPlayerInGameWidget()
+{
+	APlayerController* PlayerController = GetOwningPlayerController();
+	if (PlayerController && PlayerInGameClass)
+	{
+		PlayerInGameUI = CreateWidget<UPlayerInGameWidget>(PlayerController, PlayerInGameClass);
+		PlayerInGameUI->AddToViewport();
+		PlayerInGameUI->SetVisibility(ESlateVisibility::HitTestInvisible);
+	}
 }
 
 void AGameHUD::SetHUDPlayerControllerSkillBind(UActorComponent* Weapon, UCActionComponent* Left, UCActionComponent* Mid, UCActionComponent* Right)

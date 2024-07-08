@@ -8,6 +8,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
 #include "Character/CBaseCharacter.h"
+#include "Character/BaseCharacter.h"
 
 UAggroCheck::UAggroCheck()
 {
@@ -34,7 +35,7 @@ void UAggroCheck::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
 	//DrawDebugSphere(ThisAICharacter->GetWorld(),ThisAICharacter->GetActorLocation(),1500,12,FColor::Red,false,4.0f);
 
 	bool bResult = ThisAICharacter->GetWorld()->SweepSingleByObjectType(SphereHitOut, ThisAICharacter->GetActorLocation(),
-		ThisAICharacter->GetActorLocation() + FVector(0.0f, 0.0f, 10.0f), FQuat(), ECC_GameTraceChannel1,
+		ThisAICharacter->GetActorLocation() + FVector(0.0f, 0.0f, 10.0f), FQuat(), ECC_GameTraceChannel5,
 		FCollisionShape::MakeSphere(1500), SphereSweepParams);
 
 	if (bResult)
@@ -53,7 +54,7 @@ void UAggroCheck::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
 		
 		if (IsHit)
 		{
-			ACBaseCharacter* player = Cast<ACBaseCharacter>(HitOut.GetActor());
+			ABaseCharacter* player = Cast<ABaseCharacter>(HitOut.GetActor());
 			if (player == nullptr)
 			{
 				ThisBlackboardComp->SetValueAsObject(TEXT("TargetFollow"), nullptr);

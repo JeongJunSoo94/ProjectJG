@@ -24,7 +24,8 @@ protected:
 		FName WeaponCollisionSocket = "Muzzle_Front";
 	UFUNCTION()
 		void OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
+	UPROPERTY(EditAnywhere)
+		float Damage = 20.f;
 public:
 	AMeleeEnemyCharacter();
 protected:
@@ -32,9 +33,12 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void MeleeAttack()override;
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastAttack();
 	virtual void Die()override;
+	bool CanAttack();
 	//virtual void RegistBlackBoardDatas(class UBlackboardComponent* blackboard)override;
-	virtual void Init()override;
+	//virtual void Init()override;
 private:
 	UCActionComponent* GetActionComponent();
 	virtual void BeginNotifyAction()override;

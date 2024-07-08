@@ -18,7 +18,9 @@ class PROJECTJG_API ABattleGameMode : public AGameMode
 public:
 	ABattleGameMode();
 	virtual void Tick(float DeltaTime) override;
-	virtual void PlayerEliminated(class ABaseCharacter* ElimmedCharacter, class AInGamePlayerController* VictimController, AInGamePlayerController* AttackerController);
+	virtual void PlayerEliminated(class ABaseCharacter* ElimmedCharacter, class AInGamePlayerController* VictimController, class AInGamePlayerController* AttackerController);
+	virtual void PlayerEliminated(class ABaseCharacter* ElimmedCharacter, class AInGamePlayerController* VictimController, class ABaseAIController* AttackerController);
+	virtual void EnemyEliminated(class ABaseEnemyCharacter* ElimmedCharacter, class ABaseAIController* VictimController, class AInGamePlayerController* AttackerController);
 	virtual void RequestRespawn(ACharacter* ElimmedCharacter, AController* ElimmedController);
 	void PlayerLeftGame(class AInGamePlayerState* PlayerLeaving);
 	virtual float CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage);

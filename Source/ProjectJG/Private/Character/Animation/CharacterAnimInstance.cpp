@@ -64,10 +64,10 @@ void UCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 	if (OwnerCharacter == nullptr) return;
 	//FString str = FString::Printf(TEXT("\n"));
-	CharacterInfoStr = FString::Printf(TEXT("\n"));
+	//CharacterInfoStr = FString::Printf(TEXT("\n"));
 	if (OwnerCharacter)
 	{
-		bCrouching = OwnerCharacter->GetCrouching();
+		bCrouching = OwnerCharacter->bIsCrouched;
 		bReloading = OwnerCharacter->GetCombatState() == ECombatState::ECS_Reloading;
 		bEquipping = OwnerCharacter->GetCombatState() == ECombatState::ECS_Equipping;
 		bShouldUseFABRIK = OwnerCharacter->GetCombatState() == ECombatState::ECS_Unoccupied || OwnerCharacter->GetCombatState() == ECombatState::ECS_FireTimerInProgress;
@@ -87,7 +87,7 @@ void UCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		//CharacterInfoStr.Append("bRotateRootBone:");
 		//CharacterInfoStr.Append(bRotateRootBone?"true" :"false");
 		//CharacterInfoStr.Append("\n");
-		//bElimmed = BlasterCharacter->IsElimmed();
+		bElimmed = OwnerCharacter->IsElimmed();
 		//bHoldingTheFlag = BlasterCharacter->IsHoldingTheFlag();
 
 		FRotator AimRotation = OwnerCharacter->GetBaseAimRotation();
@@ -175,17 +175,31 @@ void UCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 				//DrawDebugLine(GetWorld(), WeaponTransform.GetLocation(), WeaponTransform.GetLocation() + WeaponLookAtRotation.Vector() * -2000, FColor::Red, false, 2.f);
 			}
 		}
+		//CharacterInfoStr.Append("IsLocallyControlled:");
+		//CharacterInfoStr.Append(OwnerCharacter->IsLocallyControlled() ? "true" : "false");
+		//CharacterInfoStr.Append("\n");
+		//CharacterInfoStr.Append("GetCombatState:");
+		//CharacterInfoStr.Append(UEnum::GetValueAsString(OwnerCharacter->GetCombatState()));
+		//CharacterInfoStr.Append("\n");
+		//CharacterInfoStr.Append("bFinishedSwapping:");
+		//CharacterInfoStr.Append(OwnerCharacter->bFinishedSwapping ? "true" : "false");
+		//CharacterInfoStr.Append("\n");
 		bool bFABRIKOverride = OwnerCharacter->IsLocallyControlled() &&
 			OwnerCharacter->GetCombatState() != ECombatState::ECS_ThrowingGrenade &&
 			OwnerCharacter->bFinishedSwapping;
 		if (bFABRIKOverride)
 		{
+			//CharacterInfoStr.Append("bFABRIKOverride:");
+			//CharacterInfoStr.Append(bFABRIKOverride ? "true" : "false");
+			//CharacterInfoStr.Append("\n");
 			bShouldUseFABRIK = !OwnerCharacter->IsLocallyReloading();
 		}
 		bUseAimOffsets = OwnerCharacter->GetCombatState() == ECombatState::ECS_Unoccupied;//&& !OwnerCharacter->GetDisableGameplay();
 		bTransformRightHand = OwnerCharacter->GetCombatState() == ECombatState::ECS_Unoccupied;// && !BlasterCharacter->GetDisableGameplay();
 	}
-
+	//CharacterInfoStr.Append("bShouldUseFABRIK:");
+	//CharacterInfoStr.Append(bShouldUseFABRIK ? "true" : "false");
+	//CharacterInfoStr.Append("\n");
 	//CalculateAO_Pitch();
 	//TurnInPlace();
 }

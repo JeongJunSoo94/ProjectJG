@@ -76,11 +76,10 @@ void UCombatComponent::BeginPlay()
 		DefaultFOV = Character->GetCharacterCamera()->FieldOfView;
 		CurrentFOV = DefaultFOV;
 	}
-	//if (Character->HasAuthority())
-	//{
-	//	InitializeCarriedAmmo();
-	//}
-	InitializeCarriedAmmo();
+	if (Character->HasAuthority())
+	{
+		InitializeCarriedAmmo();
+	}
 	
 }
 
@@ -326,10 +325,10 @@ void UCombatComponent::EquipPrimaryWeapon(AWeapon* WeaponToEquip)
 	EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
 	AttachActorToRightHand(EquippedWeapon);
 	EquippedWeapon->SetOwner(Character);
-	//EquippedWeapon->SetHUDAmmo();
-	//UpdateCarriedAmmo();
+	EquippedWeapon->SetHUDAmmo();
+	UpdateCarriedAmmo();
 	//PlayEquipWeaponSound(WeaponToEquip);
-	//ReloadEmptyWeapon();
+	ReloadEmptyWeapon();
 }
 
 void UCombatComponent::EquipSecondaryWeapon(AWeapon* WeaponToEquip)
@@ -386,7 +385,8 @@ void UCombatComponent::DropEquippedWeapon()
 {
 	if (EquippedWeapon)
 	{
-		Character->GetCharacterHeadWidget()->SetDisplayText("DropEquippedWeapon");
+		//Character->GetCharacterHeadWidget()->SetDisplayText("DropEquippedWeapon");
+		EquippedWeapon->SetItemState(EItemState::EIS_Falling);
 		EquippedWeapon->Dropped();
 		EquippedWeapon = nullptr;
 	}
@@ -448,7 +448,7 @@ void UCombatComponent::UpdateCarriedAmmo()
 	Controller = Controller == nullptr ? Cast<AInGamePlayerController>(Character->Controller) : Controller;
 	if (Controller)
 	{
-		//Controller->SetHUDCarriedAmmo(CarriedAmmo);
+		Controller->SetHUDCarriedAmmo(CarriedAmmo);
 	}
 }
 
@@ -485,7 +485,7 @@ void UCombatComponent::Reload()
 void UCombatComponent::ServerReload_Implementation()
 {
 	if (Character == nullptr || EquippedWeapon == nullptr) return;
-
+	
 	CombatState = ECombatState::ECS_Reloading;
 	if (!Character->IsLocallyControlled()) HandleReload();
 }
@@ -527,7 +527,7 @@ void UCombatComponent::FinishSwapAttachWeapons()
 	//EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
 	//AttachActorToRightHand(EquippedWeapon);
 	////EquippedWeapon->SetHUDAmmo();
-	//UpdateCarriedAmmo();
+	UpdateCarriedAmmo();
 
 	////SecondaryWeapon->SetWeaponState(EWeaponState::EWS_EquippedSecondary);
 	//AttachActorToBackpack(SecondaryWeapon);
@@ -545,9 +545,9 @@ void UCombatComponent::UpdateAmmoValues()
 	Controller = Controller == nullptr ? Cast<AInGamePlayerController>(Character->Controller) : Controller;
 	if (Controller)
 	{
-		//Controller->SetHUDCarriedAmmo(CarriedAmmo);
+		Controller->SetHUDCarriedAmmo(CarriedAmmo);
 	}
-	//EquippedWeapon->AddAmmo(ReloadAmount);
+	EquippedWeapon->AddAmmo(ReloadAmount);
 }
 
 void UCombatComponent::UpdateShotgunAmmoValues()
@@ -735,6 +735,27 @@ void UCombatComponent::ShowAttachedGrenade(bool bShowGrenade)
 	//}
 }
 
+void UCombatComponent::GrabClip()
+{
+	if (EquippedWeapon == nullptr) return;
+	if (Character->GetHandSceneComponent() == nullptr) return;
+
+	int32 ClipBoneIndex{ EquippedWeapon->GetItemMesh()->GetBoneIndex(EquippedWeapon->GetClipBoneName()) };
+	ClipTransform = EquippedWeapon->GetItemMesh()->GetBoneTransform(ClipBoneIndex);
+
+	FAttachmentTransformRules AttachmentRules(EAttachmentRule::KeepRelative, true);
+	Character->GetHandSceneComponent()->AttachToComponent(Character->GetMesh(), AttachmentRules, FName(TEXT("hand_l")));
+	Character->GetHandSceneComponent()->SetWorldTransform(ClipTransform);
+
+	EquippedWeapon->SetMovingClip(true);
+}
+
+void UCombatComponent::ReleaseClip()
+{
+	if (EquippedWeapon == nullptr) return;
+	EquippedWeapon->SetMovingClip(false);
+}
+
 void UCombatComponent::OnRep_EquippedWeapon()
 {
 	if (EquippedWeapon && Character)
@@ -744,8 +765,9 @@ void UCombatComponent::OnRep_EquippedWeapon()
 		Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 		Character->bUseControllerRotationYaw = true;
 		//PlayEquipWeaponSound(EquippedWeapon);
-		//EquippedWeapon->EnableCustomDepth(false);
-		//EquippedWeapon->SetHUDAmmo();
+		EquippedWeapon->EnableCustomDepth(false);
+		EquippedWeapon->SetHUDAmmo();
+		UpdateCarriedAmmo();
 	}
 }
 
@@ -942,11 +964,11 @@ bool UCombatComponent::CanFire()
 
 void UCombatComponent::OnRep_CarriedAmmo()
 {
-	//Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
-	//if (Controller)
-	//{
-	//	Controller->SetHUDCarriedAmmo(CarriedAmmo);
-	//}
+	Controller = Controller == nullptr ? Cast<AInGamePlayerController>(Character->Controller) : Controller;
+	if (Controller)
+	{
+		Controller->SetHUDCarriedAmmo(CarriedAmmo);
+	}
 	bool bJumpToShotgunEnd =
 		CombatState == ECombatState::ECS_Reloading &&
 		EquippedWeapon != nullptr &&

@@ -21,17 +21,19 @@ void UMeleeAttackActionComponent::SetOwnerCharacter(ACharacter* character)
 void UMeleeAttackActionComponent::OnStartAction()
 {
 	ABPInstance = OwnerCharacter->GetMesh()->GetAnimInstance();
+	OwnerCharacter->StopAnimMontage();
 	OwnerCharacter->PlayAnimMontage(MeleeMontage);
 }
 
 void UMeleeAttackActionComponent::BeginNotifyAction()
 {
 	OwnerCharacter->IsFullBody = true;
+	OwnerCharacter->isAttacked = true;
 }
 
 void UMeleeAttackActionComponent::MiddleNotifyAction()
 {
-	ABPInstance->Montage_JumpToSection("Loop", MeleeMontage);
+	//ABPInstance->Montage_JumpToSection("Loop", MeleeMontage);
 }
 
 

@@ -18,8 +18,8 @@ AWeapon::AWeapon() :
 	Ammo(30),
 	MagazineCapacity(30),
 	WeaponType(EWeaponType::EWT_SubmachineGun),
-	AmmoType(EAmmoType::EAT_9mm),
-	ReloadMontageSection(FName(TEXT("ReloadSMG"))),
+	//AmmoType(EAmmoType::EAT_9mm),
+	ReloadMontageSection(FName(TEXT("SubMachineGun"))),
 	ClipBoneName(TEXT("smg_clip"))
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -134,30 +134,47 @@ void AWeapon::SetItemProperties(EItemState State)
 //	}
 //}
 
-void AWeapon::ThrowWeapon()
+void AWeapon::Dropped()
 {
-	//FRotator MeshRotation{ 0.f,GetItemMesh()->GetComponentRotation().Yaw,0.f };
-	//GetItemMesh()->SetWorldRotation(MeshRotation, false, nullptr, ETeleportType::TeleportPhysics);
-
-	//const FVector MeshForward{ GetItemMesh()->GetForwardVector() };
-	//const FVector MeshRight{ GetItemMesh()->GetRightVector() };
-	//FVector ImpulseDirection = MeshRight.RotateAngleAxis(-20.f, MeshForward);
-
-	////float RandomRotation{ 3.f };
-	////ImpulseDirection = ImpulseDirection.RotateAngleAxis(RandomRotation, FVector(0.f, 0.f, 1.f));
-	////ImpulseDirection *= 20'000.f;
-	////GetItemMesh()->AddImpulse(ImpulseDirection);
-
-	//bFalling = true;
-	//GetWorldTimerManager().SetTimer(ThrowWeaponTimer, this, &AWeapon::StopFalling, ThrowWeaponTime);
-	//SetOwner(nullptr);
-	//EnableGlowMaterial();
-	SetItemState(EItemState::EIS_Pickup);
 	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
 	GetItemMesh()->DetachFromComponent(DetachRules);
 	SetOwner(nullptr);
 	BaseOwnerCharacter = nullptr;
 	BaseOwnerController = nullptr;
+	bFalling = true;
+	GetWorldTimerManager().SetTimer(ThrowWeaponTimer, this, &AWeapon::StopFalling, ThrowWeaponTime);
+	EnableGlowMaterial();
+	//ThrowWeapon();
+	//Super::Dropped();
+}
+
+void AWeapon::ThrowWeapon()
+{
+	if (HasAuthority())
+	{
+		FRotator MeshRotation{ 0.f,GetItemMesh()->GetComponentRotation().Yaw,0.f };
+		GetItemMesh()->SetWorldRotation(MeshRotation, false, nullptr, ETeleportType::TeleportPhysics);
+
+		const FVector MeshForward{ GetItemMesh()->GetForwardVector() };
+		const FVector MeshRight{ GetItemMesh()->GetRightVector() };
+		FVector ImpulseDirection = MeshRight.RotateAngleAxis(-20.f, MeshForward);
+
+		float RandomRotation{ 3.f };
+		ImpulseDirection = ImpulseDirection.RotateAngleAxis(RandomRotation, FVector(0.f, 0.f, 1.f));
+		ImpulseDirection *= 20'000.f;
+		GetItemMesh()->AddImpulse(ImpulseDirection);
+
+		bFalling = true;
+		GetWorldTimerManager().SetTimer(ThrowWeaponTimer, this, &AWeapon::StopFalling, ThrowWeaponTime);
+	}
+	//SetOwner(nullptr);
+	EnableGlowMaterial();
+	//SetItemState(EItemState::EIS_Pickup);
+	//FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
+	//GetItemMesh()->DetachFromComponent(DetachRules);
+	//SetOwner(nullptr);
+	//BaseOwnerCharacter = nullptr;
+	//BaseOwnerController = nullptr;
 }
 
 void AWeapon::StopFalling()
@@ -191,7 +208,7 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 
 		if (WeaponDataRow)
 		{
-			AmmoType = WeaponDataRow->AmmoType;
+			//AmmoType = WeaponDataRow->AmmoType;
 			Ammo = WeaponDataRow->WeaponAmmo;
 			MagazineCapacity = WeaponDataRow->MagazingCapacity;
 			//SetPickupSound(WeaponDataRow->PickupSound);
@@ -271,6 +288,13 @@ void AWeapon::ClientUpdateAmmo_Implementation(int32 ServerAmmo)
 bool AWeapon::IsEmpty()
 {
 	return Ammo <= 0;
+}
+
+void AWeapon::AddAmmo(int32 AmmoToAdd)
+{
+	Ammo = FMath::Clamp(Ammo + AmmoToAdd, 0, MagazineCapacity);
+	SetHUDAmmo();
+	ClientAddAmmo(AmmoToAdd);
 }
 
 void AWeapon::ReloadAmmo(int32 Amount)

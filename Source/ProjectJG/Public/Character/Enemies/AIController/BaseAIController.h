@@ -24,6 +24,9 @@ public:
 	virtual void StartAI();
 	virtual void StopAI();
 	virtual void Initialize();
+
+	void SetHUDHealth(float Health, float MaxHealth);
+	void SetHUDShield(float Shield, float MaxShield);
 protected:
 	virtual void BeginPlay() override;
 };

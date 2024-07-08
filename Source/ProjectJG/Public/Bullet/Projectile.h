@@ -6,6 +6,15 @@
 #include "GameFramework/Actor.h"
 #include "Projectile.generated.h"
 
+UENUM(BlueprintType)
+enum class EProjectileCollisionType : uint8
+{
+	EPCT_Player UMETA(DisplayName = "Player"),
+	EPCT_Enemy UMETA(DisplayName = "Enemy"),
+
+	EPS_MAX UMETA(DisplayName = "DefaultMAX")
+};
+
 UCLASS()
 class PROJECTJG_API AProjectile : public AActor
 {

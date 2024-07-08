@@ -19,10 +19,16 @@ public:
 	UMultiplayerSessionsSubsystem();
 
 	void CreateSession(int32 NumPublicConnections, FString MatchType);
+	void CreateSession(FName SessionName,int32 NumPublicConnections, FString MatchType);
 	void FindSessions(int32 MaxSearchResults);
 	void JoinSession(const FOnlineSessionSearchResult& SessionResult);
 	void DestroySession();
 	void StartSession();
+
+	FName GetSessionName();
+	int32 GetSessionPlayerNum();
+	FName GetSessionLobbyName();
+	const TArray<FOnlineSessionSearchResult> GetSearchResults();
 
 	FMultiplayerOnCreateSessionComplete MultiplayerOnCreateSessionComplete;
 	FMultiplayerOnFindSessionsComplete MultiplayerOnFindSessionsComplete;

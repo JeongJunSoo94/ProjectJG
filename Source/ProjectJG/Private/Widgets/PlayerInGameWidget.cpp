@@ -35,28 +35,28 @@ void UPlayerInGameWidget::ShieldUpdate(float CurShield, float MaxShield)
 	}
 }
 
-//void UPlayerInGameWidget::SetItemInfoCount(int32 ItemCount)
-//{
-//	if (ItemInfo&& ItemInfo->ItemCountText)
-//	{
-//		FString ItemCountText = FString::Printf(TEXT("%d"), ItemCount);
-//		ItemInfo->ItemCountText->SetText(FText::FromString(ItemCountText));
-//	}
-//}
-//
-//void UPlayerInGameWidget::SetItemInfoCarried(int32 Carried)
-//{
-//	if (ItemInfo && ItemInfo->CarriedItemCountText)
-//	{
-//		FString CarriedText = FString::Printf(TEXT("%d"), Carried);
-//		ItemInfo->CarriedItemCountText->SetText(FText::FromString(CarriedText));
-//	}
-//}
-//
-//void UPlayerInGameWidget::SetItemInfoType(FString ItemType)
-//{
-//	if (ItemInfo && ItemInfo->ItemTypeText)
-//	{
-//		ItemInfo->ItemTypeText->SetText(FText::FromString(ItemType));
-//	}
-//}
+void UPlayerInGameWidget::SetItemInfoCount(int32 ItemCount)
+{
+	if (ItemInfo&& ItemInfo->ItemCountText)
+	{
+		FString ItemCountText = FString::Printf(TEXT("%d"), ItemCount);
+		ItemInfo->ItemCountText->SetText(FText::FromString(ItemCountText));
+	}
+}
+
+void UPlayerInGameWidget::SetItemInfoCarried(int32 Carried)
+{
+	if (ItemInfo && ItemInfo->CarriedItemCountText)
+	{
+		FString CarriedText = FString::Printf(TEXT("%d"), Carried);
+		ItemInfo->CarriedItemCountText->SetText(FText::FromString(CarriedText));
+	}
+}
+
+void UPlayerInGameWidget::SetItemInfoType(FString ItemType)
+{
+	if (ItemInfo && ItemInfo->ItemTypeText)
+	{
+		ItemInfo->ItemTypeText->SetText(FText::FromString(ItemType));
+	}
+}

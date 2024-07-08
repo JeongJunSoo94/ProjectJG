@@ -4,8 +4,8 @@
 #include "Character/Enemies/RangeEnemy/RangeEnemyAIController.h"
 #include "Components/SphereComponent.h"
 #include "Character/CBaseCharacter.h"
+#include "Character/BaseCharacter.h"
 #include "Components/CapsuleComponent.h"
-#include "Character/Components/StatusComponent.h"
 
 #include "Animation/AnimMontage.h"
 #include "Sound/SoundCue.h"
@@ -27,14 +27,13 @@
 
 void ARangeEnemyCharacter::OnSphereBeginOverlap( UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	ACBaseCharacter* Player = Cast<ACBaseCharacter>(OtherActor);
+	ABaseCharacter* Player = Cast<ABaseCharacter>(OtherActor);
 	//Clog::Log(Player);
 
 	if (Player == nullptr)
 	{
 		return;
 	}
-
 
 	if (!PlayerAgrroMap.Find(OtherActor))
 	{
@@ -44,7 +43,7 @@ void ARangeEnemyCharacter::OnSphereBeginOverlap( UPrimitiveComponent* Overlapped
 	{
 		PlayerAgrroMap[OtherActor] = 0;
 	}
-
+	
 }
 
 void ARangeEnemyCharacter::OnSphereEndOverlap( UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -80,7 +79,7 @@ ARangeEnemyCharacter::ARangeEnemyCharacter()
 	AIControllerClass = aicontroller;
 
 	CHelpers::CreateActorComponent<URangeEnemyWeaponComponent>(this, &Weapon, "Weapon");
-	Weapon->CreateObjectPool();
+	//Weapon->CreateObjectPool();
 
 
 	UAnimMontage* AnimMontage;
@@ -103,12 +102,14 @@ void ARangeEnemyCharacter::BeginPlay()
 	//Clog::Log(BaseMontages[backDieMontage]->GetFName().ToString());
 	//Clog::Log(BaseMontages[frontDieMontage]->GetFName().ToString());
 
-	GetWorldTimerManager().SetTimer(RayTimer,this, &ARangeEnemyCharacter::RayToPlayer, 1.0f, true);
 	
 	CollisionParams.AddIgnoredActor(this->GetOwner());
-
-	Sphere->OnComponentBeginOverlap.AddDynamic(this, &ARangeEnemyCharacter::OnSphereBeginOverlap);
-	Sphere->OnComponentEndOverlap.AddDynamic(this, &ARangeEnemyCharacter::OnSphereEndOverlap);
+	if (HasAuthority())
+	{
+		GetWorldTimerManager().SetTimer(RayTimer,this, &ARangeEnemyCharacter::RayToPlayer, 1.0f, true);
+		Sphere->OnComponentBeginOverlap.AddDynamic(this, &ARangeEnemyCharacter::OnSphereBeginOverlap);
+		Sphere->OnComponentEndOverlap.AddDynamic(this, &ARangeEnemyCharacter::OnSphereEndOverlap);
+	}
 
 }
 
@@ -125,12 +126,12 @@ void ARangeEnemyCharacter::Tick(float DeltaTime)
 
 void ARangeEnemyCharacter::Fire()
 {
-	Weapon->Fire();
+	if(HasAuthority())
+		Weapon->Fire();
 }
 
 void ARangeEnemyCharacter::RegistBlackBoardDatas(UBlackboardComponent* blackboard)
 {
-	blackboard->SetValueAsObject(BlackboardDataNames::CharacterStatus, Status);
 }
 
 AActor* ARangeEnemyCharacter::GetPriorityTarget()
@@ -142,18 +143,20 @@ AActor* ARangeEnemyCharacter::GetPriorityTarget()
 		return nullptr;
 	}
 
-	int MaxValue = 0;
+	int MaxValue = -1;
 	AActor* TargetActor = nullptr;
 
 	for (auto& Elem : PlayerAgrroMap)
 	{
-
-		if (Elem.Value > MaxValue)
+		//Clog::Log(Elem.Key->GetName());
+		//Clog::Log(Elem.Value);
+		if (MaxValue == -1)
 		{
-			if (Elem.Value == 3)
-			{
-				return Elem.Key;
-			}
+			TargetActor = Elem.Key;
+			MaxValue = Elem.Value;
+		}
+		if (Elem.Value!=-1&&Elem.Value < MaxValue)
+		{
 			TargetActor = Elem.Key;
 			MaxValue = Elem.Value;
 		}
@@ -179,90 +182,94 @@ void ARangeEnemyCharacter::RayToPlayer()
 			//DrawDebugLine(GetWorld(), Start, End , FColor::Red, false, 1, 0, 1);
 			
 			bool IsHit = GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams);
-
 			if (IsHit)
 			{
-				//Clog::Log("Hit Ray");
-
-				double remainSquaredDistance = ((End - Start).SquaredLength() - OutHit.Distance * OutHit.Distance);
-				
-				if (remainSquaredDistance < MaxRemainSquaredDistance && Elem.Value < 3)
-				{
-					Elem.Value += 1;
-				}
+				if(Elem.Key == OutHit.GetActor())
+					Elem.Value = OutHit.Distance;
 				else
-				{
-					if (Elem.Value > 0)
-					{
-						Elem.Value -= 1;
-					}
-				}
+					Elem.Value = -1;
 			}
 			else
 			{
-				//Clog::Log("fail Ray Hit");
-				if (Elem.Value < 3)
-				{
-					Elem.Value += 1;
-				}
+				Elem.Value = -1;
 			}
+			//if (IsHit)
+			//{
+			//	//Clog::Log("Hit Ray");
+
+			//	double remainSquaredDistance = ((End - Start).SquaredLength() - OutHit.Distance * OutHit.Distance);
+
+			//	if (remainSquaredDistance < MaxRemainSquaredDistance && Elem.Value < 3)
+			//	{
+			//		Elem.Value += 1;
+			//	}
+			//	else
+			//	{
+			//		if (Elem.Value > 0)
+			//		{
+			//			Elem.Value -= 1;
+			//		}
+			//	}
+			//}
+			//else
+			//{
+			//	//Clog::Log("fail Ray Hit");
+			//	if (Elem.Value < 3)
+			//	{
+			//		Elem.Value += 1;
+			//	}
+			//}
 		}
 	}
 }
 
 
-void ARangeEnemyCharacter::BeginHitEffect(AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
-{
-
-	//Clog::Log(Hit.ImpactPoint);
-	//Clog::Log("---------------------------------");
-	HitImpact = Hit.ImpactPoint;
-
-	if (IsDoEffect)
-		return;
-
-	//UMaterialInterface* m_interface = GetMesh()->GetMaterial(4);
-
-	if (HitMaterial_Dynamics.Num() < 4)//나중에 수정 해야함
-	{
-		HitMaterial_Dynamics.Add(GetMesh()->CreateDynamicMaterialInstance(0));
-		HitMaterial_Dynamics.Add(GetMesh()->CreateDynamicMaterialInstance(1));
-		HitMaterial_Dynamics.Add(GetMesh()->CreateDynamicMaterialInstance(2));
-		HitMaterial_Dynamics.Add(GetMesh()->CreateDynamicMaterialInstance(3));
-	}
-	
-	// 움직일때 같이 움직이도록 해야함.
-	//Clog::Log(HitMaterial_Dynamic);
-	for (UMaterialInstanceDynamic*& HitMaterial_Dynamic : HitMaterial_Dynamics)
-	{
-		HitMaterial_Dynamic->SetVectorParameterValue(TEXT("Pos"), HitImpact);
-		HitMaterial_Dynamic->SetScalarParameterValue(TEXT("Emissive"), 50.0f);
-		HitMaterial_Dynamic->SetScalarParameterValue(TEXT("Fade"), 30.0f);
-	}
-	//HitMaterial_Dynamic->
-
-	//GetWorldTimerManager().SetTimer(EffectTimer, 10.0f, false);
-	IsDoEffect = true;
-	EffectValue = 0.0f;
-}
-
-void ARangeEnemyCharacter::SetImpactVectorFrom(FVector& ProjectileVector)
-{
-	if (UKismetMathLibrary::Dot_VectorVector(GetActorForwardVector(), ProjectileVector) < 0)
-	{
-		IsHitFromForward = true;
-	}
-	else
-	{
-		IsHitFromForward = false;
-	}
-}
-
-float ARangeEnemyCharacter::TakeDamage(float Damage)
-{
-
-	return Super::TakeDamage(Damage);
-}
+//void ARangeEnemyCharacter::BeginHitEffect(AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
+//{
+//
+//	//Clog::Log(Hit.ImpactPoint);
+//	//Clog::Log("---------------------------------");
+//	HitImpact = Hit.ImpactPoint;
+//
+//	if (IsDoEffect)
+//		return;
+//
+//	//UMaterialInterface* m_interface = GetMesh()->GetMaterial(4);
+//
+//	if (HitMaterial_Dynamics.Num() < 4)//나중에 수정 해야함
+//	{
+//		HitMaterial_Dynamics.Add(GetMesh()->CreateDynamicMaterialInstance(0));
+//		HitMaterial_Dynamics.Add(GetMesh()->CreateDynamicMaterialInstance(1));
+//		HitMaterial_Dynamics.Add(GetMesh()->CreateDynamicMaterialInstance(2));
+//		HitMaterial_Dynamics.Add(GetMesh()->CreateDynamicMaterialInstance(3));
+//	}
+//	
+//	// 움직일때 같이 움직이도록 해야함.
+//	//Clog::Log(HitMaterial_Dynamic);
+//	for (UMaterialInstanceDynamic*& HitMaterial_Dynamic : HitMaterial_Dynamics)
+//	{
+//		HitMaterial_Dynamic->SetVectorParameterValue(TEXT("Pos"), HitImpact);
+//		HitMaterial_Dynamic->SetScalarParameterValue(TEXT("Emissive"), 50.0f);
+//		HitMaterial_Dynamic->SetScalarParameterValue(TEXT("Fade"), 30.0f);
+//	}
+//	//HitMaterial_Dynamic->
+//
+//	//GetWorldTimerManager().SetTimer(EffectTimer, 10.0f, false);
+//	IsDoEffect = true;
+//	EffectValue = 0.0f;
+//}
+//
+//void ARangeEnemyCharacter::SetImpactVectorFrom(FVector& ProjectileVector)
+//{
+//	if (UKismetMathLibrary::Dot_VectorVector(GetActorForwardVector(), ProjectileVector) < 0)
+//	{
+//		IsHitFromForward = true;
+//	}
+//	else
+//	{
+//		IsHitFromForward = false;
+//	}
+//}
 
 void ARangeEnemyCharacter::DoEffect()
 {
@@ -321,6 +328,6 @@ void ARangeEnemyCharacter::EndNotifyAction()
 	{
 		Clog::Log("IsDie");
 		GetMesh()->GetAnimInstance()->Montage_Pause();
-		ReturnPool();
+		//ReturnPool();
 	}
 }

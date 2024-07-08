@@ -29,8 +29,8 @@ public:
 	AGameHUD();
 
 	virtual void DrawHUD() override;
-
 	virtual void BeginPlay()override;
+	void AddPlayerInGameWidget();
 private:
 	TSubclassOf<class UUserWidget>BP_UIWidgetClass;
 	UUserWidget* UIWidget;

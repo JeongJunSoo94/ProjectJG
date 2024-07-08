@@ -7,15 +7,20 @@
 #include "Character/Enemies/MeleeEnemy/MeleeAttackActionComponent.h"
 #include "Animation/AnimMontage.h"
 #include "Character/Components/StatusComponent.h"
+#include "Net/UnrealNetwork.h"
+#include "Character/BaseCharacter.h"
 
 void AMeleeEnemyCharacter::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	CheckNull(OverlappedComponent);
 	CheckNull(OtherActor);
 	CheckNull(OtherComp);
-	IDamageable* character = Cast<IDamageable>(OtherActor);
-	CheckNull(character);
-	character->TakeDamage(10.0f);
+	ABaseCharacter*Player = Cast<ABaseCharacter>(OtherActor);
+	if(Player)
+		UGameplayStatics::ApplyDamage(OtherActor, Damage, Controller, this, UDamageType::StaticClass());
+	//IDamageable* character = Cast<IDamageable>(OtherActor);
+	//CheckNull(character);
+	//character->TakeDamage(10.0f);
 }
 
 AMeleeEnemyCharacter::AMeleeEnemyCharacter()
@@ -46,11 +51,25 @@ void AMeleeEnemyCharacter::BeginPlay()
 {
 	SetHealthWidgetSizeAndLocation(FVector(0, 0, 150), FVector2D(120, 20));
 	Super::BeginPlay();
-	WeaponCollisionBox->SetBoxExtent(FVector(1.0f, 30.0f, 10.0f));
-	WeaponCollisionBox->AttachToComponent(this->GetMesh(),
+	if (WeaponCollisionBox != nullptr)
+	{
+		WeaponCollisionBox->SetBoxExtent(FVector(1.0f, 30.0f, 10.0f));
+		WeaponCollisionBox->AttachToComponent(this->GetMesh(),
+				FAttachmentTransformRules(EAttachmentRule::KeepRelative, true),
+			WeaponCollisionSocket);
+	}
+	else
+	{
+		CHelpers::CheckNullComponent<UBoxComponent>(this, &WeaponCollisionBox);
+		WeaponCollisionBox->SetBoxExtent(FVector(1.0f, 30.0f, 10.0f));
+		WeaponCollisionBox->AttachToComponent(this->GetMesh(),
 			FAttachmentTransformRules(EAttachmentRule::KeepRelative, true),
-		WeaponCollisionSocket);
-	WeaponCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AMeleeEnemyCharacter::OnComponentBeginOverlap);
+			WeaponCollisionSocket);
+	}
+	if (HasAuthority())
+	{
+		WeaponCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AMeleeEnemyCharacter::OnComponentBeginOverlap);
+	}
 	IsFullBody = false;
 	isAttacked = false;
 	CollisionStateNotifyEnd();
@@ -59,15 +78,17 @@ void AMeleeEnemyCharacter::BeginPlay()
 void AMeleeEnemyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	//Clog::Log(UEnum::GetValueAsString(eCharacterStateFlags));
+	//Clog::Log("isAttacked");
+	//Clog::Log(isAttacked);
 }
 
 void AMeleeEnemyCharacter::MeleeAttack()
 {
 	if (!isAttacked)
 	{
-		isAttacked = true;
-		eCharacterStateFlags = ECharacterStateFlags::ATTACKING;
-		MeleeActionComponent->OnStartAction();
+		if (HasAuthority())
+			MulticastAttack();
 	}
 }
 
@@ -78,16 +99,28 @@ UCActionComponent* AMeleeEnemyCharacter::GetActionComponent()
 
 void AMeleeEnemyCharacter::Die()
 {
-	Super::Die();
 	StopAnimMontage();
 	PlayAnimMontage(DeathMontage);
+	Super::Die();
 }
 
-void AMeleeEnemyCharacter::Init()
+bool AMeleeEnemyCharacter::CanAttack()
 {
-	Super::Init();
-	isAttacked =false;
+	return eCharacterStateFlags!= ECharacterStateFlags::DEAD && !(eCharacterStateFlags == ECharacterStateFlags::ATTACKING);
 }
+
+void AMeleeEnemyCharacter::MulticastAttack_Implementation()
+{
+	//isAttacked = true;
+	eCharacterStateFlags = ECharacterStateFlags::ATTACKING;
+	MeleeActionComponent->OnStartAction();
+}
+
+//void AMeleeEnemyCharacter::Init()
+//{
+//	Super::Init();
+//	isAttacked =false;
+//}
 
 void AMeleeEnemyCharacter::BeginNotifyAction()
 {
@@ -145,14 +178,15 @@ void AMeleeEnemyCharacter::EndNotifyAction()
 		UCActionComponent* actionComp = GetActionComponent();
 		CheckNull(actionComp);
 		actionComp->EndNotifyAction();
+		eCharacterStateFlags = ECharacterStateFlags::IDLE;
 	}
 	break;
 	case ECharacterStateFlags::DEAD:
 	{
 		GetMesh()->GetAnimInstance()->Montage_Pause(DeathMontage);//MontagePause(DeathMontage);
 		ReturnPool();
-		//IsFullBody = false;
-		//Destroy();
+		IsFullBody = false;
+		Destroy();
 	}
 	break;
 	}

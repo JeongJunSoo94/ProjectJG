@@ -19,10 +19,14 @@
 #include "Net/UnrealNetwork.h"
 #include "BaseSystem/InGamePlayerController.h"
 #include "BaseSystem/BattleGameMode.h"
-#include "BaseSystem/PlayerState/InGamePlayerState.h"
 #include "Character/Components/BuffComponent.h"
 #include "Character/Components/LagCompensationComponent.h"
 #include "Character/Animation/CharacterAnimInstance.h"
+#include "BaseSystem/BattleGameState.h"
+#include "BaseSystem/PlayerState/InGamePlayerState.h"
+#include "Character/Enemies/BaseEnemyCharacter.h"
+#include "BaseSystem/TeamPlayerStart/TeamPlayerStart.h"
+#include "Character/Enemies/AIController/BaseAIController.h"
 
 ABaseCharacter::ABaseCharacter() :
 	//Base rates
@@ -61,9 +65,9 @@ ABaseCharacter::ABaseCharacter() :
 	bShouldFire(true),
 	bFireButtonPressed(false),
 	//combat
-	CombatState(ECombatState::ECS_Unoccupied),
+	//CombatState(ECombatState::ECS_Unoccupied),
 	//Crouch
-	bCrouching(false),
+	//bCrouching(false),
 	//
 	BaseMovementSpeed(650.f),
 	CrouchMovementSpeed(300.f),
@@ -89,10 +93,10 @@ ABaseCharacter::ABaseCharacter() :
 	//<<
 
 	//bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
+	bUseControllerRotationYaw = true;
 	//bUseControllerRotationRoll = false;
 
-	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f);
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.2f;
@@ -119,6 +123,15 @@ ABaseCharacter::ABaseCharacter() :
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 	NetUpdateFrequency = 66.f;
 	MinNetUpdateFrequency = 33.f;
+
+	//>> reaload
+	HandSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("HandSceneComp"));
+	//<<
+
+	//>>WeaponInterp
+	ItemInterpComp = CreateDefaultSubobject<USceneComponent>(TEXT("Item Interpolation Component"));
+	ItemInterpComp->SetupAttachment(GetCharacterCamera());
+	//<<
 
 	head = CreateDefaultSubobject<UBoxComponent>(TEXT("head"));
 	head->SetupAttachment(GetMesh(), FName("head"));
@@ -224,7 +237,7 @@ void ABaseCharacter::BeginPlay()
 		Combat->GetEquippedWeapon()->DisableGlowMaterial();
 		Combat->GetEquippedWeapon()->SetCharacter(this);
 	}
-	InitializeAmmoMap();
+	//InitializeAmmoMap();
 
 	GetCharacterMovement()->MaxWalkSpeed = BaseMovementSpeed;
 
@@ -232,7 +245,7 @@ void ABaseCharacter::BeginPlay()
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ABaseCharacter::ReceiveDamage);
 	}
-	//InitailizeInterpLocations();
+	InitailizeInterpLocations();
 }
 
 void ABaseCharacter::InitializeHitBoxsMap()
@@ -708,11 +721,13 @@ void ABaseCharacter::DropWeapon()
 
 void ABaseCharacter::SelectButtonPressed()
 {
-	if (CombatState != ECombatState::ECS_Unoccupied) return;
+	//if (Combat->CombatState != ECombatState::ECS_Unoccupied) return;
 	if (Combat)
 	{
 		if (Combat->bHoldingTheFlag) return;
 		if (Combat->CombatState == ECombatState::ECS_Unoccupied) ServerSelectButtonPressed();
+
+		
 		//bool bSwap = Combat->ShouldSwapWeapons() &&
 		//	!HasAuthority() &&
 		//	Combat->CombatState == ECombatState::ECS_Unoccupied &&
@@ -819,11 +834,11 @@ void ABaseCharacter::SwapWeapon(AWeapon* WeaponToSwap)
 	TraceHitItemLastFrame = nullptr;
 }
 
-void ABaseCharacter::InitializeAmmoMap()
-{
-	AmmoMap.Add(EAmmoType::EAT_9mm, Starting9mmAmmo);
-	AmmoMap.Add(EAmmoType::EAT_AR, StartingARAmmo);
-}
+//void ABaseCharacter::InitializeAmmoMap()
+//{
+//	AmmoMap.Add(EAmmoType::EAT_9mm, Starting9mmAmmo);
+//	AmmoMap.Add(EAmmoType::EAT_AR, StartingARAmmo);
+//}
 
 void ABaseCharacter::PlayFireMontage(bool bAiming)
 {
@@ -839,7 +854,7 @@ void ABaseCharacter::PlayFireMontage(bool bAiming)
 	{
 		AnimInstance->Montage_Play(HipFireMontage);
 		FName SectionName;
-		SectionName = bAiming ? FName("RifleAim") : FName("RifleHip");
+		SectionName = bAiming ? FName("SubmachineGunAim") : FName("SubmachineGunHip");
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
 }
@@ -853,7 +868,7 @@ void ABaseCharacter::PlayReloadMontage()
 	{
 		AnimInstance->Montage_Play(ReloadMontage);
 		FName SectionName;
-
+		
 		switch (Combat->GetEquippedWeapon()->GetWeaponType())
 		{
 		case EWeaponType::EWT_AssaultRifle:
@@ -866,7 +881,7 @@ void ABaseCharacter::PlayReloadMontage()
 			SectionName = FName("Pistol");
 			break;
 		case EWeaponType::EWT_SubmachineGun:
-			SectionName = FName("Pistol");
+			SectionName = FName("SubMachineGun");
 			break;
 		case EWeaponType::EWT_Shotgun:
 			SectionName = FName("Shotgun");
@@ -903,11 +918,11 @@ void ABaseCharacter::PlaySwapMontage()
 
 void ABaseCharacter::CrouchButtonPressed()
 {
-	if (!GetCharacterMovement()->IsFalling())
-	{
-		bCrouching = !bCrouching;
-	}
-	if (bCrouching)
+	//if (!GetCharacterMovement()->IsFalling())
+	//{
+	//	bCrouching = !bCrouching;
+	//}
+	if (bIsCrouched)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = CrouchMovementSpeed;
 		GetCharacterMovement()->GroundFriction = CrouchingGroundFriction;
@@ -924,7 +939,7 @@ void ABaseCharacter::CrouchButtonPressed()
 void ABaseCharacter::InterpCapsuleHalfHeight(float DeltaTime)
 {
 	float TargetCapsuleHalfHeight{};
-	if (bCrouching)
+	if (bIsCrouched)
 	{
 		TargetCapsuleHalfHeight = CrouchingCapsuleHalfHeight;
 	}
@@ -946,6 +961,8 @@ void ABaseCharacter::InterpCapsuleHalfHeight(float DeltaTime)
 
 void ABaseCharacter::InitailizeInterpLocations()
 {
+	FInterpLocation ItemLocation{ ItemInterpComp, 0 };
+	InterpLocations.Add(ItemLocation);
 	/*FInterpLocation WeaponLocation{ WeaponInterpComp, 0 };
 	InterpLocations.Add(WeaponLocation);
 
@@ -1014,9 +1031,10 @@ void ABaseCharacter::FiveKeyPressed()
 
 void ABaseCharacter::Jump()
 {
-	if (bCrouching)
+	if (bIsCrouched)
 	{
-		bCrouching = false;
+		UnCrouch();
+		//bCrouching = false;
 		GetCharacterMovement()->MaxWalkSpeed = BaseMovementSpeed;
 	}
 	else
@@ -1039,10 +1057,10 @@ void ABaseCharacter::Tick(float DeltaTime)
 
 	if (CacheCharacterHeadWidget)
 	{
-		if(CacheCharacterAnimInstance)
-			CacheCharacterHeadWidget->SetDisplayText(CacheCharacterAnimInstance->GetCharacterInfo());
-		else
-			CacheCharacterHeadWidget->SetDisplayText("CheckAnim");
+		//if(CacheCharacterAnimInstance)
+		//	CacheCharacterHeadWidget->SetDisplayText(CacheCharacterAnimInstance->GetCharacterInfo());
+		//else
+		//	CacheCharacterHeadWidget->SetDisplayText("CheckAnim");
 	}
 }
 
@@ -1081,7 +1099,7 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	PlayerInputComponent->BindAction("Q", EInputEvent::IE_Pressed, this, &ABaseCharacter::QKeyPressed);
 	PlayerInputComponent->BindAction("E", EInputEvent::IE_Pressed, this, &ABaseCharacter::EKeyPressed);
-	PlayerInputComponent->BindAction("R", EInputEvent::IE_Pressed, this, &ABaseCharacter::RKeyPressed);
+	PlayerInputComponent->BindAction("R", EInputEvent::IE_Pressed, this, &ABaseCharacter::ReloadButtonPressed);
 }
 
 void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -1098,6 +1116,171 @@ void ABaseCharacter::OnRep_ReplicatedMovement()
 	Super::OnRep_ReplicatedMovement();
 	SimProxiesTurn();
 	TimeSinceLastMovementReplication = 0.f;
+}
+
+void ABaseCharacter::Elim(bool bPlayerLeftGame)
+{
+	//DropOrDestroyWeapons();
+	InventoryDestroy();
+	MulticastElim(bPlayerLeftGame);
+}
+
+void ABaseCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
+{
+	bLeftGame = bPlayerLeftGame;
+	if (BasePlayerController)
+	{
+		BasePlayerController->SetHUDWeaponAmmo(0);
+	}
+	bElimmed = true;
+	PlayElimMontage();
+	// Start dissolve effect
+	//if (DissolveMaterialInstance)
+	//{
+	//	DynamicDissolveMaterialInstance = UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
+	//	GetMesh()->SetMaterial(0, DynamicDissolveMaterialInstance);
+	//	DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Dissolve"), 0.55f);
+	//	DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Glow"), 200.f);
+	//}
+	//StartDissolve();
+
+	// Disable character movement
+	//bDisableGameplay = true;
+	GetCharacterMovement()->DisableMovement();
+	if (Combat)
+	{
+		Combat->FireButtonPressed(false);
+	}
+	// Disable collision
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//AttachedGrenade->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// Spawn elim bot
+	//if (ElimBotEffect)
+	//{
+	//	FVector ElimBotSpawnPoint(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 200.f);
+	//	ElimBotComponent = UGameplayStatics::SpawnEmitterAtLocation(
+	//		GetWorld(),
+	//		ElimBotEffect,
+	//		ElimBotSpawnPoint,
+	//		GetActorRotation()
+	//	);
+	//}
+	//if (ElimBotSound)
+	//{
+	//	UGameplayStatics::SpawnSoundAtLocation(
+	//		this,
+	//		ElimBotSound,
+	//		GetActorLocation()
+	//	);
+	//}
+	//bool bHideSniperScope = IsLocallyControlled() &&
+	//	Combat &&
+	//	Combat->bAiming &&
+	//	Combat->EquippedWeapon &&
+	//	Combat->EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle;
+	//if (bHideSniperScope)
+	//{
+	//	ShowSniperScopeWidget(false);
+	//}
+	//if (CrownComponent)
+	//{
+	//	CrownComponent->DestroyComponent();
+	//}
+	GetWorldTimerManager().SetTimer(
+		ElimTimer,
+		this,
+		&ABaseCharacter::ElimTimerFinished,
+		ElimDelay
+	);
+}
+
+void ABaseCharacter::ElimTimerFinished()
+{
+	BattleGameMode = BattleGameMode == nullptr ? GetWorld()->GetAuthGameMode<ABattleGameMode>() : BattleGameMode;
+	if (BattleGameMode && !bLeftGame)
+	{
+		BattleGameMode->RequestRespawn(this, Controller);
+	}
+	if (bLeftGame && IsLocallyControlled())
+	{
+		OnLeftGame.Broadcast();
+	}
+}
+
+void ABaseCharacter::Destroyed()
+{
+	//Super::Destroyed();
+
+	//if (ElimBotComponent)
+	//{
+	//	ElimBotComponent->DestroyComponent();
+	//}
+
+	//BlasterGameMode = BlasterGameMode == nullptr ? GetWorld()->GetAuthGameMode<ABlasterGameMode>() : BlasterGameMode;
+	//bool bMatchNotInProgress = BlasterGameMode && BlasterGameMode->GetMatchState() != MatchState::InProgress;
+	//if (Combat && Combat->EquippedWeapon && bMatchNotInProgress)
+	//{
+	//	Combat->EquippedWeapon->Destroy();
+	//}
+}
+
+void ABaseCharacter::ServerLeaveGame_Implementation()
+{
+	BattleGameMode = BattleGameMode == nullptr ? GetWorld()->GetAuthGameMode<ABattleGameMode>() : BattleGameMode;
+	BasePlayerState = BasePlayerState == nullptr ? GetPlayerState<AInGamePlayerState>() : BasePlayerState;
+	if (BattleGameMode && BasePlayerState)
+	{
+		BattleGameMode->PlayerLeftGame(BasePlayerState);
+	}
+}
+
+void ABaseCharacter::MulticastGainedTheLead_Implementation()
+{
+	//if (CrownSystem == nullptr) return;
+	//if (CrownComponent == nullptr)
+	//{
+	//	CrownComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
+	//		CrownSystem,
+	//		GetMesh(),
+	//		FName(),
+	//		GetActorLocation() + FVector(0.f, 0.f, 110.f),
+	//		GetActorRotation(),
+	//		EAttachLocation::KeepWorldPosition,
+	//		false
+	//	);
+	//}
+	//if (CrownComponent)
+	//{
+	//	CrownComponent->Activate();
+	//}
+}
+
+void ABaseCharacter::MulticastLostTheLead_Implementation()
+{
+	//if (CrownComponent)
+	//{
+	//	CrownComponent->DestroyComponent();
+	//}
+}
+
+void ABaseCharacter::UpdateDissolveMaterial(float DissolveValue)
+{
+	if (DynamicDissolveMaterialInstance)
+	{
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
+	}
+}
+
+void ABaseCharacter::StartDissolve()
+{
+	DissolveTrack.BindDynamic(this, &ABaseCharacter::UpdateDissolveMaterial);
+	if (DissolveCurve && DissolveTimeline)
+	{
+		DissolveTimeline->AddInterpFloat(DissolveCurve, DissolveTrack);
+		DissolveTimeline->Play();
+	}
 }
 
 void ABaseCharacter::PostInitializeComponents()
@@ -1126,45 +1309,55 @@ void ABaseCharacter::PostInitializeComponents()
 	}
 }
 
-void ABaseCharacter::FinishReloading()
+//void ABaseCharacter::FinishReloading()
+//{
+//	CombatState = ECombatState::ECS_Unoccupied;
+//
+//	if (bAimingButtonPressed)
+//	{
+//		if (Combat)
+//		{
+//			Combat->SetAiming(true);
+//		}
+//		//Aim();
+//	}
+//
+//	const auto AmmoType{ Combat->GetEquippedWeapon()->GetAmmoType() };
+//
+//	if (AmmoMap.Contains(AmmoType))
+//	{
+//		int32 CarriedAmmo = AmmoMap[AmmoType];
+//
+//		const int32 MagEmptySpace = Combat->GetEquippedWeapon()->GetMagazineCapacity() - Combat->GetEquippedWeapon()->GetAmmo();
+//
+//		if (MagEmptySpace > CarriedAmmo)
+//		{
+//			Combat->GetEquippedWeapon()->ReloadAmmo(CarriedAmmo);
+//			CarriedAmmo = 0;
+//			AmmoMap.Add(AmmoType, CarriedAmmo);
+//		}
+//		else
+//		{
+//			Combat->GetEquippedWeapon()->ReloadAmmo(MagEmptySpace);
+//			CarriedAmmo -= MagEmptySpace;
+//			AmmoMap.Add(AmmoType, CarriedAmmo);
+//		}
+//	}
+//}
+
+//void ABaseCharacter::FinishEquipping()
+//{
+//	CombatState = ECombatState::ECS_Unoccupied;
+//}
+
+void ABaseCharacter::ReloadButtonPressed()
 {
-	CombatState = ECombatState::ECS_Unoccupied;
-
-	if (bAimingButtonPressed)
+	//if (Combat && Combat->bHoldingTheFlag) return;
+	//if (bDisableGameplay) return;
+	if (Combat)
 	{
-		if (Combat)
-		{
-			Combat->SetAiming(true);
-		}
-		//Aim();
+		Combat->Reload();
 	}
-
-	const auto AmmoType{ Combat->GetEquippedWeapon()->GetAmmoType() };
-
-	if (AmmoMap.Contains(AmmoType))
-	{
-		int32 CarriedAmmo = AmmoMap[AmmoType];
-
-		const int32 MagEmptySpace = Combat->GetEquippedWeapon()->GetMagazineCapacity() - Combat->GetEquippedWeapon()->GetAmmo();
-
-		if (MagEmptySpace > CarriedAmmo)
-		{
-			Combat->GetEquippedWeapon()->ReloadAmmo(CarriedAmmo);
-			CarriedAmmo = 0;
-			AmmoMap.Add(AmmoType, CarriedAmmo);
-		}
-		else
-		{
-			Combat->GetEquippedWeapon()->ReloadAmmo(MagEmptySpace);
-			CarriedAmmo -= MagEmptySpace;
-			AmmoMap.Add(AmmoType, CarriedAmmo);
-		}
-	}
-}
-
-void ABaseCharacter::FinishEquipping()
-{
-	CombatState = ECombatState::ECS_Unoccupied;
 }
 
 void ABaseCharacter::OnRep_TraceItem(AItem* LastTraceHitItem)
@@ -1196,7 +1389,6 @@ void ABaseCharacter::IncrementOverlappedItemCount(int8 Amount)
 void ABaseCharacter::GetPickupItem(AItem* Item)
 {
 	//Item->PlayEquipSound();
-
 	//if (Item->GetEquipSound())
 	//{
 	//	//UGameplayStatics::PlaySound2D(this, Item->GetEquipSound());
@@ -1249,6 +1441,13 @@ void ABaseCharacter::ResetEquipSoundTimer()
 {
 	bShouldPlayEquipSound = true;
 }
+
+ECombatState ABaseCharacter::GetCombatState() const
+{
+	if (Combat == nullptr) return ECombatState::ECS_MAX;
+	return Combat->CombatState;
+}
+
 FInterpLocation ABaseCharacter::GetInterpLocation(int32 Index)
 {
 	if (Index <= InterpLocations.Num())
@@ -1298,36 +1497,36 @@ void ABaseCharacter::HighlightInventorySlot()
 
 void ABaseCharacter::SetSpawnPoint()
 {
-	if (HasAuthority() )//&& BasePlayerState->GetTeam() != ETeam::ET_NoTeam)
+	if (HasAuthority() && BasePlayerState->GetTeam() != ETeam::ET_NoTeam)
 	{
-		//TArray<AActor*> PlayerStarts;
-		//UGameplayStatics::GetAllActorsOfClass(this, ATeamPlayerStart::StaticClass(), PlayerStarts);
-		//TArray<ATeamPlayerStart*> TeamPlayerStarts;
-		//for (auto Start : PlayerStarts)
-		//{
-		//	ATeamPlayerStart* TeamStart = Cast<ATeamPlayerStart>(Start);
-		//	if (TeamStart && TeamStart->Team == BasePlayerState->GetTeam())
-		//	{
-		//		TeamPlayerStarts.Add(TeamStart);
-		//	}
-		//}
-		//if (TeamPlayerStarts.Num() > 0)
-		//{
-		//	ATeamPlayerStart* ChosenPlayerStart = TeamPlayerStarts[FMath::RandRange(0, TeamPlayerStarts.Num() - 1)];
-		//	SetActorLocationAndRotation(
-		//		ChosenPlayerStart->GetActorLocation(),
-		//		ChosenPlayerStart->GetActorRotation()
-		//	);
-		//}
+		TArray<AActor*> PlayerStarts;
+		UGameplayStatics::GetAllActorsOfClass(this, ATeamPlayerStart::StaticClass(), PlayerStarts);
+		TArray<ATeamPlayerStart*> TeamPlayerStarts;
+		for (auto Start : PlayerStarts)
+		{
+			ATeamPlayerStart* TeamStart = Cast<ATeamPlayerStart>(Start);
+			if (TeamStart && TeamStart->Team == BasePlayerState->GetTeam())
+			{
+				TeamPlayerStarts.Add(TeamStart);
+			}
+		}
+		if (TeamPlayerStarts.Num() > 0)
+		{
+			ATeamPlayerStart* ChosenPlayerStart = TeamPlayerStarts[FMath::RandRange(0, TeamPlayerStarts.Num() - 1)];
+			SetActorLocationAndRotation(
+				ChosenPlayerStart->GetActorLocation(),
+				ChosenPlayerStart->GetActorRotation()
+			);
+		}
 	}
 }
 
 void ABaseCharacter::OnPlayerStateInitialized()
 {
-	//BasePlayerState->AddToScore(0.f);
-	//BasePlayerState->AddToDefeats(0);
+	BasePlayerState->AddToScore(0.f);
+	BasePlayerState->AddToDefeats(0);
 	//SetTeamColor(BasePlayerState->GetTeam());
-	//SetSpawnPoint();
+	SetSpawnPoint();
 }
 
 void ABaseCharacter::PlayHitReactMontage()
@@ -1351,9 +1550,8 @@ void ABaseCharacter::EKeyPressed()
 {
 }
 
-void ABaseCharacter::RKeyPressed()
-{
-}
+
+
 
 void ABaseCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
 {
@@ -1388,7 +1586,13 @@ void ABaseCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDa
 		{
 			BasePlayerController = BasePlayerController == nullptr ? Cast<AInGamePlayerController>(Controller) : BasePlayerController;
 			AInGamePlayerController* AttackerController = Cast<AInGamePlayerController>(InstigatorController);
-			BattleGameMode->PlayerEliminated(this, BasePlayerController, AttackerController);
+			if(AttackerController)
+				BattleGameMode->PlayerEliminated(this, BasePlayerController, AttackerController);
+			else
+			{
+				ABaseAIController* AIAttackerController = Cast<ABaseAIController>(InstigatorController);
+				BattleGameMode->PlayerEliminated(this, BasePlayerController, AIAttackerController);
+			}
 		}
 	}
 }
@@ -1482,8 +1686,20 @@ void ABaseCharacter::UpdateHUDShield()
 void ABaseCharacter::UpdateHUDAmmo()
 {
 	BasePlayerController = BasePlayerController == nullptr ? Cast<AInGamePlayerController>(Controller) : BasePlayerController;
-	if (BasePlayerController)
+	if (BasePlayerController && Combat && Combat->EquippedWeapon)
 	{
+		BasePlayerController->SetHUDCarriedAmmo(Combat->CarriedAmmo);
+		BasePlayerController->SetHUDWeaponAmmo(Combat->EquippedWeapon->GetAmmo());
+	}
+}
+
+void ABaseCharacter::InventoryDestroy()
+{
+	for (auto& item : Inventory)
+	{
+		if (item)
+			item->Destroy();
+		item = nullptr;
 	}
 }
 
@@ -1501,28 +1717,6 @@ void ABaseCharacter::StartEquipSoundTimer()
 
 void ABaseCharacter::OnRep_Inventory()
 {
-	/*GetCharacterHeadWidget()->SetDisplayText(FString::Printf(TEXT("%d"), Inventory[Inventory.Num()-1]->GetSlotIndex()));
-	if (BasePlayerController)
-	{
-		for (AItem* item : Inventory)
-		{
-			BasePlayerController->SetHUDInventorySlot(item);
-		}
-	}*/
-	//	GetCharacterHeadWidget()->SetDisplayText("OnRep_Inventory");
-	// 
-	
-	//현재 어떤 아이템을 사용하는지 확인
-	if (Combat->GetEquippedWeapon() == nullptr)
-	{
-
-		//-1 == no EquippedWeapon yet. No need to reverse the icon animation
-		//EquipItemDelegate.Broadcast(-1, WeaponToEquip->GetSlotIndex());
-	}
-	//else if (!bSwapping)
-	//{
-	//	//EquipItemDelegate.Broadcast(Combat->EquippedWeapon->GetSlotIndex(), WeaponToEquip->GetSlotIndex());
-	//}
 }
 
 void ABaseCharacter::PollInit()
@@ -1534,7 +1728,7 @@ void ABaseCharacter::PollInit()
 		{
 			OnPlayerStateInitialized();
 
-			//AInGamePlayerState* TempPlayerState = Cast<AInGameState>(UGameplayStatics::GetGameState(this));
+			//ABattleGameState* TempPlayerState = Cast<AInGameState>(UGameplayStatics::GetGameState(this));
 
 			//if (TempPlayerState && TempPlayerState->TopScoringPlayers.Contains(PlayerState))
 			//{
@@ -1592,7 +1786,7 @@ void ABaseCharacter::OnRep_Health(float LastHealth)
 	UpdateHUDHealth();
 	if (Health < LastHealth)
 	{
-		//PlayHitReactMontage();
+		PlayHitReactMontage();
 	}
 }
 
@@ -1601,7 +1795,7 @@ void ABaseCharacter::OnRep_Shield(float LastShield)
 	UpdateHUDShield();
 	if (Shield < LastShield)
 	{
-		//PlayHitReactMontage();
+		PlayHitReactMontage();
 	}
 }
 

@@ -16,5 +16,13 @@ class PROJECTJG_API ALobbyPlayerController : public APlayerController
 
 public:
 	ALobbyPlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+protected:
+	virtual void BeginPlay() override;
+	virtual void BeginDestroy() override;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+		TSubclassOf<class UUserWidget> MainMenuClass;
+
+	class UMenuUserWidget* MainMenu;
 
 };
