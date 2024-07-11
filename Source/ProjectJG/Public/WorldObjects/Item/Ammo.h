@@ -7,18 +7,18 @@
 #include "AmmoType.h"
 #include "Ammo.generated.h"
 
-USTRUCT(BlueprintType)
-struct FAmmoDataTable : public FTableRowBase
-{
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		USkeletalMesh* ItemMesh;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FString ItemName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		UTexture2D* AmmoIcon;
-}
+//USTRUCT(BlueprintType)
+//struct FAmmoDataTable : public FTableRowBase
+//{
+//	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+//		USkeletalMesh* ItemMesh;
+//
+//	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+//		FString ItemName;
+//
+//	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+//		UTexture2D* AmmoIcon;
+//};
 
 
 UCLASS()
