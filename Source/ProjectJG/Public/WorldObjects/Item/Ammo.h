@@ -7,9 +7,20 @@
 #include "AmmoType.h"
 #include "Ammo.generated.h"
 
-/**
- * 
- */
+USTRUCT(BlueprintType)
+struct FAmmoDataTable : public FTableRowBase
+{
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		USkeletalMesh* ItemMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString ItemName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UTexture2D* AmmoIcon;
+}
+
+
 UCLASS()
 class PROJECTJG_API AAmmo : public AItem
 {
@@ -20,7 +31,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
-
+	virtual void OnConstruction(const FTransform& Transform) override;
 	virtual void BeginPlay() override;
 
 	/** Override of SetItemProperties so we can set AmmoMesh properties */
