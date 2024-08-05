@@ -183,14 +183,17 @@ void UMenuUserWidget::HostButtonClicked()
 	WB_Matche->HostButton->SetIsEnabled(false);
 	if (MultiplayerSessionsSubsystem)
 	{
+		FString SessionName;
 		if (GEngine)
 		{
 			if(WB_Matche->SessionLobbyName =="")
 			{
-				GEngine->AddOnScreenDebugMessage(-2,15.f, FColor::Red,FString(TEXT("Failed to create session Name!")));
+				SessionName = PlayerController->GetPlayerState<APlayerState>()->GetPlayerName();
+				SessionName.Append("'s Room");
 			}
 			else
 			{
+				SessionName = *WB_Matche->SessionLobbyName;
 				GEngine->AddOnScreenDebugMessage(
 					-2,
 					15.f,
@@ -198,9 +201,8 @@ void UMenuUserWidget::HostButtonClicked()
 					FString::Printf(TEXT("%s"), *WB_Matche->SessionLobbyName)
 				);
 			}
-			
 		}
-		MultiplayerSessionsSubsystem->CreateSession(FName(WB_Matche->SessionLobbyName), WB_Matche->SessionNumPublicConnections, MatchType);
+		MultiplayerSessionsSubsystem->CreateSession(FName(SessionName), WB_Matche->SessionNumPublicConnections, MatchType);
 	}
 }
 

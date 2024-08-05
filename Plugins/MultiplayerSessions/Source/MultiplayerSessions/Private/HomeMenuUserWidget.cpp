@@ -28,8 +28,6 @@ void UHomeMenuUserWidget::StartButtonClicked()
 	{
 		UWorld* World = GetWorld();
 		UGameplayStatics::OpenLevel(World, "/Game/Developers/JJS/TestMap/TestMap?listen", true);
-		//MenuUser->WidgetSwitcher->SetActiveWidgetIndex(1);
-		//MenuUser->UndoButton->SetVisibility(ESlateVisibility::Visible);
 	}
 }
 

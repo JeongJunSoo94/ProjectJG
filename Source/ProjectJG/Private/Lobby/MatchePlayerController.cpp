@@ -3,118 +3,188 @@
 #include "Engine.h"
 #include "GameFramework/PlayerState.h"
 #include "Engine/Player.h"
-#include "MatcheLobbyUserWidget.h"
+#include "Lobby/MatcheLobbyUserWidget.h"
+#include "Lobby/MatcheLobbyItemUserWidget.h"
 #include "Net/UnrealNetwork.h"
-#include "MatcheLobbyItemUserWidget.h"
 #include "Lobby/MatcheGameMode.h"
 #include "Lobby/MatcheLobbyGameState.h"
+#include "Components/TextBlock.h"
 
 void AMatchePlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(AMatchePlayerController, SlotIdx);
-	DOREPLIFETIME(AMatchePlayerController, IsReady);
+	//DOREPLIFETIME(AMatchePlayerController, SlotIdx);
+	//DOREPLIFETIME(AMatchePlayerController, bReady);
 }
 
 void AMatchePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	GEngine->AddOnScreenDebugMessage(-2, 10.0f, FColor::Green, TEXT("BeginPlay"));
-	MatcheLobbyGameState = GetWorld()->GetGameState<AMatcheLobbyGameState>();
-	if(MatcheLobbyGameState)
-		MatcheLobbyGameState->PlayerControllers.Add(this);
-	if (IsLocalController())
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,TEXT("IsLocalController"));
-		if (MatcheMenuClass)
-		{
-			MatcheMenu = CreateWidget<UMatcheLobbyUserWidget>(this, MatcheMenuClass);
-			if (MatcheMenu)
-			{
-				MatcheMenu->AddToViewport();
-				MatcheMenu->SetVisibility(ESlateVisibility::Visible);
-				if(MatcheLobbyGameState)
-					MatcheLobbyGameState->MatcheMenu = MatcheMenu;
-				//MatcheMenu->MenuSetup(1, "FreeForAll", "/Game/Developers/JJS/TestMap/MultiLobby/TestMap");
-			}
-		}
-	}
-	else
-	{
-		if(MatcheLobbyGameState)
-			MatcheMenu = MatcheLobbyGameState->MatcheMenu;
-	}
-	JoinMatcheLobby();
-	IsReady = false;
-	PlayerState = GetPlayerState<APlayerState>();
+	
 	/*if (PlayerState)
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, PlayerState->GetPlayerName());*/
 }
 
 void AMatchePlayerController::Tick(float DeltaTime)
 {
-	if (IsLocalController())
-		GEngine->AddOnScreenDebugMessage(3, 2.0f, FColor::Green, TEXT("Tick"));
-	if (PlayerState)
+	/*if (PlayerState)
 	{
 		if (MatcheMenuItem)
 			MatcheMenuItem->UpdatePing(FString::SanitizeFloat(PlayerState->ExactPing));
-	}
+	}*/
+	//if (MatcheLobbyGameState)
+		//MatcheLobbyGameState->UpdatePlayerControllers();
 }
 
 void AMatchePlayerController::BeginDestroy()
 {
+	//GEngine->AddOnScreenDebugMessage(-1, 200.0f, FColor::Red, TEXT("BeginDestroyMatchePlayerController"));
+
 	Super::BeginDestroy();
-	if (MatcheMenu)
+}
+
+void AMatchePlayerController::CheckData()
+{
+	MatcheLobbyGameState = GetWorld()->GetGameState<AMatcheLobbyGameState>();
+	PlayerState = GetPlayerState<APlayerState>();
+	//GEngine->AddOnScreenDebugMessage(3, 200.0f, FColor::Purple, PlayerState->GetPlayerName());
+	//GEngine->AddOnScreenDebugMessage(4, 2.0f, FColor::Blue, TEXT("CheckData"));
+	if (MatcheLobbyGameState&& PlayerState)
 	{
-		MatcheMenu->RemoveFromViewport();
-		MatcheMenu = nullptr;
+		if (IsLocalPlayerController())
+		{
+			//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("IsLocalController"));
+			if (MatcheMenuClass)
+			{
+				MatcheMenu = CreateWidget<UMatcheLobbyUserWidget>(this, MatcheMenuClass);
+				if (MatcheMenu)
+				{
+					MatcheMenu->AddToViewport();
+					MatcheMenu->SetVisibility(ESlateVisibility::Visible);
+
+					MatcheMenu->StartTextBlock->SetText(FText::FromString(HasAuthority() ? "Start" : "Ready"));
+
+					//if (MatcheLobbyGameState)
+					MatcheLobbyGameState->MatcheMenu = MatcheMenu;
+					//MatcheMenu->MenuSetup(1, "FreeForAll", "/Game/Developers/JJS/TestMap/MultiLobby/TestMap");
+				}
+			}
+		}
+		MatcheLobbyGameState->UpdateTest();
+		GetWorldTimerManager().ClearTimer(PlayerCheckDataTimerHandle);
 	}
 }
 
 void AMatchePlayerController::JoinMatcheLobby_Implementation()
 {
-	AMatcheGameMode* GameMode = Cast<AMatcheGameMode>(GetWorld()->GetAuthGameMode());
-	if(GameMode)
-		SlotIdx = GameMode->GetSlotIdx(this);
-	UpdateMatcheWidget();
+	GetWorldTimerManager().SetTimer(PlayerCheckDataTimerHandle, this, &AMatchePlayerController::CheckData, 0.1f, true);
 }
 
 void AMatchePlayerController::LogoutMatcheLobby_Implementation()
 {
-	if (MatcheMenu == nullptr)
-		return;
-	MatcheMenuItem = MatcheMenu->GetMatchePalyerWidget(SlotIdx);
-	if (MatcheMenuItem != nullptr)
-		MatcheMenuItem->SetVisibility(ESlateVisibility::Hidden);
 }
 
-void AMatchePlayerController::UpdateMatcheWidget_Implementation()
+
+void AMatchePlayerController::ClickStartButton_Implementation(bool bReady)
 {
-	GEngine->AddOnScreenDebugMessage(3, 2.0f, FColor::Green, TEXT("UpdateMatcheWidget"));
-	if (MatcheMenu)
-		MatcheMenuItem = MatcheMenu->GetMatchePalyerWidget(SlotIdx);
-	if (MatcheMenuItem)
+	MatcheLobbyGameState = GetWorld()->GetGameState<AMatcheLobbyGameState>();
+	PlayerState = GetPlayerState<APlayerState>();
+	if (IsLocalPlayerController())
 	{
-		MatcheMenuItem->SetVisibility(ESlateVisibility::Visible);
+		AMatcheGameMode* MatcheGameMode = GetWorld()->GetAuthGameMode<AMatcheGameMode>();
+		
+		if(MatcheGameMode)
+			if (bReady)
+			{
+				for (int32 i = 1; i < MatcheLobbyGameState->PlayerReadys.Num(); ++i)
+				{
+					if (!MatcheLobbyGameState->PlayerReadys[i])
+						return;
+				}
+				if (MatcheMenu)
+					MatcheMenu->MenuTearDown();
+				MatcheGameMode->TravelToMap("");
+			}
+	}
+	else
+	{
 		if (PlayerState)
 		{
-			MatcheMenuItem->UpdatePlayerName(PlayerState->GetPlayerName());
-			MatcheMenuItem->UpdatePing(FString::SanitizeFloat(PlayerState->ExactPing));
+			if (MatcheLobbyGameState)
+			{
+				int32 idx = MatcheLobbyGameState->PlayerInfos.Find(PlayerState->GetPlayerId());
+				if (idx == INDEX_NONE)
+					return;
+				MatcheLobbyGameState->PlayerReadys[idx] = bReady;
+				MatcheLobbyGameState->OnRep_PlayerReadys();
+			}
 		}
 	}
 }
 
-void AMatchePlayerController::OnRep_Ready(bool LastIsReady)
+void AMatchePlayerController::CreateMatcheWidget_Implementation()
 {
-	if (MatcheMenu == nullptr)
-		return;
-	MatcheMenuItem = MatcheMenu->GetMatchePalyerWidget(SlotIdx);
-	if (MatcheMenuItem != nullptr)
-	{
-		if (PlayerState)
-		{
-			MatcheMenuItem->UpdateIsReady(IsReady);
-		}
-	}
+	//MatcheLobbyGameState = GetWorld()->GetGameState<AMatcheLobbyGameState>();
+	//if(MatcheLobbyGameState)
+	//	MatcheLobbyGameState->UpdatePlayerControllers();
+	//GEngine->AddOnScreenDebugMessage(5, 20.0f, FColor::Purple, TEXT("CreateMatcheWidgetClient"));
+	//if(PlayerState)
+	//	//GEngine->AddOnScreenDebugMessage(SlotIdx, 12.0f, FColor::Yellow, PlayerState->GetPlayerName());
+	//else
+	//{
+	//	PlayerState = GetPlayerState<APlayerState>();
+	//}
+	
+}
+
+void AMatchePlayerController::DeleteMatcheWidget_Implementation()
+{
+	if(MatcheMenu)
+		MatcheMenu->MenuTearDown();
+}
+
+//void AMatchePlayerController::OnRep_SlotIdx(int32 LastIdx)
+//{
+//	//if (GEngine)
+//	//{
+//	//	FString str = "";
+//	//	str.AppendInt(SlotIdx);
+//	//	GEngine->AddOnScreenDebugMessage(-2, 20.0f, FColor::Green, str);
+//	//}
+//	//GEngine->AddOnScreenDebugMessage(-2, 20.0f, FColor::Black, TEXT("OnRep_SlotIdx"));
+//	//JoinMatcheLobby();
+//	MatcheLobbyGameState = GetWorld()->GetGameState<AMatcheLobbyGameState>();
+//	if(MatcheLobbyGameState)
+//		MatcheLobbyGameState->UpdatePlayerControllers();
+//}
+
+//void AMatchePlayerController::OnRep_Ready(bool LastIsReady)
+//{
+//	if (MatcheMenu == nullptr)
+//		return;
+//	//MatcheMenuItem = MatcheMenu->GetMatchePalyerWidget(SlotIdx);
+//	//if (MatcheMenuItem != nullptr)
+//	//{
+//	//	if (PlayerState)
+//	//	{
+//	//		MatcheMenuItem->UpdateIsReady(IsReady);
+//	//	}
+//	//}
+//}
+
+void AMatchePlayerController::UpdateMatcheWidget()
+{
+	//if (MatcheMenu)
+	//	MatcheMenuItem = MatcheMenu->GetMatchePalyerWidget(SlotIdx);
+	//if (MatcheMenuItem)
+	//{
+	//	MatcheMenuItem->SetVisibility(ESlateVisibility::Visible);
+	//	if (PlayerState)
+	//	{
+	//		//GEngine->AddOnScreenDebugMessage(4, 2.0f, FColor::Red, TEXT("UpdateMatcheWidget"));
+	//		//GEngine->AddOnScreenDebugMessage(5, 2.0f, FColor::Red, PlayerState->GetPlayerName());
+	//		MatcheMenuItem->UpdatePlayerName(PlayerState->GetPlayerName());
+	//		MatcheMenuItem->UpdatePing(FString::SanitizeFloat(PlayerState->ExactPing));
+	//	}
+	//}
 }

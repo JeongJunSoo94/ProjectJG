@@ -45,7 +45,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 		int32 SessionNumPublicConnections {
-		1
+		2
 	};
 
 	TArray<class UMatcheRoomUserWidget*> MatcheRoomUserWidgets;

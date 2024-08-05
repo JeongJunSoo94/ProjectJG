@@ -29,9 +29,9 @@ void ALobbyPlayerController::BeginPlay()
 		}
 	}
 
-	APlayerState* player = GetPlayerState<APlayerState>();
-	if (player)
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, player->GetPlayerName());
+	//APlayerState* player = GetPlayerState<APlayerState>();
+	//if (player)
+	//	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, player->GetPlayerName());
 }
 
 void ALobbyPlayerController::BeginDestroy()

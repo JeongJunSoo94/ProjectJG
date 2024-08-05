@@ -19,14 +19,11 @@ public:
 	virtual void Logout(AController* Exiting) override;
 
 	void TravelToMap(const FString& MapName);
-
 	int32 GetSlotIdx(APlayerController* Controller);
 	int32 GetSessionPlayerNum() const;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	void PlayersWidgetDelete();
 private:
-	
-	TArray<APlayerController*> PlayerControllers;
-
-	class AMatchePlayerController* HostController;
-
+	class AMatcheLobbyGameState* MatcheLobbyGameState;
 	class UMultiplayerSessionsSubsystem* MultiplayerSessionsSubsystem;
 };

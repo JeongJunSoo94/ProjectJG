@@ -13,22 +13,33 @@ UCLASS()
 class PROJECTJG_API AMatcheLobbyGameState : public AGameStateBase
 {
 	GENERATED_BODY()
-private:
-	UPROPERTY(Replicated, VisibleAnywhere, Category = "Players")
-		int32 NumPublicConnections = 0;
 protected:
 	virtual void BeginPlay() override;
 
-	void UpdatePlayerControllers();
-
-
 public:
-
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	UFUNCTION(Server, Reliable)
-		void SetNumPublicConnections();
+	void UpdatePlayerControllers();
+	void UpdateTest();
+	
+	UPROPERTY(ReplicatedUsing = OnRep_PlayerInfos, VisibleAnywhere, Category = "Players")
+		TArray<int32> PlayerInfos;
+	UFUNCTION()
+		void OnRep_PlayerInfos();
 
-	TArray<APlayerController*> PlayerControllers;
+	UPROPERTY(ReplicatedUsing = OnRep_PlayerReadys, VisibleAnywhere, Category = "Players")
+		TArray<bool> PlayerReadys;
+	UFUNCTION()
+		void OnRep_PlayerReadys();
+
 	class UMatcheLobbyUserWidget* MatcheMenu;
+
+	/** Add PlayerState to the PlayerArray */
+	virtual void AddPlayerState(APlayerState* PlayerState) override;
+
+	/** Remove PlayerState from the PlayerArray. */
+	virtual void RemovePlayerState(APlayerState* PlayerState) override;
+
+private:
+	FTimerHandle PlayerCheckDataTimerHandle;
 };

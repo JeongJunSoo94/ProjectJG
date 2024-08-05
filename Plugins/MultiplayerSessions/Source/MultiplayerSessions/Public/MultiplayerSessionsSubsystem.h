@@ -28,6 +28,7 @@ public:
 	FName GetSessionName();
 	int32 GetSessionPlayerNum();
 	FName GetSessionLobbyName();
+	FName GetOnlineSubsystemName();
 	const TArray<FOnlineSessionSearchResult> GetSearchResults();
 
 	FMultiplayerOnCreateSessionComplete MultiplayerOnCreateSessionComplete;

@@ -11,7 +11,7 @@ public class ProjectJG : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] { 
 			"Core", "CoreUObject", "Engine", "InputCore", "AIModule", "GameplayTasks", "NavigationSystem",
 			// New Module
-			"LevelSequence" ,"Niagara", "MovieScene", "MultiplayerSessions", "OnlineSubsystem", "OnlineSubsystemSteam"
+			"LevelSequence" ,"Niagara", "MovieScene", "MultiplayerSessions", "OnlineSubsystem", "OnlineSubsystemSteam","AsyncLoadingScreen"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

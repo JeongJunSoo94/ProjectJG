@@ -23,26 +23,33 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UUserWidget> MatcheMenuClass;
 
-	class UMatcheLobbyUserWidget* MatcheMenu;
 
-	class UMatcheLobbyItemUserWidget* MatcheMenuItem;
+	//class UMatcheLobbyItemUserWidget* MatcheMenuItem;
 
 	class AMatcheLobbyGameState* MatcheLobbyGameState;
+
+	void CheckData();
+
 public:
-	UFUNCTION(Server, Reliable)
+	class UMatcheLobbyUserWidget* MatcheMenu;
+	UFUNCTION(Client, Reliable)
 		void JoinMatcheLobby();
 
 	UFUNCTION(Server, Reliable)
 		void LogoutMatcheLobby();
 
+	UFUNCTION(Server, Reliable)
+		void ClickStartButton(bool bReady);
+
 	UFUNCTION(Client, Reliable)
-		void UpdateMatcheWidget();
+		void CreateMatcheWidget();
 
-	UPROPERTY(Replicated, VisibleAnywhere, Category = "Widget State")
-		int32 SlotIdx = -1;
+	UFUNCTION(Client, Reliable)
+		void DeleteMatcheWidget();
 
-	UPROPERTY(ReplicatedUsing = OnRep_Ready, VisibleAnywhere, Category = "Widget State")
-		bool IsReady = false;
-	UFUNCTION()
-		void OnRep_Ready(bool LastIsReady);
+	void UpdateMatcheWidget();
+
+	bool bIsReady = false;
+private:
+	FTimerHandle PlayerCheckDataTimerHandle;
 };

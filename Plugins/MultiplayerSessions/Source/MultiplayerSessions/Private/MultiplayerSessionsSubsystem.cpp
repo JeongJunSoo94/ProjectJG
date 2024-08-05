@@ -48,7 +48,6 @@ void UMultiplayerSessionsSubsystem::CreateSession(int32 NumPublicConnections, FS
 	LastSessionSettings->Set(FName("MatchType"), MatchType, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 	LastSessionSettings->BuildUniqueId = 1;
 	LastSessionSettings->bUseLobbiesIfAvailable = true;
-	//LastSessionSettings->Set(FName("SESSION_NAME")," ", EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
 	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	if (!SessionInterface->CreateSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *LastSessionSettings))
@@ -237,6 +236,16 @@ FName UMultiplayerSessionsSubsystem::GetSessionLobbyName()
 		}
 	}
 
+	return NAME_None;
+}
+
+FName UMultiplayerSessionsSubsystem::GetOnlineSubsystemName()
+{
+	IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get();
+	if (OnlineSubsystem)
+	{
+		return FName(OnlineSubsystem->GetSubsystemName());
+	}
 	return NAME_None;
 }
 
