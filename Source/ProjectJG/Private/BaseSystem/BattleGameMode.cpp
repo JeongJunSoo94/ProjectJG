@@ -29,10 +29,10 @@ void ABattleGameMode::BeginPlay()
 void ABattleGameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 	if (MatchState == MatchState::WaitingToStart)
 	{
 		CountdownTime = WarmupTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+
 		if (CountdownTime <= 0.f)
 		{
 			StartMatch();
@@ -46,6 +46,9 @@ void ABattleGameMode::Tick(float DeltaTime)
 			SetMatchState(MatchState::Cooldown);
 		}
 	}
+	else if (MatchState == MatchState::WaitingPostMatch)
+	{
+	}
 	else if (MatchState == MatchState::Cooldown)
 	{
 		CountdownTime = CooldownTime + WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
@@ -53,6 +56,12 @@ void ABattleGameMode::Tick(float DeltaTime)
 		{
 			RestartGame();
 		}
+	}
+	else if (MatchState == MatchState::LeavingMap)
+	{
+	}
+	else if (MatchState == MatchState::Aborted)
+	{
 	}
 }
 
@@ -188,6 +197,12 @@ void ABattleGameMode::EnemyEliminated(class ABaseEnemyCharacter* ElimmedCharacte
 
 void ABattleGameMode::RequestRespawn(ACharacter* ElimmedCharacter, AController* ElimmedController)
 {
+	if (GEngine)
+	{
+		FString str = "RequestRespawn:";
+		//str.AppendInt(GameInstance->GetLocalPlayers().Num());
+		GEngine->AddOnScreenDebugMessage(4, 20.0f, FColor::Purple, str);
+	}
 	if (ElimmedCharacter)
 	{
 		ElimmedCharacter->Reset();
@@ -204,6 +219,12 @@ void ABattleGameMode::RequestRespawn(ACharacter* ElimmedCharacter, AController* 
 
 void ABattleGameMode::PlayerLeftGame(AInGamePlayerState* PlayerLeaving)
 {
+	if (GEngine)
+	{
+		FString str = "PlayerLeftGame:";
+		//str.AppendInt(GameInstance->GetLocalPlayers().Num());
+		GEngine->AddOnScreenDebugMessage(5, 20.0f, FColor::Purple, str);
+	}
 	if (PlayerLeaving == nullptr) return;
 	ABattleGameState* BattleGameState = GetGameState<ABattleGameState>();
 	//if (BlasterGameState && BlasterGameState->TopScoringPlayers.Contains(PlayerLeaving))

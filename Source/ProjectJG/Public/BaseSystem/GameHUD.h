@@ -31,6 +31,11 @@ public:
 	virtual void DrawHUD() override;
 	virtual void BeginPlay()override;
 	void AddPlayerInGameWidget();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<class UAnnouncement> MatchAnnouncementWidgetClass;
+
+	class UAnnouncement* MatchAnnouncement;
 private:
 	TSubclassOf<class UUserWidget>BP_UIWidgetClass;
 	UUserWidget* UIWidget;
@@ -61,6 +66,18 @@ private:
 
 	class UQuestWidget* QuestWidgetUI;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<class UElimAnnouncement> ElimAnnouncementWidgetClass;
+
+	UPROPERTY(EditAnywhere)
+	float ElimAnnouncementTime = 2.5f;
+
+	UFUNCTION()
+	void ElimAnnouncementTimerFinished(UElimAnnouncement* MsgToRemove);
+
+	UPROPERTY()
+	TArray<UElimAnnouncement*> ElimMessages;
+
 
 private:
 	UPROPERTY()
@@ -78,6 +95,9 @@ public:
 	virtual void HealthBarUpdate(float curHealth, float maxHealth);
 	void IsMenuBarActive(bool isActive);
 	void IsSoundActive(bool isActive);
+
+	void AddAnnouncement();
+	void AddElimAnnouncement(FString Attacker, FString Victim);
 public:
 	FORCEINLINE void SetHUDPackage(const FHUDPackage& Package) { HUDPackage = Package; }
 	FORCEINLINE UPlayerInGameWidget* GetPlayerInGameWidget() { return PlayerInGameUI; }

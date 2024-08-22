@@ -13,39 +13,39 @@ void AMatcheLobbyGameState::BeginPlay()
 
 void AMatcheLobbyGameState::UpdatePlayerControllers()
 {
-	for (int32 i=0;i< PlayerArray.Num();++i)
-	{
-		if (PlayerArray[i])
-		{
-			if (MatcheMenu)
-			{
-				UMatcheLobbyItemUserWidget* MatcheMenuItem = MatcheMenu->GetMatchePalyerWidget(i);
-				if (MatcheMenuItem)
-				{
-					MatcheMenuItem->SetVisibility(ESlateVisibility::Visible);
-					MatcheMenuItem->UpdatePlayerName(PlayerArray[i]->GetPlayerName());
-					MatcheMenuItem->UpdatePing(FString::SanitizeFloat(PlayerArray[i]->ExactPing));
-				}
-				else
-				{
-					//GEngine->AddOnScreenDebugMessage(4, 20.0f, FColor::Red, TEXT("NotMatcheMenuItem"));
-				}
-			}
-			else
-			{
-				//GEngine->AddOnScreenDebugMessage(4, 20.0f, FColor::Red, TEXT("NotMatcheMenu"));
-			}
-		}
-		else
-		{
-			if (GEngine)
-			{
-				FString str = "";
-				str.AppendInt(i);
-				GEngine->AddOnScreenDebugMessage(i+10, 2.0f, FColor::Yellow, str);
-			}
-		}
-	}
+	//for (int32 i=0;i< PlayerArray.Num();++i)
+	//{
+	//	if (PlayerArray[i])
+	//	{
+	//		if (MatcheMenu)
+	//		{
+	//			UMatcheLobbyItemUserWidget* MatcheMenuItem = MatcheMenu->GetMatchePalyerWidget(i);
+	//			if (MatcheMenuItem)
+	//			{
+	//				MatcheMenuItem->SetVisibility(ESlateVisibility::Visible);
+	//				MatcheMenuItem->UpdatePlayerName(PlayerArray[i]->GetPlayerName());
+	//				MatcheMenuItem->UpdatePing(FString::SanitizeFloat(PlayerArray[i]->ExactPing));
+	//			}
+	//			else
+	//			{
+	//				//GEngine->AddOnScreenDebugMessage(4, 20.0f, FColor::Red, TEXT("NotMatcheMenuItem"));
+	//			}
+	//		}
+	//		else
+	//		{
+	//			//GEngine->AddOnScreenDebugMessage(4, 20.0f, FColor::Red, TEXT("NotMatcheMenu"));
+	//		}
+	//	}
+	//	else
+	//	{
+	//		if (GEngine)
+	//		{
+	//			FString str = "";
+	//			str.AppendInt(i);
+	//			GEngine->AddOnScreenDebugMessage(i+10, 2.0f, FColor::Yellow, str);
+	//		}
+	//	}
+	//}
 }
 
 void AMatcheLobbyGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

@@ -12,7 +12,11 @@
 #include "Widgets/Pause/SoundControlWidget.h"
 #include "Widgets/Character/QuestWidget.h"
 #include "GameFramework/PlayerController.h"
-
+#include "Widgets/Announcement.h"
+#include "Widgets/ElimAnnouncement.h"
+#include "Components/HorizontalBox.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "Components/CanvasPanelSlot.h"
 
 AGameHUD::AGameHUD()
 {
@@ -122,6 +126,69 @@ void AGameHUD::IsSoundActive(bool isActive)
 
 }
 
+void AGameHUD::AddElimAnnouncement(FString Attacker, FString Victim)
+{
+	OwningPlayer = OwningPlayer == nullptr ? GetOwningPlayerController() : OwningPlayer;
+	if (OwningPlayer && ElimAnnouncementWidgetClass)
+	{
+		UElimAnnouncement* ElimAnnouncementWidget = CreateWidget<UElimAnnouncement>(OwningPlayer, ElimAnnouncementWidgetClass);
+		if (ElimAnnouncementWidget)
+		{
+			ElimAnnouncementWidget->SetElimAnnouncementText(Attacker, Victim);
+			ElimAnnouncementWidget->AddToViewport();
+
+			for (UElimAnnouncement* Msg : ElimMessages)
+			{
+				if (Msg && Msg->AnnouncementBox)
+				{
+					UCanvasPanelSlot* CanvasSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(Msg->AnnouncementBox);
+					if (CanvasSlot)
+					{
+						FVector2D Position = CanvasSlot->GetPosition();
+						FVector2D NewPosition(
+							CanvasSlot->GetPosition().X,
+							Position.Y - CanvasSlot->GetSize().Y
+						);
+						CanvasSlot->SetPosition(NewPosition);
+					}
+				}
+			}
+
+
+
+			ElimMessages.Add(ElimAnnouncementWidget);
+
+			FTimerHandle ElimMsgTimer;
+			FTimerDelegate ElimMsgDelegate;
+			ElimMsgDelegate.BindUFunction(this, FName("ElimAnnouncementTimerFinished"), ElimAnnouncementWidget);
+			GetWorldTimerManager().SetTimer(
+				ElimMsgTimer,
+				ElimMsgDelegate,
+				ElimAnnouncementTime,
+				false
+			);
+		}
+	}
+}
+
+void AGameHUD::ElimAnnouncementTimerFinished(UElimAnnouncement* MsgToRemove)
+{
+	if (MsgToRemove)
+	{
+		MsgToRemove->RemoveFromParent();
+	}
+}
+
+void AGameHUD::AddAnnouncement()
+{
+	APlayerController* PlayerController = GetOwningPlayerController();
+	if (PlayerController && MatchAnnouncementWidgetClass)
+	{
+		MatchAnnouncement = CreateWidget<UAnnouncement>(PlayerController, MatchAnnouncementWidgetClass);
+		MatchAnnouncement->AddToViewport();
+	}
+}
+
 void AGameHUD::DrawHUD()
 {
 	Super::DrawHUD();
@@ -185,3 +252,4 @@ void AGameHUD::DrawCrosshair(UTexture2D* Texture, FVector2D ViewportCenter, FVec
 		CrosshairColor
 	);
 }
+

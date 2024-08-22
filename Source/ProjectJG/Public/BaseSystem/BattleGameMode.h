@@ -22,16 +22,19 @@ public:
 	virtual void PlayerEliminated(class ABaseCharacter* ElimmedCharacter, class AInGamePlayerController* VictimController, class ABaseAIController* AttackerController);
 	virtual void EnemyEliminated(class ABaseEnemyCharacter* ElimmedCharacter, class ABaseAIController* VictimController, class AInGamePlayerController* AttackerController);
 	virtual void RequestRespawn(ACharacter* ElimmedCharacter, AController* ElimmedController);
+	//virtual void RestartPlayer(AController* NewPlayer);
+	
+	
 	void PlayerLeftGame(class AInGamePlayerState* PlayerLeaving);
 	virtual float CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage);
 	UPROPERTY(EditDefaultsOnly)
-		float WarmupTime = 10.f;
+		float WarmupTime = 5.f;
 
 	UPROPERTY(EditDefaultsOnly)
-		float MatchTime = 120.f;
+		float MatchTime = 60.f;
 
 	UPROPERTY(EditDefaultsOnly)
-		float CooldownTime = 10.f;
+		float CooldownTime = 5.f;
 
 	float LevelStartingTime = 0.f;
 

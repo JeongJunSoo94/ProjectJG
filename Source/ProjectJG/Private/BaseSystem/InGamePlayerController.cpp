@@ -14,6 +14,8 @@
 #include "Widgets/Character/InventoryBarWidget.h"
 #include "WorldObjects/Item/Item.h"
 #include "GameFramework/PlayerState.h"
+#include "Widgets/Announcement.h"
+#include "BaseSystem/BattleGameState.h"
 
 void AInGamePlayerController::BroadcastElim(APlayerState* Attacker, APlayerState* Victim)
 {
@@ -23,7 +25,6 @@ void AInGamePlayerController::BroadcastElim(APlayerState* Attacker, APlayerState
 void AInGamePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
 	GameHUD = Cast<AGameHUD>(GetHUD());
 	ServerCheckMatchState();
 }
@@ -38,27 +39,27 @@ void AInGamePlayerController::SetHUDTime()
 
 	if (HasAuthority())
 	{
-		//if (BattleGameMode == nullptr)
-		//{
-		//	BattleGameMode = Cast<ABattleGameMode>(UGameplayStatics::GetGameMode(this));
-		//	LevelStartingTime = BattleGameMode->LevelStartingTime;
-		//}
-		//BattleGameMode = BattleGameMode == nullptr ? Cast<ABattleGameMode>(UGameplayStatics::GetGameMode(this)) : BattleGameMode;
-		//if (BattleGameMode)
-		//{
-		//	SecondsLeft = FMath::CeilToInt(BattleGameMode->GetCountdownTime() + LevelStartingTime);
-		//}
+		if (BattleGameMode == nullptr)
+		{
+			BattleGameMode = Cast<ABattleGameMode>(UGameplayStatics::GetGameMode(this));
+			LevelStartingTime = BattleGameMode->LevelStartingTime;
+		}
+		BattleGameMode = BattleGameMode == nullptr ? Cast<ABattleGameMode>(UGameplayStatics::GetGameMode(this)) : BattleGameMode;
+		if (BattleGameMode)
+		{
+			SecondsLeft = FMath::CeilToInt(BattleGameMode->GetCountdownTime() + LevelStartingTime);
+		}
 	}
 
 	if (CountdownInt != SecondsLeft)
 	{
-		if (MatchState == MatchState::WaitingToStart || MatchState == MatchState::Cooldown)
+		if (MatchState == MatchState::WaitingToStart|| MatchState == MatchState::Cooldown)
 		{
-			//SetHUDAnnouncementCountdown(TimeLeft);
+			SetHUDAnnouncementCountdown(TimeLeft);
 		}
 		if (MatchState == MatchState::InProgress)
 		{
-			//SetHUDMatchCountdown(TimeLeft);
+			SetHUDMatchCountdown(TimeLeft);
 		}
 	}
 
@@ -86,6 +87,11 @@ void AInGamePlayerController::PollInit()
 				{
 					if (bInitializeGrenades) SetHUDGrenades(BlasterCharacter->GetCombat()->GetGrenades());
 				}*/
+
+				ABaseCharacter* BlasterCharacter = Cast<ABaseCharacter>(GetPawn());
+				if (BlasterCharacter)
+				{
+				}
 			}
 		}
 	}
@@ -138,7 +144,7 @@ void AInGamePlayerController::ClientJoinMidgame_Implementation(FName StateOfMatc
 	OnMatchStateSet(MatchState);
 	if (GameHUD && MatchState == MatchState::WaitingToStart)
 	{
-	//	BlasterHUD->AddAnnouncement();
+		GameHUD->AddAnnouncement();
 	}
 }
 
@@ -225,6 +231,35 @@ void AInGamePlayerController::ShowReturnToMainMenu()
 
 void AInGamePlayerController::ClientElimAnnouncement_Implementation(APlayerState* Attacker, APlayerState* Victim)
 {
+	APlayerState* Self = GetPlayerState<APlayerState>();
+	if (Attacker && Victim && Self)
+	{
+		GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
+		if (GameHUD)
+		{
+			if (Attacker == Self && Victim != Self)
+			{
+				GameHUD->AddElimAnnouncement("You", Victim->GetPlayerName());
+				return;
+			}
+			if (Victim == Self && Attacker != Self)
+			{
+				GameHUD->AddElimAnnouncement(Attacker->GetPlayerName(), "you");
+				return;
+			}
+			if (Attacker == Victim && Attacker == Self)
+			{
+				GameHUD->AddElimAnnouncement("You", "yourself");
+				return;
+			}
+			if (Attacker == Victim && Attacker != Self)
+			{
+				GameHUD->AddElimAnnouncement(Attacker->GetPlayerName(), "themselves");
+				return;
+			}
+			GameHUD->AddElimAnnouncement(Attacker->GetPlayerName(), Victim->GetPlayerName());
+		}
+	}
 }
 
 FString AInGamePlayerController::GetInfoText(const TArray<class AInGamePlayerState*>& Players)
@@ -232,7 +267,7 @@ FString AInGamePlayerController::GetInfoText(const TArray<class AInGamePlayerSta
 	AInGamePlayerState* BlasterPlayerState = GetPlayerState<AInGamePlayerState>();
 	if (BlasterPlayerState == nullptr) return FString();
 	FString InfoTextString;
-	/*if (Players.Num() == 0)
+	if (Players.Num() == 0)
 	{
 		InfoTextString = Announcement::ThereIsNoWinner;
 	}
@@ -252,10 +287,50 @@ FString AInGamePlayerController::GetInfoText(const TArray<class AInGamePlayerSta
 		{
 			InfoTextString.Append(FString::Printf(TEXT("%s\n"), *TiedPlayer->GetPlayerName()));
 		}
-	}*/
+	}
 
 	return InfoTextString;
 }
+
+FString AInGamePlayerController::GetTeamsInfoText(ABattleGameState* BlasterGameState)
+{
+	if (BlasterGameState == nullptr) return FString();
+	FString InfoTextString;
+
+	const int32 RedTeamScore = BlasterGameState->RedTeamScore;
+	const int32 BlueTeamScore = BlasterGameState->BlueTeamScore;
+
+	if (RedTeamScore == 0 && BlueTeamScore == 0)
+	{
+		InfoTextString = Announcement::ThereIsNoWinner;
+	}
+	else if (RedTeamScore == BlueTeamScore)
+	{
+		InfoTextString = FString::Printf(TEXT("%s\n"), *Announcement::TeamsTiedForTheWin);
+		InfoTextString.Append(Announcement::RedTeam);
+		InfoTextString.Append(TEXT("\n"));
+		InfoTextString.Append(Announcement::BlueTeam);
+		InfoTextString.Append(TEXT("\n"));
+	}
+	else if (RedTeamScore > BlueTeamScore)
+	{
+		InfoTextString = Announcement::RedTeamWins;
+		InfoTextString.Append(TEXT("\n"));
+		InfoTextString.Append(FString::Printf(TEXT("%s: %d\n"), *Announcement::RedTeam, RedTeamScore));
+		InfoTextString.Append(FString::Printf(TEXT("%s: %d\n"), *Announcement::BlueTeam, BlueTeamScore));
+	}
+	else if (BlueTeamScore > RedTeamScore)
+	{
+		InfoTextString = Announcement::BlueTeamWins;
+		InfoTextString.Append(TEXT("\n"));
+		InfoTextString.Append(FString::Printf(TEXT("%s: %d\n"), *Announcement::BlueTeam, BlueTeamScore));
+		InfoTextString.Append(FString::Printf(TEXT("%s: %d\n"), *Announcement::RedTeam, RedTeamScore));
+	}
+
+	return InfoTextString;
+}
+
+
 
 void AInGamePlayerController::Tick(float DeltaTime)
 {
@@ -272,7 +347,64 @@ void AInGamePlayerController::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AInGamePlayerController, MatchState);
-	//DOREPLIFETIME(AInGamePlayerController, bShowTeamScores);
+	DOREPLIFETIME(AInGamePlayerController, bShowTeamScores);
+}
+
+void AInGamePlayerController::OnRep_ShowTeamScores()
+{
+	GEngine->AddOnScreenDebugMessage(4, 2.0f, FColor::Blue, TEXT("OnRep_ShowTeamScores"));
+	if (bShowTeamScores)
+	{
+		InitTeamScores();
+	}
+	else
+	{
+		HideTeamScores();
+	}
+}
+
+void AInGamePlayerController::HideTeamScores()
+{
+	GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
+	if (GameHUD&&GameHUD->GetPlayerInGameWidget())
+	{
+		GameHUD->GetPlayerInGameWidget()->RedTeamScore->SetText(FText());
+		GameHUD->GetPlayerInGameWidget()->BlueTeamScore->SetText(FText());
+		GameHUD->GetPlayerInGameWidget()->ScoreSpacerText->SetText(FText());
+	}
+}
+
+void AInGamePlayerController::InitTeamScores()
+{
+	GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
+	if(GameHUD&&GameHUD->GetPlayerInGameWidget())
+	{
+		FString Zero("0");
+		FString Spacer("|");
+		GameHUD->GetPlayerInGameWidget()->RedTeamScore->SetText(FText::FromString(Zero));
+		GameHUD->GetPlayerInGameWidget()->BlueTeamScore->SetText(FText::FromString(Zero));
+		GameHUD->GetPlayerInGameWidget()->ScoreSpacerText->SetText(FText::FromString(Spacer));
+	}
+}
+
+void AInGamePlayerController::SetHUDRedTeamScore(int32 RedScore)
+{
+	GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
+	if (GameHUD&&GameHUD->GetPlayerInGameWidget())
+	{
+		FString ScoreText = FString::Printf(TEXT("%d"), RedScore);
+		GameHUD->GetPlayerInGameWidget()->RedTeamScore->SetText(FText::FromString(ScoreText));
+	}
+}
+
+void AInGamePlayerController::SetHUDBlueTeamScore(int32 BlueScore)
+{
+	GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
+	if (GameHUD && GameHUD->GetPlayerInGameWidget())
+	{
+		FString ScoreText = FString::Printf(TEXT("%d"), BlueScore);
+		GameHUD->GetPlayerInGameWidget()->BlueTeamScore->SetText(FText::FromString(ScoreText));
+	}
 }
 
 void AInGamePlayerController::ServerRequestServerTime_Implementation(float TimeOfClientRequest)
@@ -320,16 +452,20 @@ void AInGamePlayerController::OnMatchStateSet(FName State, bool bTeamsMatch)
 
 void AInGamePlayerController::HandleMatchHasStarted(bool bTeamsMatch)
 {
-	//if (HasAuthority()) bShowTeamScores = bTeamsMatch;
+	if (HasAuthority())
+	{
+		GEngine->AddOnScreenDebugMessage(4, 2.0f, FColor::Blue, TEXT("HandleMatchHasStarted"));
+		bShowTeamScores = bTeamsMatch;
+	}
 	GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
 	if (GameHUD)
 	{
 		if (GameHUD->GetPlayerInGameWidget() == nullptr) GameHUD->AddPlayerInGameWidget();
-		/*if (GameHUD->Announcement)
+		if (GameHUD->MatchAnnouncement)
 		{
-			GameHUD->Announcement->SetVisibility(ESlateVisibility::Hidden);
+			GameHUD->MatchAnnouncement->SetVisibility(ESlateVisibility::Hidden);
 		}
-		if (!HasAuthority()) return;
+		//if (!HasAuthority()) return;
 		if (bTeamsMatch)
 		{
 			InitTeamScores();
@@ -337,39 +473,40 @@ void AInGamePlayerController::HandleMatchHasStarted(bool bTeamsMatch)
 		else
 		{
 			HideTeamScores();
-		}*/
+		}
 	}
 }
 
 void AInGamePlayerController::HandleCooldown()
 {
-	//BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
-	//if (BlasterHUD)
-	//{
-	//	BlasterHUD->CharacterOverlay->RemoveFromParent();
-	//	bool bHUDValid = BlasterHUD->Announcement &&
-	//		BlasterHUD->Announcement->AnnouncementText &&
-	//		BlasterHUD->Announcement->InfoText;
+	GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
+	if (GameHUD)
+	{
+		if (GameHUD && GameHUD->GetPlayerInGameWidget())
+			GameHUD->GetPlayerInGameWidget()->RemoveFromParent();
+		bool bHUDValid = GameHUD->MatchAnnouncement &&
+			GameHUD->MatchAnnouncement->AnnouncementText &&
+			GameHUD->MatchAnnouncement->InfoText;
 
-	//	if (bHUDValid)
-	//	{
-	//		BlasterHUD->Announcement->SetVisibility(ESlateVisibility::Visible);
-	//		FString AnnouncementText = Announcement::NewMatchStartsIn;
-	//		BlasterHUD->Announcement->AnnouncementText->SetText(FText::FromString(AnnouncementText));
+		if (bHUDValid)
+		{
+			GameHUD->MatchAnnouncement->SetVisibility(ESlateVisibility::Visible);
+			FString AnnouncementText = Announcement::NewMatchStartsIn;
+			GameHUD->MatchAnnouncement->AnnouncementText->SetText(FText::FromString(AnnouncementText));
 
-	//		ABlasterGameState* BlasterGameState = Cast<ABlasterGameState>(UGameplayStatics::GetGameState(this));
-	//		ABlasterPlayerState* BlasterPlayerState = GetPlayerState<ABlasterPlayerState>();
-	//		if (BlasterGameState && BlasterPlayerState)
-	//		{
-	//			TArray<ABlasterPlayerState*> TopPlayers = BlasterGameState->TopScoringPlayers;
-	//			FString InfoTextString = bShowTeamScores ? GetTeamsInfoText(BlasterGameState) : GetInfoText(TopPlayers);
+			ABattleGameState* BattleGameState = Cast<ABattleGameState>(UGameplayStatics::GetGameState(this));
+			AInGamePlayerState* BattlePlayerState = GetPlayerState<AInGamePlayerState>();
+			if (BattleGameState && BattlePlayerState)
+			{
+				TArray<AInGamePlayerState*> TopPlayers = BattleGameState->TopScoringPlayers;
+				FString InfoTextString = bShowTeamScores ? GetTeamsInfoText(BattleGameState) : GetInfoText(TopPlayers);
 
-	//			BlasterHUD->Announcement->InfoText->SetText(FText::FromString(InfoTextString));
-	//		}
-	//	}
-	//}
-	//ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(GetPawn());
-	//if (BlasterCharacter && BlasterCharacter->GetCombat())
+				GameHUD->MatchAnnouncement->InfoText->SetText(FText::FromString(InfoTextString));
+			}
+		}
+	}
+	ABaseCharacter* BaseCharacter = Cast<ABaseCharacter>(GetPawn());
+	//if (BaseCharacter && BaseCharacter->GetCombat())
 	//{
 	//	BlasterCharacter->bDisableGameplay = true;
 	//	BlasterCharacter->GetCombat()->FireButtonPressed(false);
@@ -416,9 +553,6 @@ void AInGamePlayerController::SetHUDShield(float Shield, float MaxShield)
 void AInGamePlayerController::SetHUDScore(float Score)
 {
 	GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
-	//bool bHUDValid = BlasterHUD &&
-	//	GameHUD->CharacterOverlay &&
-	//	GameHUD->CharacterOverlay->ScoreAmount;
 
 	if (GameHUD && GameHUD->GetPlayerInGameWidget())
 	{
@@ -435,9 +569,7 @@ void AInGamePlayerController::SetHUDScore(float Score)
 void AInGamePlayerController::SetHUDDefeats(int32 Defeats)
 {
 	GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
-	//bool bHUDValid = BlasterHUD &&
-	//	BlasterHUD->CharacterOverlay &&
-	//	BlasterHUD->CharacterOverlay->DefeatsAmount;
+
 	if (GameHUD && GameHUD->GetPlayerInGameWidget())
 	{
 		FString DefeatsText = FString::Printf(TEXT("%d"), Defeats);
@@ -477,6 +609,65 @@ void AInGamePlayerController::SetHUDCarriedAmmo(int32 Ammo)
 		HUDWeaponAmmo = Ammo;
 	}
 }
+
+void AInGamePlayerController::SetHUDMatchCountdown(float CountdownTime)
+{
+	GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
+	if (GameHUD && GameHUD->GetPlayerInGameWidget())
+	{
+		if (CountdownTime < 0.f)
+		{
+			GameHUD->GetPlayerInGameWidget()->MatchCountdownText->SetText(FText());
+			return;
+		}
+
+		int32 Minutes = FMath::FloorToInt(CountdownTime / 60.f);
+		int32 Seconds = CountdownTime - Minutes * 60;
+
+		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+		GameHUD->GetPlayerInGameWidget()->MatchCountdownText->SetText(FText::FromString(CountdownText));
+	}
+}
+
+void AInGamePlayerController::SetHUDAnnouncementCountdown(float CountdownTime)
+{
+	GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
+	if (GameHUD && GameHUD->MatchAnnouncement)
+	{
+		if (CountdownTime < 0.f)
+		{
+			GameHUD->MatchAnnouncement->WarmupTime->SetText(FText());
+			return;
+		}
+
+		int32 Minutes = FMath::FloorToInt(CountdownTime / 60.f);
+		int32 Seconds = CountdownTime - Minutes * 60;
+
+		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+		if (GameHUD->MatchAnnouncement)
+		{
+			if(GameHUD->MatchAnnouncement->WarmupTime)
+				GameHUD->MatchAnnouncement->WarmupTime->SetText(FText::FromString(CountdownText));
+			else
+			{
+				if (GEngine)
+				{
+					FString str = "WarmupTime:";
+					GEngine->AddOnScreenDebugMessage(5, 20.0f, FColor::Red, str);
+				}
+			}
+		}
+		else
+		{
+			if (GEngine)
+			{
+				FString str = "MatchAnnouncement:";
+				GEngine->AddOnScreenDebugMessage(5, 20.0f, FColor::Red, str);
+			}
+		}
+	}
+}
+
 
 //void AInGamePlayerController::SetHUDInventorySlot(AItem* Item)
 //{

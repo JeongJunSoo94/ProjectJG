@@ -21,6 +21,7 @@ public:
 	void TravelToMap(const FString& MapName);
 	int32 GetSlotIdx(APlayerController* Controller);
 	int32 GetSessionPlayerNum() const;
+	virtual void PostSeamlessTravel() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	void PlayersWidgetDelete();
 private:

@@ -5,6 +5,7 @@
 #include "GameFramework/PlayerState.h"
 #include "MultiplayerSessionsSubsystem.h"
 #include "Lobby/MatcheLobbyGameState.h"
+#include "Engine.h"
 
 void AMatcheGameMode::BeginPlay()
 {
@@ -13,6 +14,7 @@ void AMatcheGameMode::BeginPlay()
 	{
 		MultiplayerSessionsSubsystem = GameInstance->GetSubsystem<UMultiplayerSessionsSubsystem>();
 	}
+	bUseSeamlessTravel = true;
 }
 
 void AMatcheGameMode::PostLogin(APlayerController* NewPlayer)
@@ -153,7 +155,8 @@ void AMatcheGameMode::TravelToMap(const FString& MapName)
 				FString MatchType = Subsystem->DesiredMatchType;
 				if (MatchType == "FreeForAll")
 				{
-					World->ServerTravel(FString("/Game/Developers/JJS/TestMap/TestMap?listen"));
+					World->ServerTravel(FString("/Game/Developers/JJS/TestMap/TestMap?listen"),true);
+					//UGameplayStatics::OpenLevel(World, FName("/Game/Developers/JJS/TestMap/TestMap?listen"), true);
 				}
 				else if (MatchType == "Teams")
 				{
@@ -201,5 +204,24 @@ void AMatcheGameMode::PlayersWidgetDelete()
 				MatchePlayerController->DeleteMatcheWidget();
 			}
 		}
+	}
+}
+
+void AMatcheGameMode::PostSeamlessTravel()
+{
+	if (GEngine)
+		GEngine->AddOnScreenDebugMessage(-1, 200.0f, FColor::Red, TEXT("PostSeamlessTravel"));
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		if (GEngine)
+			GEngine->AddOnScreenDebugMessage(2, 200.0f, FColor::Red, World->GetMapName());
+	}
+	Super::PostSeamlessTravel();
+	World = GetWorld();
+	if (World)
+	{
+		if(GEngine)
+			GEngine->AddOnScreenDebugMessage(3, 200.0f, FColor::Blue, World->GetMapName());
 	}
 }

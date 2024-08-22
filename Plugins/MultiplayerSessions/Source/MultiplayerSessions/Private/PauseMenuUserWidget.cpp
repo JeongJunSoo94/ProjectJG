@@ -56,7 +56,6 @@ void UPauseMenuUserWidget::ContinueButtonClicked()
 
 void UPauseMenuUserWidget::OptionButtonClicked()
 {
-
 }
 
 void UPauseMenuUserWidget::LeaveButtonClicked()

@@ -38,7 +38,7 @@ void ABattleGameState::RedTeamScores()
 	AInGamePlayerController* BPlayer = Cast<AInGamePlayerController>(GetWorld()->GetFirstPlayerController());
 	if (BPlayer)
 	{
-		//BPlayer->SetHUDRedTeamScore(RedTeamScore);
+		BPlayer->SetHUDRedTeamScore(RedTeamScore);
 	}
 }
 
@@ -48,7 +48,7 @@ void ABattleGameState::BlueTeamScores()
 	AInGamePlayerController* BPlayer = Cast<AInGamePlayerController>(GetWorld()->GetFirstPlayerController());
 	if (BPlayer)
 	{
-		//BPlayer->SetHUDBlueTeamScore(BlueTeamScore);
+		BPlayer->SetHUDBlueTeamScore(BlueTeamScore);
 	}
 }
 
@@ -57,7 +57,7 @@ void ABattleGameState::OnRep_RedTeamScore()
 	AInGamePlayerController* BPlayer = Cast<AInGamePlayerController>(GetWorld()->GetFirstPlayerController());
 	if (BPlayer)
 	{
-		//BPlayer->SetHUDRedTeamScore(RedTeamScore);
+		BPlayer->SetHUDRedTeamScore(RedTeamScore);
 	}
 }
 
@@ -66,6 +66,6 @@ void ABattleGameState::OnRep_BlueTeamScore()
 	AInGamePlayerController* BPlayer = Cast<AInGamePlayerController>(GetWorld()->GetFirstPlayerController());
 	if (BPlayer)
 	{
-		//BPlayer->SetHUDBlueTeamScore(BlueTeamScore);
+		BPlayer->SetHUDBlueTeamScore(BlueTeamScore);
 	}
 }

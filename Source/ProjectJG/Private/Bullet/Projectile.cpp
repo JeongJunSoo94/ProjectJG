@@ -5,6 +5,7 @@
 #include "Particles/ParticleSystem.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Sound/SoundCue.h"
 
 AProjectile::AProjectile()
 {
@@ -142,6 +143,6 @@ void AProjectile::Destroyed()
 	}
 	if (ImpactSound)
 	{
-		//UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
 	}
 }
