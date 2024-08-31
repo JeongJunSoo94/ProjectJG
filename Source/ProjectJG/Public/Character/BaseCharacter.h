@@ -423,15 +423,6 @@ private:
 	//<<
 
 	//>>
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
-		TMap<EAmmoType, int32>AmmoMap;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
-		int32 Starting9mmAmmo;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Items, meta = (AllowPrivateAccess = "true"))
-		int32 StartingARAmmo;
-	//<<
-
-	//>>
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		class UCombatComponent* Combat;

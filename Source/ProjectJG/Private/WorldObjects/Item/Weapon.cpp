@@ -11,6 +11,7 @@
 #include "Character/Components/CombatComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Bullet/Projectile.h"
+#include "Bullet/Case.h"
 
 AWeapon::AWeapon() :
 	ThrowWeaponTime(0.7f),
@@ -18,7 +19,6 @@ AWeapon::AWeapon() :
 	Ammo(30),
 	MagazineCapacity(30),
 	WeaponType(EWeaponType::EWT_SubmachineGun),
-	//AmmoType(EAmmoType::EAT_9mm),
 	ReloadMontageSection(FName(TEXT("SubMachineGun"))),
 	ClipBoneName(TEXT("smg_clip"))
 {
@@ -204,6 +204,15 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 		case EWeaponType::EWT_Pistol:
 			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("Pistol"), TEXT(""));
 			break;
+		case EWeaponType::EWT_RocketLauncher:
+			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("RocketLauncher"), TEXT(""));
+			break;
+		case EWeaponType::EWT_Shotgun:
+			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("Shotgun"), TEXT(""));
+			break;
+		case EWeaponType::EWT_SniperRifle:
+			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("SniperRifle"), TEXT(""));
+			break;
 		}
 
 		if (WeaponDataRow)
@@ -211,8 +220,8 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 			//AmmoType = WeaponDataRow->AmmoType;
 			Ammo = WeaponDataRow->WeaponAmmo;
 			MagazineCapacity = WeaponDataRow->MagazingCapacity;
-			//SetPickupSound(WeaponDataRow->PickupSound);
-			//SetEquipSound(WeaponDataRow->EquipSound);
+			SetPickupSound(WeaponDataRow->PickupSound);
+			SetEquipSound(WeaponDataRow->EquipSound);
 			GetItemMesh()->SetSkeletalMesh(WeaponDataRow->ItemMesh);
 			SetItemName(WeaponDataRow->ItemName);
 			SetIconItem(WeaponDataRow->InventoryIcon);
@@ -231,11 +240,9 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 			CrosshairsBottom = WeaponDataRow->CrosshairsBottom;
 			CrosshairsTop = WeaponDataRow->CrosshairsTop;
 			AutoFireRate = WeaponDataRow->AutoFireRate;
-			MuzzleFlash = WeaponDataRow->MuzzleFlash;
-			FireSound = WeaponDataRow->FireSound;
 			BoneToHide = WeaponDataRow->BoneToHide;
 			MuzzleSoketName = WeaponDataRow->MuzzleSoketName;
-			FireType = WeaponDataRow->FireType;
+			AmmoEjectSocketName = WeaponDataRow->AmmoEjectSocketName;
 			MainHandSoketName = WeaponDataRow->MainHandSoketName;
 			SubHandSoketName = WeaponDataRow->SubHandSoketName;
 			ZoomedFOV = WeaponDataRow->ZoomedFOV;
@@ -384,7 +391,8 @@ void AWeapon::SendBullet()
 	{
 		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetItemMesh());
 		DrawDebugPoint(GetWorld(), SocketTransform.GetLocation(), 5.f, FColor::Red, false, 2.f);
-		if (MuzzleFlash)
+		//new
+		/*if (MuzzleFlash)
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SocketTransform);
 		}
@@ -406,139 +414,35 @@ void AWeapon::SendBullet()
 					Beam->SetVectorParameter(FName("Target"), BeamEnd);
 				}
 			}
-		}
+		}*/
 	}
 	DecrementAmmo();
 }
 
 void AWeapon::Fire(const FVector& HitTarget)
 {
-	APawn* InstigatorPawn = Cast<APawn>(GetOwner());
-	const USkeletalMeshSocket* BarrelSocket = GetItemMesh()->GetSocketByName(MuzzleSoketName);
-	/*if (BarrelSocket)
+	if (FireAnimation)
 	{
-		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetItemMesh());
-
-		UWorld* World = GetWorld();
-		if (World)
-		{
-			World->SpawnActor<AProjectile>(
-				ProjectileClass,
-				SocketTransform.GetLocation(),
-				SocketTransform.GetRotation().Rotator()
-				);
-		}
-
-		
-
-		DrawDebugPoint(GetWorld(), SocketTransform.GetLocation(), 5.f, FColor::Red, false, 2.f);
-		if (MuzzleFlash)
-		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MuzzleFlash, SocketTransform);
-		}
-
-		if (ImpactParticles)
-		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, HitTarget);
-		}
-
-		if (BeamParticles)
-		{
-			UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BeamParticles, SocketTransform);
-			
-			if (Beam)
-			{
-				Beam->SetVectorParameter(FName("Target"), HitTarget);
-			}
-		}
-		DrawDebugLine(GetWorld(), SocketTransform.GetLocation(), HitTarget, FColor::Blue, false, 2.f);
-		DrawDebugPoint(GetWorld(), HitTarget, 5.f, FColor::Blue, false, 2.f);
+		GetItemMesh()->PlayAnimation(FireAnimation, false);
 	}
-	DecrementAmmo();*/
-	
-	UWorld* World = GetWorld();
-	if (BarrelSocket && World)
+	if (CaseClass)
 	{
-		FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetItemMesh());
-		// From muzzle flash socket to hit location from TraceUnderCrosshairs
-		FVector ToTarget = HitTarget - SocketTransform.GetLocation();
-		FRotator TargetRotation = ToTarget.Rotation();
-
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.Owner = GetOwner();
-		SpawnParams.Instigator = InstigatorPawn;
-
-		AProjectile* SpawnedProjectile = nullptr;
-		if (bUseServerSideRewind)
-		{
-			if (InstigatorPawn->HasAuthority()) // server
-			{
-				if (InstigatorPawn->IsLocallyControlled()) // server, host - use replicated projectile
-				{
-					SpawnedProjectile = World->SpawnActor<AProjectile>(ProjectileClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
-					SpawnedProjectile->bUseServerSideRewind = false;
-					SpawnedProjectile->Damage = Damage;
-					SpawnedProjectile->HeadShotDamage = HeadShotDamage;
-				}
-				else // server, not locally controlled - spawn non-replicated projectile, SSR
-				{
-					SpawnedProjectile = World->SpawnActor<AProjectile>(ServerSideRewindProjectileClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
-					SpawnedProjectile->bUseServerSideRewind = true;
-				}
-			}
-			else // client, using SSR
-			{
-				if (InstigatorPawn->IsLocallyControlled()) // client, locally controlled - spawn non-replicated projectile, use SSR
-				{
-					SpawnedProjectile = World->SpawnActor<AProjectile>(ServerSideRewindProjectileClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
-					SpawnedProjectile->bUseServerSideRewind = true;
-					SpawnedProjectile->TraceStart = SocketTransform.GetLocation();
-					SpawnedProjectile->InitialVelocity = SpawnedProjectile->GetActorForwardVector() * SpawnedProjectile->InitialSpeed;
-				}
-				else // client, not locally controlled - spawn non-replicated projectile, no SSR
-				{
-					SpawnedProjectile = World->SpawnActor<AProjectile>(ServerSideRewindProjectileClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
-					SpawnedProjectile->bUseServerSideRewind = false;
-				}
-			}
-		}
-		else // weapon not using SSR
-		{
-			if (InstigatorPawn->HasAuthority())
-			{
-				SpawnedProjectile = World->SpawnActor<AProjectile>(ProjectileClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
-				SpawnedProjectile->bUseServerSideRewind = false;
-				SpawnedProjectile->Damage = Damage;
-				SpawnedProjectile->HeadShotDamage = HeadShotDamage;
-			}
-		}
-		
-		DrawDebugLine(GetWorld(), SocketTransform.GetLocation(), HitTarget, FColor::Blue, false, 2.f);
-		DrawDebugPoint(GetWorld(), HitTarget, 5.f, FColor::Blue, false, 2.f);
-		DecrementAmmo();
-	}
-
-	/*if (FireAnimation)
-	{
-		WeaponMesh->PlayAnimation(FireAnimation, false);
-	}
-	if (CasingClass)
-	{
-		const USkeletalMeshSocket* AmmoEjectSocket = WeaponMesh->GetSocketByName(FName("BarrelSocket"));
+		const USkeletalMeshSocket* AmmoEjectSocket = GetItemMesh()->GetSocketByName(AmmoEjectSocketName);
 		if (AmmoEjectSocket)
 		{
-			FTransform SocketTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);
+			FTransform SocketTransform = AmmoEjectSocket->GetSocketTransform(GetItemMesh());
 
 			UWorld* World = GetWorld();
 			if (World)
 			{
-				World->SpawnActor<ACasing>(
-					CasingClass,
+				World->SpawnActor<ACase>(
+					CaseClass,
 					SocketTransform.GetLocation(),
 					SocketTransform.GetRotation().Rotator()
-					);
+				);
 			}
 		}
 	}
-	DecrementAmmo();*/
+
+	DecrementAmmo();
 }

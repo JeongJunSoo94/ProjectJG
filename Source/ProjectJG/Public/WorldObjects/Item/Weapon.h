@@ -31,7 +31,6 @@ enum class EFireType : uint8
 	EFT_MAX UMETA(DisplayName = "DefaultMAX")
 };
 
-
 USTRUCT(BlueprintType)
 struct FWeaponDataTable : public FTableRowBase
 {
@@ -101,19 +100,13 @@ struct FWeaponDataTable : public FTableRowBase
 		float AutoFireRate;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		class UParticleSystem* MuzzleFlash;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		USoundCue* FireSound;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FName BoneToHide;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FName MuzzleSoketName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		EFireType FireType;
+		FName AmmoEjectSocketName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FName MainHandSoketName;
@@ -126,7 +119,12 @@ struct FWeaponDataTable : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float ZoomInterpSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		EWeaponType WeaponType;
+	
 };
+
 
 UCLASS()
 class PROJECTJG_API AWeapon : public AItem
@@ -160,11 +158,14 @@ private:
 	float ThrowWeaponTime;
 	bool bFalling;
 
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<class AProjectile> ProjectileClass;
+	//UPROPERTY(EditAnywhere)
+	//	TSubclassOf<class AProjectile> ProjectileClass;
+
+	//UPROPERTY(EditAnywhere)
+	//	TSubclassOf<AProjectile> ServerSideRewindProjectileClass;
 
 	UPROPERTY(EditAnywhere)
-		TSubclassOf<AProjectile> ServerSideRewindProjectileClass;
+		TSubclassOf<class ACase> CaseClass;
 
 	UFUNCTION(Client, Reliable)
 		void ClientUpdateAmmo(int32 ServerAmmo);
@@ -184,9 +185,6 @@ private:
 		EWeaponType WeaponType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
-		EAmmoType AmmoType;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
 		FName ReloadMontageSection;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
@@ -204,6 +202,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
 		UDataTable* WeaponDataTable;
 
+
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 		class UAnimationAsset* FireAnimation;
 
@@ -214,27 +213,31 @@ private:
 	//>>
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
 		float AutoFireRate;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
-		class UParticleSystem* MuzzleFlash;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
-		USoundCue* FireSound;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
 		FName MuzzleSoketName;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+		FName AmmoEjectSocketName;
 	//<<
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
 		FName BoneToHide;
 
-	//>>
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
-		class UParticleSystem* ImpactParticles;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
-		class UParticleSystem* BeamParticles;
-	//<<
 protected:
+	//>>
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	//class UParticleSystem* ImpactParticles;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	//class UParticleSystem* BeamParticles;
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+	//class UParticleSystem* MuzzleFlash;
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+	//USoundCue* FireSound;
+	//<<
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Scatter")
 		float DistanceToSphere = 800.f;
@@ -248,6 +251,8 @@ protected:
 	UPROPERTY(EditAnywhere)
 		float HeadShotDamage = 40.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+		FName WeaponName;
 
 	//UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category = "Weapon Properties")
 	//	EWeaponState WeaponState;
@@ -288,6 +293,7 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		float ZoomInterpSpeed = 20.f;
+
 	//<<
 
 public:
@@ -303,14 +309,14 @@ public:
 	void DecrementAmmo();
 
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
-	FORCEINLINE EAmmoType GetAmmoType() const { return AmmoType; }
 	FORCEINLINE FName GetReloadMontageSection() const { return ReloadMontageSection; }
 	FORCEINLINE void SetReloadMontageSection(FName Name) { ReloadMontageSection = Name; }
 	FORCEINLINE FName GetClipBoneName() const { return ClipBoneName; }
 	FORCEINLINE void SetClipBoneName(FName Name) { ClipBoneName = Name; }
 	FORCEINLINE float GetAutoFireRate() const { return AutoFireRate; }
-	FORCEINLINE UParticleSystem* GetMuzzleFlash() const { return MuzzleFlash; }
-	FORCEINLINE USoundCue* GetFireSound() const { return FireSound; }
+	//new
+	//FORCEINLINE UParticleSystem* GetMuzzleFlash() const { return MuzzleFlash; }
+	//FORCEINLINE USoundCue* GetFireSound() const { return FireSound; }
 	bool IsEmpty();
 	void ReloadAmmo(int32 Amount);
 

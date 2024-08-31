@@ -327,7 +327,7 @@ void UCombatComponent::EquipPrimaryWeapon(AWeapon* WeaponToEquip)
 	EquippedWeapon->SetOwner(Character);
 	EquippedWeapon->SetHUDAmmo();
 	UpdateCarriedAmmo();
-	//PlayEquipWeaponSound(WeaponToEquip);
+	PlayEquipWeaponSound(WeaponToEquip);
 	ReloadEmptyWeapon();
 }
 
@@ -454,14 +454,15 @@ void UCombatComponent::UpdateCarriedAmmo()
 
 void UCombatComponent::PlayEquipWeaponSound(AWeapon* WeaponToEquip)
 {
-	/*if (Character && WeaponToEquip && WeaponToEquip->EquipSound)
+	if (Character && WeaponToEquip && WeaponToEquip->GetEquipSound())
 	{
-		UGameplayStatics::PlaySoundAtLocation(
+		/*UGameplayStatics::PlaySoundAtLocation(
 			this,
 			WeaponToEquip->EquipSound,
 			Character->GetActorLocation()
-		);
-	}*/
+		);*/
+		WeaponToEquip->PlayEquipSound();
+	}
 }
 
 void UCombatComponent::ReloadEmptyWeapon()

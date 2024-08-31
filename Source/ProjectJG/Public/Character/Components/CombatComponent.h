@@ -211,16 +211,17 @@ private:
 	UFUNCTION()
 		void OnRep_CarriedAmmo();
 
-	TMap<EWeaponType, int32> CarriedAmmoMap;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		TMap<EWeaponType, int32> CarriedAmmoMap;
 
 	UPROPERTY(EditAnywhere)
 		int32 MaxCarriedAmmo = 500;
 
 	UPROPERTY(EditAnywhere)
-		int32 StartingARAmmo = 30;
+		int32 StartingARAmmo = 100;
 
 	UPROPERTY(EditAnywhere)
-		int32 StartingRocketAmmo = 0;
+		int32 StartingRocketAmmo = 30;
 
 	UPROPERTY(EditAnywhere)
 		int32 StartingPistolAmmo = 100;
@@ -229,13 +230,13 @@ private:
 		int32 StartingSMGAmmo = 100;
 
 	UPROPERTY(EditAnywhere)
-		int32 StartingShotgunAmmo = 0;
+		int32 StartingShotgunAmmo = 30;
 
 	UPROPERTY(EditAnywhere)
-		int32 StartingSniperAmmo = 0;
+		int32 StartingSniperAmmo = 30;
 
 	UPROPERTY(EditAnywhere)
-		int32 StartingGrenadeLauncherAmmo = 0;
+		int32 StartingGrenadeLauncherAmmo = 30;
 
 	void InitializeCarriedAmmo();
 

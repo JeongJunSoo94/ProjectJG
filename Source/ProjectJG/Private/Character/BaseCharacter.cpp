@@ -834,12 +834,6 @@ void ABaseCharacter::SwapWeapon(AWeapon* WeaponToSwap)
 	TraceHitItemLastFrame = nullptr;
 }
 
-//void ABaseCharacter::InitializeAmmoMap()
-//{
-//	AmmoMap.Add(EAmmoType::EAT_9mm, Starting9mmAmmo);
-//	AmmoMap.Add(EAmmoType::EAT_AR, StartingARAmmo);
-//}
-
 void ABaseCharacter::PlayFireMontage(bool bAiming)
 {
 	//UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
