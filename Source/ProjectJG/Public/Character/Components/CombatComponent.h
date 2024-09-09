@@ -108,7 +108,7 @@ protected:
 	//	TSubclassOf<class AProjectile> GrenadeClass;
 
 	void DropEquippedWeapon();
-	void AttachActorToRightHand(AActor* ActorToAttach);
+	void AttachActorToRightHand(AActor* ActorToAttach,FName SocketName = FName("RightHandSocket"));
 	void AttachActorToLeftHand(AActor* ActorToAttach);
 	void AttachFlagToLeftHand(AWeapon* Flag);
 	void AttachActorToBackpack(AActor* ActorToAttach);

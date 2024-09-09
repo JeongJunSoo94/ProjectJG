@@ -22,6 +22,9 @@ void UMatcheMenuUserWidget::NativeConstruct()
 		WB_SliderSelector->SelectDelegate.AddDynamic(this, &UMatcheMenuUserWidget::OnSelectPeopleCount);
 	InitMatcheItems();
 
+	if (WB_RoomSliderSelector)
+		WB_RoomSliderSelector->SelectDelegate.AddDynamic(this, &UMatcheMenuUserWidget::OnSelectRoomPageCount);
+
 	if (RoomNameTextBox)
 	{
 		RoomNameTextBox->OnTextChanged.AddDynamic(this, &UMatcheMenuUserWidget::OnEditableTextBoxChanged);
@@ -75,7 +78,14 @@ void UMatcheMenuUserWidget::SetMatcheItems(int32 Page)
 
 void UMatcheMenuUserWidget::OnSelectMatcheItem(int32 SelectSlotNum)
 {
+	if (SelectRoomNum >= 0)
+	{
+		//클릭하면 이전 룸의 컬러를 변경한다.
+		MatcheRoomUserWidgets[SelectRoomNum]->UpdateSelectButton(false);
+	}
+	//선택된 룸의 컬러를 변경한다.
 	SelectRoomNum = SelectSlotNum;
+	MatcheRoomUserWidgets[SelectRoomNum]->UpdateSelectButton(true);
 }
 
 void UMatcheMenuUserWidget::OnSelectPeopleCount(FString PeopleCount)
@@ -91,4 +101,23 @@ void UMatcheMenuUserWidget::OnEditableTextBoxChanged(const FText& Text)
 void UMatcheMenuUserWidget::OnEditableTextBoxCommitted(const FText& Text, ETextCommit::Type CommitMethod)
 {
 	SessionLobbyName = *Text.ToString();
+}
+
+void UMatcheMenuUserWidget::SetSliderOption(int32 Page)
+{
+	if (WB_RoomSliderSelector->Options.Num() == Page+1)
+		return;
+	WB_RoomSliderSelector->Options.Empty();
+	for (int i = 0; i <= Page; ++i)
+	{
+		FString IntAsString = FString::FromInt(i+1);
+		WB_RoomSliderSelector->Options.Add(FName(*IntAsString));
+	}
+	WB_RoomSliderSelector->CurIdx = 0;
+	WB_RoomSliderSelector->UpdateText();
+}
+
+void UMatcheMenuUserWidget::OnSelectRoomPageCount(FString RoomPageCount)
+{
+	SetMatcheItems(FCString::Atoi(*RoomPageCount));
 }

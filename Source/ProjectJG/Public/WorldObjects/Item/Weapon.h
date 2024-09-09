@@ -97,7 +97,7 @@ struct FWeaponDataTable : public FTableRowBase
 		UTexture2D* CrosshairsTop;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float AutoFireRate;
+		float FireDelay;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FName BoneToHide;
@@ -113,6 +113,9 @@ struct FWeaponDataTable : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FName SubHandSoketName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FName CharacterAttachRightHandSoketName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float ZoomedFOV;
@@ -199,6 +202,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
 		FName SubHandSoketName;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+		FName CharacterAttachRightHandSoketName;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
 		UDataTable* WeaponDataTable;
 
@@ -211,8 +217,8 @@ private:
 
 	//<<
 	//>>
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
-		float AutoFireRate;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+	//	float AutoFireRate;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
 		FName MuzzleSoketName;
@@ -254,6 +260,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
 		FName WeaponName;
 
+	UPROPERTY(EditAnywhere, Category = Combat)
+		float FireDelay = .15f;
 	//UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category = "Weapon Properties")
 	//	EWeaponState WeaponState;
 	//UFUNCTION()
@@ -276,8 +284,6 @@ public:
 	//<<
 
 	//>>
-	UPROPERTY(EditAnywhere, Category = Combat)
-		float FireDelay = .15f;
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 		bool bAutomatic = true;
@@ -313,7 +319,7 @@ public:
 	FORCEINLINE void SetReloadMontageSection(FName Name) { ReloadMontageSection = Name; }
 	FORCEINLINE FName GetClipBoneName() const { return ClipBoneName; }
 	FORCEINLINE void SetClipBoneName(FName Name) { ClipBoneName = Name; }
-	FORCEINLINE float GetAutoFireRate() const { return AutoFireRate; }
+	FORCEINLINE float GetFireDelay() const { return FireDelay; }
 	//new
 	//FORCEINLINE UParticleSystem* GetMuzzleFlash() const { return MuzzleFlash; }
 	//FORCEINLINE USoundCue* GetFireSound() const { return FireSound; }
@@ -325,7 +331,9 @@ public:
 
 	FORCEINLINE void SetMovingClip(bool Move) { bMovingClip = Move; }
 	FORCEINLINE FName GetMuzzleSoketName() const { return MuzzleSoketName; }
+	FORCEINLINE FName GetAmmoEjectSocketName() const { return AmmoEjectSocketName; }
 	FORCEINLINE FName GetMainHandSoketName() const { return MainHandSoketName; }
 	FORCEINLINE FName GetSubHandSoketName() const { return SubHandSoketName; }
+	FORCEINLINE FName GetCharacterAttachRightHandSoketName() const { return CharacterAttachRightHandSoketName; }
 	bool ClipIsFull();
 };

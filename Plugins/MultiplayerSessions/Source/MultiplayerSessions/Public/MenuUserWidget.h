@@ -24,6 +24,8 @@ public:
 	UPROPERTY(meta = (BindWidget))
 		class UButton* UndoButton;
 
+	UFUNCTION()
+		void RefreshButtonClicked();
 protected:
 
 	virtual bool Initialize() override;
@@ -46,8 +48,6 @@ private:
 	UPROPERTY(meta = (BindWidget))
 		class UMatcheMenuUserWidget* WB_Matche;
 
-	UFUNCTION()
-		void RefreshButtonClicked();
 
 	UFUNCTION()
 		void HostButtonClicked();

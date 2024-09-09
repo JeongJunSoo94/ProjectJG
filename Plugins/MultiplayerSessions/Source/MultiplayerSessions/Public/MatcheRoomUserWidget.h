@@ -34,4 +34,5 @@ public:
 
 	void UpdateProperty(FString RoomName,FString PlayerNum,FString Ping);
 
+	void UpdateSelectButton(bool IsSelected);
 };

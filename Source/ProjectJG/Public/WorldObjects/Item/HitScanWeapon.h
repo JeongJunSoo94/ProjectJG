@@ -43,6 +43,8 @@ protected:
 	UPROPERTY(EditAnywhere)
 	USoundCue* HitSound;
 
+	UPROPERTY(EditAnywhere)
+	USoundCue* FireSound;
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 	virtual void BeginPlay() override;
@@ -53,6 +55,4 @@ private:
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* MuzzleFlash;
 
-	UPROPERTY(EditAnywhere)
-	USoundCue* FireSound;
 };

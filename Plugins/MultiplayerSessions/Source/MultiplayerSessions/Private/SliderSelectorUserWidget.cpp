@@ -3,17 +3,25 @@
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 
+
+void USliderSelectorUserWidget::UpdateText()
+{
+	if (Options.IsEmpty())
+		return;
+	if (SelectText)
+	{
+		SelectText->SetText(FText::FromString(Options[CurIdx].ToString()));
+		SelectDelegate.Broadcast(Options[CurIdx].ToString());
+	}
+}
+
 void USliderSelectorUserWidget::OnNext()
 {
 	if (Options.Num()<= CurIdx+1)
 		CurIdx = 0;
 	else
 		++CurIdx;
-	if (SelectText)
-	{
-		SelectText->SetText(FText::FromString(Options[CurIdx].ToString()));
-		SelectDelegate.Broadcast(Options[CurIdx].ToString());
-	}
+	UpdateText();
 }
 
 void USliderSelectorUserWidget::OnPrevious()
@@ -22,18 +30,14 @@ void USliderSelectorUserWidget::OnPrevious()
 		CurIdx = Options.Num()-1;
 	else
 		--CurIdx;
-	if (SelectText)
-	{
-		SelectText->SetText(FText::FromString(Options[CurIdx].ToString()));
-		SelectDelegate.Broadcast(Options[CurIdx].ToString());
-	}
+	UpdateText();
 }
 
 void USliderSelectorUserWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	if (Options.Num() > 0)
+	if (Options.Num() >= 0)
 	{
 		if (LeftArrowButton)
 		{
@@ -44,10 +48,6 @@ void USliderSelectorUserWidget::NativeConstruct()
 			RightArrowButton->OnClicked.AddDynamic(this, &ThisClass::OnNext);
 		}
 		CurIdx = 0;
-		if (SelectText)
-		{
-			SelectText->SetText(FText::FromString(Options[CurIdx].ToString()));
-			SelectDelegate.Broadcast(Options[CurIdx].ToString());
-		}
+		UpdateText();
 	}
 }

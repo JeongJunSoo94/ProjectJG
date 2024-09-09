@@ -25,6 +25,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = Delegates, meta = (AllowPrivateAccess = "true"))
 		FSelectDelegate SelectDelegate;
+
+	UFUNCTION()
+		void UpdateText();
 protected:
 	virtual void NativeConstruct() override;
 	UFUNCTION()

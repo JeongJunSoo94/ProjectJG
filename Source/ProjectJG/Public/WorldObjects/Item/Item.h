@@ -295,6 +295,7 @@ public:
 	FORCEINLINE int32 GetSlotIndex() const { return SlotIndex; }
 	FORCEINLINE void SetSlotIndex(int32 Index) { SlotIndex = Index; }
 	FORCEINLINE void SetCharacter(ABaseCharacter* Char) { Character = Char; }
+	FORCEINLINE ABaseCharacter* GetOwnerCharacter() { return Character; }
 	FORCEINLINE void SetCharacterInventoryFull(bool bFull) { bCharacterInventoryFull = bFull; }
 	FORCEINLINE void SetItemName(FString Name) { ItemName = Name; }
 	FORCEINLINE FString GetItemName() { return ItemName; }

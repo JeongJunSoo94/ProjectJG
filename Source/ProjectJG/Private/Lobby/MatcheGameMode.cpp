@@ -186,7 +186,6 @@ int32 AMatcheGameMode::GetSessionPlayerNum() const
 void AMatcheGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
-	GEngine->AddOnScreenDebugMessage(-1, 200.0f, FColor::Red, TEXT("EndPlay"));
 	if (EndPlayReason == EEndPlayReason::LevelTransition)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Level transitioning..."));

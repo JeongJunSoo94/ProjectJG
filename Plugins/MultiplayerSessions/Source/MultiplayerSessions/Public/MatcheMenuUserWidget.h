@@ -39,6 +39,9 @@ public:
 		class USliderSelectorUserWidget* WB_SliderSelector;
 
 	UPROPERTY(meta = (BindWidget))
+		USliderSelectorUserWidget* WB_RoomSliderSelector;
+
+	UPROPERTY(meta = (BindWidget))
 		class UVerticalBox* MatchesVerticalBox;
 
 	FString SessionLobbyName{ TEXT("") };
@@ -70,4 +73,9 @@ public:
 
 	UFUNCTION()
 		void OnEditableTextBoxCommitted(const FText& Text, ETextCommit::Type CommitMethod);
+
+		void SetSliderOption(int32 Page);
+
+	UFUNCTION()
+		void OnSelectRoomPageCount(FString RoomPageCount);
 };

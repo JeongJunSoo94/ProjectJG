@@ -239,12 +239,13 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 			CrosshairsRight = WeaponDataRow->CrosshairsRight;
 			CrosshairsBottom = WeaponDataRow->CrosshairsBottom;
 			CrosshairsTop = WeaponDataRow->CrosshairsTop;
-			AutoFireRate = WeaponDataRow->AutoFireRate;
+			FireDelay = WeaponDataRow->FireDelay;
 			BoneToHide = WeaponDataRow->BoneToHide;
 			MuzzleSoketName = WeaponDataRow->MuzzleSoketName;
 			AmmoEjectSocketName = WeaponDataRow->AmmoEjectSocketName;
 			MainHandSoketName = WeaponDataRow->MainHandSoketName;
 			SubHandSoketName = WeaponDataRow->SubHandSoketName;
+			CharacterAttachRightHandSoketName = WeaponDataRow->CharacterAttachRightHandSoketName;
 			ZoomedFOV = WeaponDataRow->ZoomedFOV;
 			ZoomInterpSpeed = WeaponDataRow->ZoomInterpSpeed;
 		}

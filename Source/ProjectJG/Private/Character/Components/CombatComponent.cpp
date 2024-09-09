@@ -9,15 +9,15 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
-//#include "Blaster/PlayerController/BlasterPlayerController.h"
 #include "BaseSystem/InGamePlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "TimerManager.h"
 #include "Sound/SoundCue.h"
 #include "Character/Animation/CharacterAnimInstance.h"
 #include "BaseSystem/GameHUD.h"
-//#include "Blaster/Weapon/Projectile.h"
-//#include "Blaster/Weapon/Shotgun.h"
+#include "Bullet/Projectile.h"
+#include "WorldObjects/Item/Shotgun.h"
+
 
 UCombatComponent::UCombatComponent()
 {
@@ -138,7 +138,7 @@ void UCombatComponent::FireProjectileWeapon()
 	{
 		HitTarget = EquippedWeapon->bUseScatter ? EquippedWeapon->GetBeamTraceDirection(HitTarget) : HitTarget;
 		if (!Character->HasAuthority()) LocalFire(HitTarget);
-		ServerFire(HitTarget, EquippedWeapon->FireDelay);
+		ServerFire(HitTarget, EquippedWeapon->GetFireDelay());
 	}
 }
 
@@ -148,20 +148,20 @@ void UCombatComponent::FireHitScanWeapon()
 	{
 		HitTarget = EquippedWeapon->bUseScatter ? EquippedWeapon->GetBeamTraceDirection(HitTarget) : HitTarget;
 		if (!Character->HasAuthority()) LocalFire(HitTarget);
-		ServerFire(HitTarget, EquippedWeapon->FireDelay);
+		ServerFire(HitTarget, EquippedWeapon->GetFireDelay());
 	}
 }
 
 void UCombatComponent::FireShotgun()
 {
-	//AShotgun* Shotgun = Cast<AShotgun>(EquippedWeapon);
-	//if (Shotgun && Character)
-	//{
-	//	TArray<FVector_NetQuantize> HitTargets;
-	//	Shotgun->ShotgunTraceEndWithScatter(HitTarget, HitTargets);
-	//	if (!Character->HasAuthority()) ShotgunLocalFire(HitTargets);
-	//	ServerShotgunFire(HitTargets, EquippedWeapon->FireDelay);
-	//}
+	AShotgun* Shotgun = Cast<AShotgun>(EquippedWeapon);
+	if (Shotgun && Character)
+	{
+		TArray<FVector_NetQuantize> HitTargets;
+		Shotgun->ShotgunTraceEndWithScatter(HitTarget, HitTargets);
+		if (!Character->HasAuthority()) ShotgunLocalFire(HitTargets);
+		ServerShotgunFire(HitTargets, EquippedWeapon->GetFireDelay());
+	}
 }
 
 void UCombatComponent::StartFireTimer()
@@ -171,7 +171,7 @@ void UCombatComponent::StartFireTimer()
 		FireTimer,
 		this,
 		&UCombatComponent::FireTimerFinished,
-		EquippedWeapon->FireDelay
+		EquippedWeapon->GetFireDelay()
 	);
 }
 
@@ -195,7 +195,7 @@ bool UCombatComponent::ServerFire_Validate(const FVector_NetQuantize& TraceHitTa
 {
 	if (EquippedWeapon)
 	{
-		bool bNearlyEqual = FMath::IsNearlyEqual(EquippedWeapon->FireDelay, FireDelay, 0.001f);
+		bool bNearlyEqual = FMath::IsNearlyEqual(EquippedWeapon->GetFireDelay(), FireDelay, 0.001f);
 		return bNearlyEqual;
 	}
 	return true;
@@ -216,7 +216,7 @@ bool UCombatComponent::ServerShotgunFire_Validate(const TArray<FVector_NetQuanti
 {
 	if (EquippedWeapon)
 	{
-		bool bNearlyEqual = FMath::IsNearlyEqual(EquippedWeapon->FireDelay, FireDelay, 0.001f);
+		bool bNearlyEqual = FMath::IsNearlyEqual(EquippedWeapon->GetFireDelay(), FireDelay, 0.001f);
 		return bNearlyEqual;
 	}
 	return true;
@@ -243,7 +243,7 @@ void UCombatComponent::LocalFire(const FVector_NetQuantize& TraceHitTarget)
 
 void UCombatComponent::ShotgunLocalFire(const TArray<FVector_NetQuantize>& TraceHitTargets)
 {
-	/*AShotgun* Shotgun = Cast<AShotgun>(EquippedWeapon);
+	AShotgun* Shotgun = Cast<AShotgun>(EquippedWeapon);
 	if (Shotgun == nullptr || Character == nullptr) return;
 	if (CombatState == ECombatState::ECS_Reloading || CombatState == ECombatState::ECS_Unoccupied)
 	{
@@ -251,7 +251,7 @@ void UCombatComponent::ShotgunLocalFire(const TArray<FVector_NetQuantize>& Trace
 		Character->PlayFireMontage(bAiming);
 		Shotgun->FireShotgun(TraceHitTargets);
 		CombatState = ECombatState::ECS_Unoccupied;
-	}*/
+	}
 }
 
 void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
@@ -323,7 +323,7 @@ void UCombatComponent::EquipPrimaryWeapon(AWeapon* WeaponToEquip)
 		EquippedWeapon->SetItemState(EItemState::EIS_PickedUp);
 	EquippedWeapon = WeaponToEquip;
 	EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
-	AttachActorToRightHand(EquippedWeapon);
+	AttachActorToRightHand(EquippedWeapon, EquippedWeapon->GetCharacterAttachRightHandSoketName());
 	EquippedWeapon->SetOwner(Character);
 	EquippedWeapon->SetHUDAmmo();
 	UpdateCarriedAmmo();
@@ -392,11 +392,11 @@ void UCombatComponent::DropEquippedWeapon()
 	}
 }
 
-void UCombatComponent::AttachActorToRightHand(AActor* ActorToAttach)
+void UCombatComponent::AttachActorToRightHand(AActor* ActorToAttach, FName SocketName)
 {
 	if (Character == nullptr || Character->GetMesh() == nullptr || ActorToAttach == nullptr) return;
 	//Character->GetCharacterHeadWidget()->SetDisplayText("AttachActorToRightHand");
-	const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
+	const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(SocketName);
 	if (HandSocket)
 	{
 		HandSocket->AttachActor(ActorToAttach, Character->GetMesh());

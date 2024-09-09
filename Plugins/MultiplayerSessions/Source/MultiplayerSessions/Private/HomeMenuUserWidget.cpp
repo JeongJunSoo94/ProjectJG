@@ -37,6 +37,7 @@ void UHomeMenuUserWidget::MultiButtonClicked()
 	{
 		MenuUser->WidgetSwitcher->SetActiveWidgetIndex(1);
 		MenuUser->UndoButton->SetVisibility(ESlateVisibility::Visible);
+		MenuUser->RefreshButtonClicked();
 	}
 }
 

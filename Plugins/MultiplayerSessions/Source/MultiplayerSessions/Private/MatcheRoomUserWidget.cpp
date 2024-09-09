@@ -29,3 +29,11 @@ void UMatcheRoomUserWidget::NativeConstruct()
 		MatcheSelectButton->OnClicked.AddDynamic(this, &ThisClass::SelectButtonClicked);
 	}
 }
+
+void UMatcheRoomUserWidget::UpdateSelectButton(bool IsSelected)
+{
+	if (IsSelected)
+		MatcheSelectButton->SetBackgroundColor(FLinearColor::Blue);
+	else
+		MatcheSelectButton->SetBackgroundColor(FLinearColor::White);
+}

@@ -866,7 +866,7 @@ void ABaseCharacter::PlayReloadMontage()
 		switch (Combat->GetEquippedWeapon()->GetWeaponType())
 		{
 		case EWeaponType::EWT_AssaultRifle:
-			SectionName = FName("Rifle");
+			SectionName = FName("AssaultRifle");
 			break;
 		case EWeaponType::EWT_RocketLauncher:
 			SectionName = FName("RocketLauncher");
@@ -918,14 +918,14 @@ void ABaseCharacter::CrouchButtonPressed()
 	//}
 	if (bIsCrouched)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = CrouchMovementSpeed;
-		GetCharacterMovement()->GroundFriction = CrouchingGroundFriction;
+		GetCharacterMovement()->MaxWalkSpeed = BaseMovementSpeed;
+		GetCharacterMovement()->GroundFriction = BaseGroundFriction;
 		UnCrouch();
 	}
 	else
 	{
-		GetCharacterMovement()->MaxWalkSpeed = BaseMovementSpeed;
-		GetCharacterMovement()->GroundFriction = BaseGroundFriction;
+		GetCharacterMovement()->MaxWalkSpeed = CrouchMovementSpeed;
+		GetCharacterMovement()->GroundFriction = CrouchingGroundFriction;
 		Crouch();
 	}
 }
@@ -1650,8 +1650,8 @@ bool ABaseCharacter::TraceScreenCrosshairCollision(FHitResult& OutHitResult, FVe
 		GetWorld()->LineTraceSingleByChannel(OutHitResult, Start, End, ECollisionChannel::ECC_Visibility);
 		if (OutHitResult.bBlockingHit)
 		{
-			//DrawDebugLine(GetWorld(), Start, End, FColor::Black, false, 2.f);
-			//DrawDebugPoint(GetWorld(), OutHitResult.Location, 5.f, FColor::Black, false, 2.f);
+			//DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, 2.f);
+			//DrawDebugPoint(GetWorld(), OutHitResult.Location, 5.f, FColor::Cyan, false, 2.f);
 			OutHitLocation = OutHitResult.Location;
 			return true;
 		}

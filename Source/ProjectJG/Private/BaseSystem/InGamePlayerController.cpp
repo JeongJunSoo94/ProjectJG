@@ -454,7 +454,6 @@ void AInGamePlayerController::HandleMatchHasStarted(bool bTeamsMatch)
 {
 	if (HasAuthority())
 	{
-		GEngine->AddOnScreenDebugMessage(4, 2.0f, FColor::Blue, TEXT("HandleMatchHasStarted"));
 		bShowTeamScores = bTeamsMatch;
 	}
 	GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;

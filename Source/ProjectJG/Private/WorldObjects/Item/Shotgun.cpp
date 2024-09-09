@@ -15,7 +15,7 @@ void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 	if (OwnerPawn == nullptr) return;
 	AController* InstigatorController = OwnerPawn->GetController();
 
-	const USkeletalMeshSocket* MuzzleFlashSocket = GetItemMesh()->GetSocketByName("MuzzleFlash");
+	const USkeletalMeshSocket* MuzzleFlashSocket = GetItemMesh()->GetSocketByName(GetMuzzleSoketName());
 	if (MuzzleFlashSocket)
 	{
 		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetItemMesh());
@@ -63,6 +63,14 @@ void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 						FireHit.ImpactPoint,
 						.5f,
 						FMath::FRandRange(-.5f, .5f)
+					);
+				}
+				if (FireSound)
+				{
+					UGameplayStatics::PlaySoundAtLocation(
+						this,
+						FireSound,
+						GetActorLocation()
 					);
 				}
 			}
@@ -117,8 +125,8 @@ void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 
 		/*if (!HasAuthority() && bUseServerSideRewind)
 		{
-			BlasterOwnerCharacter = BlasterOwnerCharacter == nullptr ? Cast<ABlasterCharacter>(OwnerPawn) : BlasterOwnerCharacter;
-			BlasterOwnerController = BlasterOwnerController == nullptr ? Cast<ABlasterPlayerController>(InstigatorController) : BlasterOwnerController;
+			BlasterOwnerCharacter = BlasterOwnerCharacter == nullptr ? Cast<ABaseCharacter>(OwnerPawn) : BlasterOwnerCharacter;
+			BlasterOwnerController = BlasterOwnerController == nullptr ? Cast<AInGamePlayerController>(InstigatorController) : BlasterOwnerController;
 			if (BlasterOwnerController && BlasterOwnerCharacter && BlasterOwnerCharacter->GetLagCompensation() && BlasterOwnerCharacter->IsLocallyControlled())
 			{
 				BlasterOwnerCharacter->GetLagCompensation()->ShotgunServerScoreRequest(
@@ -134,7 +142,7 @@ void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 
 void AShotgun::ShotgunTraceEndWithScatter(const FVector& HitTarget, TArray<FVector_NetQuantize>& HitTargets)
 {
-	const USkeletalMeshSocket* MuzzleFlashSocket = GetItemMesh()->GetSocketByName("MuzzleFlash");
+	const USkeletalMeshSocket* MuzzleFlashSocket = GetItemMesh()->GetSocketByName(GetMuzzleSoketName());
 	if (MuzzleFlashSocket == nullptr) return;
 
 	const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetItemMesh());
@@ -157,7 +165,7 @@ void AShotgun::ShotgunTraceEndWithScatter(const FVector& HitTarget, TArray<FVect
 void AShotgun::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
-	const FString WeaponTablePath(TEXT("DataTable'/Game/Developers/JJS/Weapons/HitScanWeaponsDataTable/HitScanWeaponDataTable.HitScanWeaponDataTable'"));
+	const FString WeaponTablePath(TEXT("DataTable'/Game/Developers/JJS/Weapons/WeaponsDataTable/HitScanWeaponsDataTable.HitScanWeaponsDataTable'"));
 	UDataTable* WeaponTableObject = Cast<UDataTable>(StaticLoadObject(UDataTable::StaticClass(), nullptr, *WeaponTablePath));
 
 	if (WeaponTableObject)

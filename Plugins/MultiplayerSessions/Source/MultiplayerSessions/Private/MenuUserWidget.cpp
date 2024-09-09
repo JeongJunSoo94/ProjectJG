@@ -136,6 +136,7 @@ void UMenuUserWidget::OnFindSessions(const TArray<FOnlineSessionSearchResult>& S
 		return;
 	}
 	WB_Matche->SetMatcheItems(0);
+	WB_Matche->SetSliderOption(MultiplayerSessionsSubsystem->GetSearchResults().Num()/10);
 	WB_Matche->Refresh->SetIsEnabled(true);
 }
 
@@ -170,10 +171,12 @@ void UMenuUserWidget::OnStartSession(bool bWasSuccessful)
 
 void UMenuUserWidget::RefreshButtonClicked()
 {
+	if (!WB_Matche->Refresh->GetIsEnabled())
+		return;
 	WB_Matche->Refresh->SetIsEnabled(false);
 	if (MultiplayerSessionsSubsystem)
 	{
-		MultiplayerSessionsSubsystem->FindSessions(100);
+		MultiplayerSessionsSubsystem->FindSessions(20);
 		//MultiplayerSessionsSubsystem->CreateSession(SessionNumPublicConnections, MatchType);
 	}
 }
@@ -208,6 +211,10 @@ void UMenuUserWidget::HostButtonClicked()
 
 void UMenuUserWidget::JoinButtonClicked()
 {
+	if (WB_Matche->SelectRoomNum < 0)
+	{
+		return;
+	}
 	WB_Matche->JoinButton->SetIsEnabled(false);
 	if (MultiplayerSessionsSubsystem)
 	{
