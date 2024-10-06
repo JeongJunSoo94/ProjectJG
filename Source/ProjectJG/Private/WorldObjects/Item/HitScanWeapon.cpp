@@ -16,7 +16,7 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 	if (OwnerPawn == nullptr) return;
 	AController* InstigatorController = OwnerPawn->GetController();
 
-	const USkeletalMeshSocket* MuzzleFlashSocket = GetItemMesh()->GetSocketByName(GetMuzzleSoketName());
+	const USkeletalMeshSocket* MuzzleFlashSocket = GetItemMesh()->GetSocketByName(GetMuzzleSocketName());
 	if (MuzzleFlashSocket)
 	{
 		FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetItemMesh());
@@ -25,8 +25,8 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 		FHitResult FireHit;
 		WeaponTraceHit(Start, HitTarget, FireHit);
 
-		ABaseCharacter* BaseCharacter = Cast<ABaseCharacter>(FireHit.GetActor());
-		if (BaseCharacter && InstigatorController)
+		APawn* HitActor = Cast<APawn>(FireHit.GetActor());
+		if (HitActor && InstigatorController)
 		{
 			bool bCauseAuthDamage = !bUseServerSideRewind || OwnerPawn->IsLocallyControlled();
 			if (HasAuthority() && bCauseAuthDamage)
@@ -34,7 +34,7 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 				const float DamageToCause = FireHit.BoneName.ToString() == FString("head") ? HeadShotDamage : Damage;
 
 				UGameplayStatics::ApplyDamage(
-					BaseCharacter,
+					HitActor,
 					DamageToCause,
 					InstigatorController,
 					this,
@@ -153,9 +153,9 @@ void AHitScanWeapon::OnConstruction(const FTransform& Transform)
 			ImpactParticles = HitScanWeaponDataRow->ImpactParticles;
 			HitSound = HitScanWeaponDataRow->HitSound;
 
-			//MuzzleSoketName = HitScanWeaponDataRow->MuzzleSoketName;
+			//MuzzleSocketName = HitScanWeaponDataRow->MuzzleSocketName;
 			//FireType = HitScanWeaponDataRow->FireType;
-			//SubHandSoketName = HitScanWeaponDataRow->SubHandSoketName;
+			//SubHandSocketName = HitScanWeaponDataRow->SubHandSocketName;
 		}
 	}
 }

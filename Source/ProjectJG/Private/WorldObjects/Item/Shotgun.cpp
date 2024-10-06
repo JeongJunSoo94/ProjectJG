@@ -15,34 +15,34 @@ void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 	if (OwnerPawn == nullptr) return;
 	AController* InstigatorController = OwnerPawn->GetController();
 
-	const USkeletalMeshSocket* MuzzleFlashSocket = GetItemMesh()->GetSocketByName(GetMuzzleSoketName());
+	const USkeletalMeshSocket* MuzzleFlashSocket = GetItemMesh()->GetSocketByName(GetMuzzleSocketName());
 	if (MuzzleFlashSocket)
 	{
 		const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetItemMesh());
 		const FVector Start = SocketTransform.GetLocation();
 
 		// Maps hit character to number of times hit
-		TMap<ABaseCharacter*, uint32> HitMap;
-		TMap<ABaseCharacter*, uint32> HeadShotHitMap;
+		TMap<APawn*, uint32> HitMap;
+		TMap<APawn*, uint32> HeadShotHitMap;
 		for (FVector_NetQuantize HitTarget : HitTargets)
 		{
 			FHitResult FireHit;
 			WeaponTraceHit(Start, HitTarget, FireHit);
 
-			ABaseCharacter* BlasterCharacter = Cast<ABaseCharacter>(FireHit.GetActor());
-			if (BlasterCharacter)
+			APawn* HitCharacter = Cast<APawn>(FireHit.GetActor());
+			if (HitCharacter)
 			{
 				const bool bHeadShot = FireHit.BoneName.ToString() == FString("head");
 
 				if (bHeadShot)
 				{
-					if (HeadShotHitMap.Contains(BlasterCharacter)) HeadShotHitMap[BlasterCharacter]++;
-					else HeadShotHitMap.Emplace(BlasterCharacter, 1);
+					if (HeadShotHitMap.Contains(HitCharacter)) HeadShotHitMap[HitCharacter]++;
+					else HeadShotHitMap.Emplace(HitCharacter, 1);
 				}
 				else
 				{
-					if (HitMap.Contains(BlasterCharacter)) HitMap[BlasterCharacter]++;
-					else HitMap.Emplace(BlasterCharacter, 1);
+					if (HitMap.Contains(HitCharacter)) HitMap[HitCharacter]++;
+					else HitMap.Emplace(HitCharacter, 1);
 				}
 
 
@@ -65,20 +65,20 @@ void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 						FMath::FRandRange(-.5f, .5f)
 					);
 				}
-				if (FireSound)
-				{
-					UGameplayStatics::PlaySoundAtLocation(
-						this,
-						FireSound,
-						GetActorLocation()
-					);
-				}
 			}
 		}
-		TArray<ABaseCharacter*> HitCharacters;
+		if (FireSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(
+				this,
+				FireSound,
+				GetActorLocation()
+			);
+		}
+		TArray<APawn*> HitCharacters;
 
 		// Maps Character hit to total damage
-		TMap<ABaseCharacter*, float> DamageMap;
+		TMap<APawn*, float> DamageMap;
 
 		// Calculate body shot damage by multiplying times hit x Damage - store in DamageMap
 		for (auto HitPair : HitMap)
@@ -142,7 +142,7 @@ void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 
 void AShotgun::ShotgunTraceEndWithScatter(const FVector& HitTarget, TArray<FVector_NetQuantize>& HitTargets)
 {
-	const USkeletalMeshSocket* MuzzleFlashSocket = GetItemMesh()->GetSocketByName(GetMuzzleSoketName());
+	const USkeletalMeshSocket* MuzzleFlashSocket = GetItemMesh()->GetSocketByName(GetMuzzleSocketName());
 	if (MuzzleFlashSocket == nullptr) return;
 
 	const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetItemMesh());

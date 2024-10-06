@@ -9,8 +9,6 @@ class PROJECTJG_API UFloatingDamageWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:
-	virtual void NativeOnInitialized();
-	
 	UFUNCTION(BlueprintImplementableEvent)
-		void SetText(float damageValue);
+		void SetDamageText(float damageValue);
 };

@@ -47,7 +47,7 @@ void UCharacterHeadWidget::ShowPlayerNetRole(APawn* InPawn)
 	}
 	//FString RemoteRoleString = FString::Printf(TEXT("Remote Role: %s"), *RemoteRoleStr);
 	//SetDisplayText(RemoteRoleString);
-	SetPlayerText();
+	//SetPlayerText();
 }
 
 void UCharacterHeadWidget::SetPlayerText()

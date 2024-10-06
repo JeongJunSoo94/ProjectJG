@@ -18,9 +18,14 @@ protected:
 		class UWidgetComponent* FloatingDamageWidgetComp;
 	UPROPERTY(VisibleDefaultsOnly, Category = "Widgets")
 		class UFloatingDamageWidget* FloatingDamageWidget;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = FX, meta = (AllowPrivateAccess = "true"))
+		TSubclassOf<class UFloatingDamageWidget> DamageWidgetclass;
+
+	float ActorLifeTime = 2.0f;
+	FTimerHandle LifeTimer;
 public:
-	UPROPERTY(VisibleDefaultsOnly)
-		class UPoolObjectActorComponent* PoolObject;
+	//UPROPERTY(VisibleDefaultsOnly)
+	//	class UPoolObjectActorComponent* PoolObject;
 public:	
 	ADamageFXActor();
 	void SetDamageWidgetSizeAndLocation(FVector location, FVector2D size);
@@ -31,5 +36,5 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-
+	void DestroyTimerFinished();
 };

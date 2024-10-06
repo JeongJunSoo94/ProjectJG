@@ -24,6 +24,7 @@ public:
 	void EquipWeapon(class AWeapon* WeaponToEquip);
 	void SpawnDefaultWeapon();
 	void SwapWeapons();
+	void SwapItems(class AItem* ItemToEquip);
 	void Reload();
 	UFUNCTION(BlueprintCallable)
 		void FinishReloading();
@@ -104,8 +105,8 @@ protected:
 	UFUNCTION(Server, Reliable)
 		void ServerThrowGrenade();
 
-	//UPROPERTY(EditAnywhere)
-	//	TSubclassOf<class AProjectile> GrenadeClass;
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<class AProjectile> GrenadeClass;
 
 	void DropEquippedWeapon();
 	void AttachActorToRightHand(AActor* ActorToAttach,FName SocketName = FName("RightHandSocket"));
@@ -117,7 +118,7 @@ protected:
 	void ReloadEmptyWeapon();
 	void ShowAttachedGrenade(bool bShowGrenade);
 	void EquipPrimaryWeapon(AWeapon* WeaponToEquip);
-	void EquipSecondaryWeapon(AWeapon* WeaponToEquip);
+	//void EquipSecondaryWeapon(AWeapon* WeaponToEquip);
 
 	void ExchangeInventoryItems(int32 CurrentItemIndex, int32 NewItemIndex);
 
@@ -135,6 +136,8 @@ private:
 
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon, VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 		AWeapon* EquippedWeapon;
+
+		AItem* SelectItem;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 		TSubclassOf<AWeapon> DefaultWeaponClass;

@@ -143,7 +143,7 @@ void UCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		bEquipped = OwnerCharacter->GetCombatComp()->GetEquippedWeapon()==nullptr?false:true;
 		if (OwnerCharacter->GetCombatComp()->GetEquippedWeapon() && OwnerCharacter->GetMesh())
 		{
-			LeftHandTransform = OwnerCharacter->GetCombatComp()->GetEquippedWeapon()->GetItemMesh()->GetSocketTransform(OwnerCharacter->GetCombatComp()->GetEquippedWeapon()->GetSubHandSoketName(), ERelativeTransformSpace::RTS_World);
+			LeftHandTransform = OwnerCharacter->GetCombatComp()->GetEquippedWeapon()->GetItemMesh()->GetSocketTransform(OwnerCharacter->GetCombatComp()->GetEquippedWeapon()->GetSubHandSocketName(), ERelativeTransformSpace::RTS_World);
 			FVector OutPosition;
 			FRotator OutRotation;
 			OwnerCharacter->GetMesh()->TransformToBoneSpace(FName("hand_r"), LeftHandTransform.GetLocation(), FRotator::ZeroRotator, OutPosition, OutRotation);
@@ -153,10 +153,10 @@ void UCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 			if (OwnerCharacter->IsLocallyControlled())
 			{
 				bLocallyControlled = true;
-				FTransform MuzzleTransform = OwnerCharacter->GetCombatComp()->GetEquippedWeapon()->GetItemMesh()->GetSocketTransform(OwnerCharacter->GetCombatComp()->GetEquippedWeapon()->GetMuzzleSoketName(), ERelativeTransformSpace::RTS_World);
+				FTransform MuzzleTransform = OwnerCharacter->GetCombatComp()->GetEquippedWeapon()->GetItemMesh()->GetSocketTransform(OwnerCharacter->GetCombatComp()->GetEquippedWeapon()->GetMuzzleSocketName(), ERelativeTransformSpace::RTS_World);
 				FTransform WeaponTransform = OwnerCharacter->GetCombatComp()->GetEquippedWeapon()->GetTransform();
 				FTransform AmmoTransform = OwnerCharacter->GetCombatComp()->GetEquippedWeapon()->GetItemMesh()->GetSocketTransform(OwnerCharacter->GetCombatComp()->GetEquippedWeapon()->GetAmmoEjectSocketName(), ERelativeTransformSpace::RTS_World);
-				RightHandTransform = OwnerCharacter->GetCombatComp()->GetEquippedWeapon()->GetItemMesh()->GetSocketTransform(OwnerCharacter->GetCombatComp()->GetEquippedWeapon()->GetMainHandSoketName(), ERelativeTransformSpace::RTS_World);
+				RightHandTransform = OwnerCharacter->GetCombatComp()->GetEquippedWeapon()->GetItemMesh()->GetSocketTransform(OwnerCharacter->GetCombatComp()->GetEquippedWeapon()->GetMainHandSocketName(), ERelativeTransformSpace::RTS_World);
 
 
 				////(손잡이와 머즐의 직각 부분 - 머즐),  (손잡이 - 머즐) 두 방향벡터의 회전값

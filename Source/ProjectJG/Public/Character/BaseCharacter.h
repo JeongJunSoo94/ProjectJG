@@ -109,7 +109,7 @@ protected:
 
 	void FireButtonPressed();
 	void FireButtonReleased();
-
+	void GrenadeButtonPressed();
 	//void StartFireTimer();
 
 	//UFUNCTION()
@@ -259,7 +259,7 @@ public:
 	void PlayReloadMontage();
 	void PlayElimMontage();
 	void PlaySwapMontage();
-	//void PlayThrowGrenadeMontage();
+	void PlayThrowGrenadeMontage();
 	//<<
 	
 	virtual void OnRep_ReplicatedMovement() override;
@@ -449,7 +449,7 @@ private:
 		UAnimMontage* ReloadMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
-		UAnimMontage* EquipMontage;
+		UAnimMontage* SwapMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 		UAnimMontage* HitReactMontage;
@@ -458,7 +458,10 @@ private:
 		UAnimMontage* ElimMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
-		UAnimMontage* SwapMontage;
+		UAnimMontage* ThrowGrenadeMontage;
+
+	UPROPERTY(VisibleAnywhere)
+		UStaticMeshComponent* AttachedGrenade;
 
 	bool bRotateRootBone;
 	float TurnThreshold = 0.5f;
@@ -529,6 +532,12 @@ private:
 
 	const int32 INVENTORY_CAPACITY{ 5 };
 
+	//UPROPERTY(ReplicatedUsing = OnRep_SelectSlotIndex, VisibleAnywhere, Category = "Inventory")
+	//	int32 SelectSlotIndex;
+
+	//UFUNCTION()
+	//	void OnRep_SelectSlotIndex();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Inventory, meta = (AllowPrivateAccess = "true"))
 		int32 HighlightedSlot;
 	
@@ -592,11 +601,18 @@ private:
 
 	//<<
 
+	//>>
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = FX, meta = (AllowPrivateAccess = "true"))
+		TSubclassOf<class ADamageFXActor> DamageWidgetClass;
+
+	//<<
+
 public:
 	FORCEINLINE USpringArmComponent* GetCameraSpringArm() const { return CameraSpringArm; }
 	FORCEINLINE UCameraComponent* GetCharacterCamera() const { return CharacterCamera; }
 	FORCEINLINE UCharacterHeadWidget* GetCharacterHeadWidget() const { return CacheCharacterHeadWidget; }
 	FORCEINLINE UCombatComponent* GetCombatComp() const { return Combat; }
+	FORCEINLINE UBuffComponent* GetBuff() const { return Buff; }
 	FORCEINLINE ULagCompensationComponent* GetLagCompensation() const { return LagCompensation; }
 	FORCEINLINE float GetHealth() const { return Health; }
 	FORCEINLINE void SetHealth(float Amount) { Health = Amount; }
@@ -642,6 +658,8 @@ public:
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const{ return TurningInPlace; }
 
 	FORCEINLINE USceneComponent* GetHandSceneComponent() const { return HandSceneComponent; }
+
+	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const { return AttachedGrenade; }
 
 	bool IsLocallyReloading();
 

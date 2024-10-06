@@ -271,7 +271,6 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	}
 	else
 	{
-		//슬롯에 빈곳이 있는지 확인
 		EquipPrimaryWeapon(WeaponToEquip);
 		//if (EquippedWeapon != nullptr && SecondaryWeapon == nullptr)
 		//{
@@ -300,13 +299,31 @@ void UCombatComponent::SpawnDefaultWeapon()
 	}
 }
 
+//서버용 함수
 void UCombatComponent::SwapWeapons()
 {
 	if (CombatState != ECombatState::ECS_Unoccupied || Character == nullptr || !Character->HasAuthority()) return;
 
-	//Character->PlaySwapMontage();
+	Character->PlaySwapMontage();
 	CombatState = ECombatState::ECS_SwappingWeapons;
 	Character->bFinishedSwapping = false;
+	//if (SecondaryWeapon) SecondaryWeapon->EnableCustomDepth(false);
+
+	/*DropWeapon();
+	EquipWeapon(WeaponToSwap);
+	TraceHitItem = nullptr;
+	TraceHitItemLastFrame = nullptr;*/
+}
+
+void UCombatComponent::SwapItems(AItem* ItemToEquip)
+{
+	if (CombatState != ECombatState::ECS_Unoccupied || Character == nullptr || !Character->HasAuthority()) return;
+
+	Character->PlaySwapMontage();
+	CombatState = ECombatState::ECS_SwappingWeapons;
+	Character->bFinishedSwapping = false;
+	
+	SelectItem = ItemToEquip;
 	//if (SecondaryWeapon) SecondaryWeapon->EnableCustomDepth(false);
 
 	/*DropWeapon();
@@ -323,7 +340,7 @@ void UCombatComponent::EquipPrimaryWeapon(AWeapon* WeaponToEquip)
 		EquippedWeapon->SetItemState(EItemState::EIS_PickedUp);
 	EquippedWeapon = WeaponToEquip;
 	EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
-	AttachActorToRightHand(EquippedWeapon, EquippedWeapon->GetCharacterAttachRightHandSoketName());
+	AttachActorToRightHand(EquippedWeapon, EquippedWeapon->GetCharacterAttachRightHandSocketName());
 	EquippedWeapon->SetOwner(Character);
 	EquippedWeapon->SetHUDAmmo();
 	UpdateCarriedAmmo();
@@ -331,23 +348,23 @@ void UCombatComponent::EquipPrimaryWeapon(AWeapon* WeaponToEquip)
 	ReloadEmptyWeapon();
 }
 
-void UCombatComponent::EquipSecondaryWeapon(AWeapon* WeaponToEquip)
-{
-	if (WeaponToEquip == nullptr) return;
-	DropEquippedWeapon();
-	EquippedWeapon = WeaponToEquip;
-	EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
-	AttachActorToRightHand(EquippedWeapon);
-	EquippedWeapon->SetOwner(nullptr);
-	//raceHitItem = nullptr;
-	//TraceHitItemLastFrame = nullptr;
-
-	/*SecondaryWeapon = WeaponToEquip;
-	SecondaryWeapon->SetWeaponState(EWeaponState::EWS_EquippedSecondary);
-	AttachActorToBackpack(WeaponToEquip);
-	PlayEquipWeaponSound(WeaponToEquip);
-	SecondaryWeapon->SetOwner(Character);*/
-}
+//void UCombatComponent::EquipSecondaryWeapon(AWeapon* WeaponToEquip)
+//{
+//	if (WeaponToEquip == nullptr) return;
+//	DropEquippedWeapon();
+//	EquippedWeapon = WeaponToEquip;
+//	EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
+//	AttachActorToRightHand(EquippedWeapon);
+//	EquippedWeapon->SetOwner(nullptr);
+//	//raceHitItem = nullptr;
+//	//TraceHitItemLastFrame = nullptr;
+//
+//	/*SecondaryWeapon = WeaponToEquip;
+//	SecondaryWeapon->SetWeaponState(EWeaponState::EWS_EquippedSecondary);
+//	AttachActorToBackpack(WeaponToEquip);
+//	PlayEquipWeaponSound(WeaponToEquip);
+//	SecondaryWeapon->SetOwner(Character);*/
+//}
 
 
 void UCombatComponent::ExchangeInventoryItems(int32 CurrentItemIndex, int32 NewItemIndex)
@@ -456,11 +473,11 @@ void UCombatComponent::PlayEquipWeaponSound(AWeapon* WeaponToEquip)
 {
 	if (Character && WeaponToEquip && WeaponToEquip->GetEquipSound())
 	{
-		/*UGameplayStatics::PlaySoundAtLocation(
+		UGameplayStatics::PlaySoundAtLocation(
 			this,
-			WeaponToEquip->EquipSound,
+			WeaponToEquip->GetEquipSound(),
 			Character->GetActorLocation()
-		);*/
+		);
 		WeaponToEquip->PlayEquipSound();
 	}
 }
@@ -513,14 +530,40 @@ void UCombatComponent::FinishSwap()
 		CombatState = ECombatState::ECS_Unoccupied;
 	}
 	if (Character) Character->bFinishedSwapping = true;
+
 	//if (SecondaryWeapon) SecondaryWeapon->EnableCustomDepth(true);
 }
 
+//서버에서 캐릭터 손에 무기 장착
 void UCombatComponent::FinishSwapAttachWeapons()
 {
-	//PlayEquipWeaponSound(SecondaryWeapon);
 
+	//무기에 있는 장비 장착 소리
+	//PlayEquipWeaponSound(SecondaryWeapon);
 	if (Character == nullptr || !Character->HasAuthority()) return;
+
+	//무기 교환
+	//여기에 바꿀 무기들의 정보가 필요하다. 
+	
+	if (SelectItem)
+	{
+		auto TempWeapon = Cast<AWeapon>(SelectItem);
+		if (TempWeapon)
+		{
+			if (EquippedWeapon)
+				EquippedWeapon->SetItemState(EItemState::EIS_PickedUp);
+			EquippedWeapon = TempWeapon;
+			EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
+			AttachActorToRightHand(EquippedWeapon, EquippedWeapon->GetCharacterAttachRightHandSocketName());
+			EquippedWeapon->SetOwner(Character);
+			EquippedWeapon->SetHUDAmmo();
+			UpdateCarriedAmmo();
+			PlayEquipWeaponSound(TempWeapon);
+			ReloadEmptyWeapon();
+		}
+		SelectItem = nullptr;
+	}
+
 	//AWeapon* TempWeapon = EquippedWeapon;
 	//EquippedWeapon = SecondaryWeapon;
 	//SecondaryWeapon = TempWeapon;
@@ -528,7 +571,7 @@ void UCombatComponent::FinishSwapAttachWeapons()
 	//EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
 	//AttachActorToRightHand(EquippedWeapon);
 	////EquippedWeapon->SetHUDAmmo();
-	UpdateCarriedAmmo();
+	//UpdateCarriedAmmo();
 
 	////SecondaryWeapon->SetWeaponState(EWeaponState::EWS_EquippedSecondary);
 	//AttachActorToBackpack(SecondaryWeapon);
@@ -605,15 +648,15 @@ void UCombatComponent::LaunchGrenade()
 
 void UCombatComponent::ServerLaunchGrenade_Implementation(const FVector_NetQuantize& Target)
 {
-	//if (Character && GrenadeClass && Character->GetAttachedGrenade())
-	//{
-	//	const FVector StartingLocation = Character->GetAttachedGrenade()->GetComponentLocation();
-	//	FVector ToTarget = Target - StartingLocation;
-	//	FActorSpawnParameters SpawnParams;
-	//	SpawnParams.Owner = Character;
-	//	SpawnParams.Instigator = Character;
-	//	UWorld* World = GetWorld();
-	/*	if (World)
+	if (Character && GrenadeClass && Character->GetAttachedGrenade())
+	{
+		const FVector StartingLocation = Character->GetAttachedGrenade()->GetComponentLocation();
+		FVector ToTarget = Target - StartingLocation;
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = Character;
+		SpawnParams.Instigator = Character;
+		UWorld* World = GetWorld();
+		if (World)
 		{
 			World->SpawnActor<AProjectile>(
 				GrenadeClass,
@@ -621,8 +664,8 @@ void UCombatComponent::ServerLaunchGrenade_Implementation(const FVector_NetQuant
 				ToTarget.Rotation(),
 				SpawnParams
 				);
-		}*/
-	//}
+		}
+	}
 }
 
 void UCombatComponent::OnRep_CombatState()
@@ -641,7 +684,7 @@ void UCombatComponent::OnRep_CombatState()
 	case ECombatState::ECS_ThrowingGrenade:
 		if (Character && !Character->IsLocallyControlled())
 		{
-			//Character->PlayThrowGrenadeMontage();
+			Character->PlayThrowGrenadeMontage();
 			AttachActorToLeftHand(EquippedWeapon);
 			ShowAttachedGrenade(true);
 		}
@@ -649,7 +692,7 @@ void UCombatComponent::OnRep_CombatState()
 	case ECombatState::ECS_SwappingWeapons:
 		if (Character && !Character->IsLocallyControlled())
 		{
-			//Character->PlaySwapMontage();
+			Character->PlaySwapMontage();
 		}
 		break;
 	}
@@ -684,7 +727,7 @@ void UCombatComponent::ThrowGrenade()
 	CombatState = ECombatState::ECS_ThrowingGrenade;
 	if (Character)
 	{
-		//Character->PlayThrowGrenadeMontage();
+		Character->PlayThrowGrenadeMontage();
 		AttachActorToLeftHand(EquippedWeapon);
 		ShowAttachedGrenade(true);
 	}
@@ -701,7 +744,7 @@ void UCombatComponent::ThrowGrenade()
 
 void UCombatComponent::ServerThrowGrenade_Implementation()
 {
-	/*if (Grenades == 0) return;
+	if (Grenades == 0) return;
 	CombatState = ECombatState::ECS_ThrowingGrenade;
 	if (Character)
 	{
@@ -710,7 +753,7 @@ void UCombatComponent::ServerThrowGrenade_Implementation()
 		ShowAttachedGrenade(true);
 	}
 	Grenades = FMath::Clamp(Grenades - 1, 0, MaxGrenades);
-	UpdateHUDGrenades();*/
+	UpdateHUDGrenades();
 }
 
 void UCombatComponent::UpdateHUDGrenades()
@@ -730,10 +773,10 @@ bool UCombatComponent::ShouldSwapWeapons()
 
 void UCombatComponent::ShowAttachedGrenade(bool bShowGrenade)
 {
-	//if (Character && Character->GetAttachedGrenade())
-	//{
-	//	Character->GetAttachedGrenade()->SetVisibility(bShowGrenade);
-	//}
+	if (Character && Character->GetAttachedGrenade())
+	{
+		Character->GetAttachedGrenade()->SetVisibility(bShowGrenade);
+	}
 }
 
 void UCombatComponent::GrabClip()

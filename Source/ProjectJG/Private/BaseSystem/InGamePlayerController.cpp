@@ -530,23 +530,16 @@ void AInGamePlayerController::SetHUDHealth(float Health, float MaxHealth)
 void AInGamePlayerController::SetHUDShield(float Shield, float MaxShield)
 {
 	GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
-	//bool bHUDValid = GameHUD &&
-	//	GameHUD->GetCharacterOverlay() &&
-	//	GameHUD->GetCharacterOverlay()->ShieldBar &&
-	//	GameHUD->GetCharacterOverlay()->ShieldText;
-	//if (bHUDValid)
-	//{
-	//	const float ShieldPercent = Shield / MaxShield;
-	//	GameHUD->GetCharacterOverlay()->ShieldBar->SetPercent(ShieldPercent);
-	//	FString ShieldText = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Shield), FMath::CeilToInt(MaxShield));
-	//	GameHUD->GetCharacterOverlay()->ShieldText->SetText(FText::FromString(ShieldText));
-	//}
-	//else
-	//{
-	//	bInitializeShield = true;
-	//	HUDShield = Shield;
-	//	HUDMaxShield = MaxShield;
-	//}
+	if (GameHUD && GameHUD->GetPlayerInGameWidget())
+	{
+		GameHUD->GetPlayerInGameWidget()->ShieldUpdate(Shield, MaxShield);
+	}
+	else
+	{
+		bInitializeShield = true;
+		HUDShield = Shield;
+		HUDMaxShield = MaxShield;
+	}
 }
 
 void AInGamePlayerController::SetHUDScore(float Score)

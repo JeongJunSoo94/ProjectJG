@@ -142,16 +142,16 @@ void ABaseEnemyCharacter::OnRep_Shield(float LastShield)
 //	//return Status->GetHealth();
 //}
 
-void ABaseEnemyCharacter::Damaged(float totalAmount)
-{
-	//Status->SubHealth(totalAmount);
-	Cast<UHealthWidget>(HealthWidget->GetUserWidgetObject())->Update(Health, MaxHealth);
-	if (Health <= 0)
-	{
-		Die();
-	}
-	DamageValue = 0;
-}
+//void ABaseEnemyCharacter::Damaged(float totalAmount)
+//{
+//	//Status->SubHealth(totalAmount);
+//	Cast<UHealthWidget>(HealthWidget->GetUserWidgetObject())->Update(Health, MaxHealth);
+//	if (Health <= 0)
+//	{
+//		Die();
+//	}
+//	DamageValue = 0;
+//}
 
 void ABaseEnemyCharacter::Die()
 {
@@ -167,6 +167,10 @@ void ABaseEnemyCharacter::Elim(bool bPlayerLeftGame)
 {
 	//DropOrDestroyWeapons();
 	MulticastElim(bPlayerLeftGame);
+	if (HasAuthority())
+	{
+		//SpawnPickup();
+	}
 }
 
 void ABaseEnemyCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
@@ -246,6 +250,19 @@ void ABaseEnemyCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, cons
 	/*UpdateHUDHealth();
 	UpdateHUDShield();*/
 	//PlayHitReactMontage();
+
+	UWorld* const World = GetWorld();
+	if (World && DamageWidgetClass)
+	{
+		ADamageFXActor* DamageFXActor = Cast<ADamageFXActor>(World->SpawnActor<AActor>(DamageWidgetClass, FVector::ZeroVector, FRotator::ZeroRotator));
+
+		DamageFXActor->SetDamageText(Damage);
+
+		//FTransform Transform = DamageFXActor->GetTransform();
+		DamageFXActor->SetActorTransform(GetActorTransform());
+		DamageFXActor->SetDamageWidgetSizeAndLocation(FVector::ZeroVector, FVector2D(120, 20));
+		DamageFXActor->SetWidgetActive(true);
+	}
 
 	if (Health == 0.f)
 	{

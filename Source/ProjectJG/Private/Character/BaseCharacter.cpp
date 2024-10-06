@@ -27,6 +27,7 @@
 #include "Character/Enemies/BaseEnemyCharacter.h"
 #include "BaseSystem/TeamPlayerStart/TeamPlayerStart.h"
 #include "Character/Enemies/AIController/BaseAIController.h"
+#include "WorldObjects/FXActor/DamageFXActor.h"
 
 ABaseCharacter::ABaseCharacter() :
 	//Base rates
@@ -133,6 +134,14 @@ ABaseCharacter::ABaseCharacter() :
 	ItemInterpComp->SetupAttachment(GetCharacterCamera());
 	//<<
 
+	//>>
+	AttachedGrenade = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Attached Grenade"));
+	AttachedGrenade->SetupAttachment(GetMesh(), FName("RightHandSocket"));
+	AttachedGrenade->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//<<
+
+	//>>
+
 	head = CreateDefaultSubobject<UBoxComponent>(TEXT("head"));
 	head->SetupAttachment(GetMesh(), FName("head"));
 	HitCollisionBoxes.Add(FName("head"), head);
@@ -207,6 +216,7 @@ ABaseCharacter::ABaseCharacter() :
 			Box.Value->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		}
 	}
+	//<<
 }
 
 void ABaseCharacter::BeginPlay()
@@ -245,6 +255,12 @@ void ABaseCharacter::BeginPlay()
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ABaseCharacter::ReceiveDamage);
 	}
+
+	if (AttachedGrenade)
+	{
+		AttachedGrenade->SetVisibility(false);
+	}
+
 	InitailizeInterpLocations();
 }
 
@@ -612,6 +628,15 @@ void ABaseCharacter::FireButtonReleased()
 	}
 }
 
+void ABaseCharacter::GrenadeButtonPressed()
+{
+	if (Combat)
+	{
+		if (Combat->bHoldingTheFlag) return;
+		Combat->ThrowGrenade();
+	}
+}
+
 void ABaseCharacter::TraceForItems()
 {
 	if (bShouldTraceForItems)
@@ -735,9 +760,9 @@ void ABaseCharacter::SelectButtonPressed()
 
 		//if (bSwap)
 		//{
-		//	//PlaySwapMontage();
+		//	PlaySwapMontage();
 		//	Combat->CombatState = ECombatState::ECS_SwappingWeapons;
-		//	//bFinishedSwapping = false;
+		//	bFinishedSwapping = false;
 		//}
 	}
 }
@@ -755,11 +780,15 @@ void ABaseCharacter::ServerSelectButtonPressed_Implementation()
 			AWeapon* TraceWeapon = Cast<AWeapon>(TraceHitItem);
 			if (Combat->GetEquippedWeapon() == nullptr)
 			{
+				//빈손이면 장비 습득 후 장착
 				GetPickupItem(TraceWeapon);
-				//Combat->EquipWeapon(TraceWeapon);
+				Combat->EquipWeapon(TraceWeapon);
 			}
 			else
 			{
+				//인벤토리 꽉 차있으면
+
+				//인벤토리 드롭 후 장착
 				GetPickupItem(TraceWeapon);
 			}
 			TraceHitItem = nullptr;
@@ -767,33 +796,18 @@ void ABaseCharacter::ServerSelectButtonPressed_Implementation()
 		}
 		else
 		{
+			//범위에 아이템이 없음 손에 장비가 있으면 버려야함
 			if (Combat->GetEquippedWeapon())
 			{
+				//손에 아이템 있으니깐 장비 드롭
 				Inventory[Combat->GetEquippedWeapon()->GetSlotIndex()] = nullptr;
 				Combat->DropEquippedWeapon();
 			}
 		}
-		//if (Combat->GetEquippedWeapon()==nullptr)
-		//{
-		//	//EquipWeapon(TraceWeapon, true);
-		//	Combat->EquipWeapon(TraceWeapon);
-		//}
-		//else if (Combat->GetEquippedWeapon())
-		//{
-		//	if (GetEmptyInventorySlot() == -1)
-		//	{
-		//		SwapWeapon(TraceWeapon);
-		//	}
-		//	else
-		//	{
-
-		//	}
-		//	//Combat->EquipWeapon(TraceWeapon);
-		//	//Combat->SwapWeapons();
-		//}
 	}
 }
 
+//스왑 상태일때 못하게 하기
 void ABaseCharacter::ServerNumberButtonPressed_Implementation(int32 slotIndex)
 {
 	if (Combat)
@@ -803,11 +817,24 @@ void ABaseCharacter::ServerNumberButtonPressed_Implementation(int32 slotIndex)
 			if (Inventory[slotIndex])
 			{
 				auto Weapon = Cast<AWeapon>(Inventory[slotIndex]);
-				if(Weapon)
-					Combat->EquipWeapon(Weapon);
+				if (Weapon)
+				{
+					//장비가 있어야 스왑을 한다.
+					if (Combat->GetEquippedWeapon())
+					{
+						if (Combat->GetEquippedWeapon()->GetSlotIndex() == slotIndex)
+							return;
+						//장비를 장착하고 있어서 스왑을 한다.
+						Combat->SwapItems(Weapon);
+					}
+					else
+					{
+						//손에 장비가 없어서 바로 장착한다.
+						Combat->EquipWeapon(Weapon);
+					}
+				}
 			}
 		}
-		//Combat->SwapWeapons();
 	}
 }
 
@@ -901,12 +928,36 @@ void ABaseCharacter::PlayElimMontage()
 	}
 }
 
+void ABaseCharacter::PlayThrowGrenadeMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && ThrowGrenadeMontage)
+	{
+		AnimInstance->Montage_Play(ThrowGrenadeMontage);
+	}
+}
+
 void ABaseCharacter::PlaySwapMontage()
 {
+	if (Combat == nullptr || Combat->GetEquippedWeapon() == nullptr) return;
+
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && SwapMontage)
 	{
 		AnimInstance->Montage_Play(SwapMontage);
+		FName SectionName;
+
+		switch (Combat->GetEquippedWeapon()->GetWeaponType())
+		{
+		case EWeaponType::EWT_Pistol:
+			SectionName = FName("Pistol");
+			break;
+		default:
+			SectionName = FName("Default");
+			break;
+		}
+
+		AnimInstance->Montage_JumpToSection(SectionName);
 	}
 }
 
@@ -982,45 +1033,76 @@ void ABaseCharacter::InitailizeInterpLocations()
 void ABaseCharacter::OneKeyPressed()
 {
 	ServerNumberButtonPressed(0);
-	//if(Combat->GetEquippedWeapon()==nullptr) return;
-	//if (Combat->GetEquippedWeapon()->GetSlotIndex() == 1) return;
-	//ExchangeInventoryItems(EquippedWeapon->GetSlotIndex(), 1);
+	bool bSwap = Combat->ShouldSwapWeapons() &&
+		!HasAuthority() &&
+		Combat->CombatState == ECombatState::ECS_Unoccupied;
+
+	if (bSwap)
+	{
+		PlaySwapMontage();
+		Combat->CombatState = ECombatState::ECS_SwappingWeapons;
+		bFinishedSwapping = false;
+	}
 }
 
 void ABaseCharacter::TwoKeyPressed()
 {
 	ServerNumberButtonPressed(1);
-	//if (Combat->GetEquippedWeapon() == nullptr) return;
-	//if (Combat->GetEquippedWeapon()->GetSlotIndex() == 2) return;
-	//ServerNumberButtonPressed(Combat->GetEquippedWeapon()->GetSlotIndex());
-	//ExchangeInventoryItems(EquippedWeapon->GetSlotIndex(), 2);
+	bool bSwap = Combat->ShouldSwapWeapons() &&
+		!HasAuthority() &&
+		Combat->CombatState == ECombatState::ECS_Unoccupied;
+
+	if (bSwap)
+	{
+		PlaySwapMontage();
+		Combat->CombatState = ECombatState::ECS_SwappingWeapons;
+		bFinishedSwapping = false;
+	}
 }
 
 void ABaseCharacter::ThreeKeyPressed()
 {
 	ServerNumberButtonPressed(2);
-	//if (Combat->GetEquippedWeapon() == nullptr) return;
-	//if (Combat->GetEquippedWeapon()->GetSlotIndex() == 3) return;
-	//ServerNumberButtonPressed(Combat->GetEquippedWeapon()->GetSlotIndex());
-	//ExchangeInventoryItems(EquippedWeapon->GetSlotIndex(), 3);
+	bool bSwap = Combat->ShouldSwapWeapons() &&
+		!HasAuthority() &&
+		Combat->CombatState == ECombatState::ECS_Unoccupied;
+
+	if (bSwap)
+	{
+		PlaySwapMontage();
+		Combat->CombatState = ECombatState::ECS_SwappingWeapons;
+		bFinishedSwapping = false;
+	}
 }
 
 void ABaseCharacter::FourKeyPressed()
 {
 	ServerNumberButtonPressed(3);
-	//if (Combat->GetEquippedWeapon() == nullptr) return;
-	//if (Combat->GetEquippedWeapon()->GetSlotIndex() == 4) return;
-	//ServerNumberButtonPressed(Combat->GetEquippedWeapon()->GetSlotIndex());
-	//ExchangeInventoryItems(EquippedWeapon->GetSlotIndex(), 4);
+	bool bSwap = Combat->ShouldSwapWeapons() &&
+		!HasAuthority() &&
+		Combat->CombatState == ECombatState::ECS_Unoccupied;
+
+	if (bSwap)
+	{
+		PlaySwapMontage();
+		Combat->CombatState = ECombatState::ECS_SwappingWeapons;
+		bFinishedSwapping = false;
+	}
 }
 
 void ABaseCharacter::FiveKeyPressed()
 {
 	ServerNumberButtonPressed(4);
-	//if (Combat->GetEquippedWeapon() == nullptr) return;
-	//if (Combat->GetEquippedWeapon()->GetSlotIndex() == 5) return;
-	//ServerNumberButtonPressed(Combat->GetEquippedWeapon()->GetSlotIndex());
-	//ExchangeInventoryItems(EquippedWeapon->GetSlotIndex(), 5);
+	bool bSwap = Combat->ShouldSwapWeapons() &&
+		!HasAuthority() &&
+		Combat->CombatState == ECombatState::ECS_Unoccupied;
+
+	if (bSwap)
+	{
+		PlaySwapMontage();
+		Combat->CombatState = ECombatState::ECS_SwappingWeapons;
+		bFinishedSwapping = false;
+	}
 }
 
 void ABaseCharacter::Jump()
@@ -1051,6 +1133,27 @@ void ABaseCharacter::Tick(float DeltaTime)
 
 	if (CacheCharacterHeadWidget)
 	{
+		/*FString HeadWidgetStr = "";
+		for (int32 i = 0; i < Inventory.Num(); ++i)
+		{
+			if (Inventory[i])
+			{
+				HeadWidgetStr.Append(Inventory[i]->GetItemName());
+			}
+			else
+			{
+				HeadWidgetStr.Append("nullptr");
+			}
+			HeadWidgetStr.Append("\n");
+		}
+		if (Combat->GetEquippedWeapon())
+		{
+			HeadWidgetStr.Append("euip:");
+			HeadWidgetStr.Append(Combat->GetEquippedWeapon()->GetItemName());
+			HeadWidgetStr.Append("\n");
+		}
+		HeadWidgetStr.Append(UEnum::GetValueAsString((Combat->CombatState)));
+		CacheCharacterHeadWidget->SetDisplayText(HeadWidgetStr);*/
 		//if(CacheCharacterAnimInstance)
 		//	CacheCharacterHeadWidget->SetDisplayText(CacheCharacterAnimInstance->GetCharacterInfo());
 		//else
@@ -1094,6 +1197,8 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Q", EInputEvent::IE_Pressed, this, &ABaseCharacter::QKeyPressed);
 	PlayerInputComponent->BindAction("E", EInputEvent::IE_Pressed, this, &ABaseCharacter::EKeyPressed);
 	PlayerInputComponent->BindAction("R", EInputEvent::IE_Pressed, this, &ABaseCharacter::ReloadButtonPressed);
+
+	PlayerInputComponent->BindAction("ThrowGrenade", IE_Pressed, this, &ABaseCharacter::GrenadeButtonPressed);
 }
 
 void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -1101,9 +1206,15 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME_CONDITION(ABaseCharacter, TraceHitItem, COND_OwnerOnly);
 	DOREPLIFETIME(ABaseCharacter, Inventory);
+	//DOREPLIFETIME(ABaseCharacter, SelectSlotIndex);
 	DOREPLIFETIME(ABaseCharacter, Health);
 	DOREPLIFETIME(ABaseCharacter, Shield);
 }
+
+//void ABaseCharacter::OnRep_SelectSlotIndex()
+//{
+//
+//}
 
 void ABaseCharacter::OnRep_ReplicatedMovement()
 {
@@ -1148,7 +1259,7 @@ void ABaseCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 	// Disable collision
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//AttachedGrenade->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AttachedGrenade->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// Spawn elim bot
 	//if (ElimBotEffect)
@@ -1205,8 +1316,15 @@ void ABaseCharacter::ElimTimerFinished()
 
 void ABaseCharacter::Destroyed()
 {
+	//임시
+	BattleGameMode = BattleGameMode == nullptr ? GetWorld()->GetAuthGameMode<ABattleGameMode>() : BattleGameMode;
+	if (BattleGameMode)
+	{
+		InventoryDestroy();
+		BattleGameMode->RequestRespawn(this, Controller);
+		//BattleGameMode->PlayerEliminated(this, BasePlayerController, BasePlayerController);
+	}
 	//Super::Destroyed();
-
 	//if (ElimBotComponent)
 	//{
 	//	ElimBotComponent->DestroyComponent();
@@ -1405,18 +1523,19 @@ void ABaseCharacter::GetPickupItem(AItem* Item)
 	{
 		if (Inventory[Combat->GetEquippedWeapon()->GetSlotIndex()])
 		{
-
+			Inventory[Combat->GetEquippedWeapon()->GetSlotIndex()] = nullptr;
+			Combat->DropEquippedWeapon();
 		}
 	}
 
-	if (Combat->GetEquippedWeapon() == nullptr)
-	{
-		auto Weapon = Cast<AWeapon>(Item);
-		if (Weapon)
-		{
-			Combat->EquipWeapon(Weapon);
-		}
-	}
+	//if (Combat->GetEquippedWeapon() == nullptr)
+	//{
+	//	auto Weapon = Cast<AWeapon>(Item);
+	//	if (Weapon)
+	//	{
+	//		Combat->EquipWeapon(Weapon);
+	//	}
+	//}
 
 	auto Ammo = Cast<AAmmo>(Item);
 
@@ -1574,6 +1693,19 @@ void ABaseCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDa
 	UpdateHUDShield();
 	PlayHitReactMontage();
 
+	UWorld* const World = GetWorld();
+	if (World && DamageWidgetClass)
+	{
+		ADamageFXActor* DamageActor = Cast<ADamageFXActor>(World->SpawnActor<AActor>(DamageWidgetClass, FVector::ZeroVector, FRotator::ZeroRotator));
+
+		DamageActor->SetDamageText(Damage);
+
+		//FTransform Transform = DamageActor->GetTransform();
+		DamageActor->SetActorTransform(GetActorTransform());
+		DamageActor->SetDamageWidgetSizeAndLocation(GetActorLocation(), FVector2D(120, 20));
+		DamageActor->SetWidgetActive(true);
+	}
+
 	if (Health == 0.f)
 	{
 		if (BattleGameMode)
@@ -1642,7 +1774,7 @@ bool ABaseCharacter::TraceScreenCrosshairCollision(FHitResult& OutHitResult, FVe
 	//bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(UGameplayStatics::GetPlayerController(this, 0), CrosshairLocation, CrosshairWorldPosition, CrosshairWorldDirection);
 	if (bScreenToWorld)
 	{
-		FVector Start{ CrosshairWorldPosition };
+		FVector Start{ CrosshairWorldPosition + CrosshairWorldDirection * 350.0f };
 		//float DistanceToCharacter = (GetActorLocation() - Start).Size();
 		//Start += CrosshairWorldDirection * (DistanceToCharacter + 100.f);
 		const FVector End{ Start + CrosshairWorldDirection * 50'000.f };

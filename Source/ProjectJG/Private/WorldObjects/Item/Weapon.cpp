@@ -213,6 +213,9 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 		case EWeaponType::EWT_SniperRifle:
 			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("SniperRifle"), TEXT(""));
 			break;
+		case EWeaponType::EWT_GrenadeLauncher:
+			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("GrenadeLauncher"), TEXT(""));
+			break;
 		}
 
 		if (WeaponDataRow)
@@ -220,6 +223,10 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 			//AmmoType = WeaponDataRow->AmmoType;
 			Ammo = WeaponDataRow->WeaponAmmo;
 			MagazineCapacity = WeaponDataRow->MagazingCapacity;
+
+			Damage = WeaponDataRow->Damage*GetNumberOfStars();
+			HeadShotDamage = WeaponDataRow->HeadDamage * GetNumberOfStars();
+
 			SetPickupSound(WeaponDataRow->PickupSound);
 			SetEquipSound(WeaponDataRow->EquipSound);
 			GetItemMesh()->SetSkeletalMesh(WeaponDataRow->ItemMesh);
@@ -241,11 +248,11 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 			CrosshairsTop = WeaponDataRow->CrosshairsTop;
 			FireDelay = WeaponDataRow->FireDelay;
 			BoneToHide = WeaponDataRow->BoneToHide;
-			MuzzleSoketName = WeaponDataRow->MuzzleSoketName;
+			MuzzleSocketName = WeaponDataRow->MuzzleSocketName;
 			AmmoEjectSocketName = WeaponDataRow->AmmoEjectSocketName;
-			MainHandSoketName = WeaponDataRow->MainHandSoketName;
-			SubHandSoketName = WeaponDataRow->SubHandSoketName;
-			CharacterAttachRightHandSoketName = WeaponDataRow->CharacterAttachRightHandSoketName;
+			MainHandSocketName = WeaponDataRow->MainHandSocketName;
+			SubHandSocketName = WeaponDataRow->SubHandSocketName;
+			CharacterAttachRightHandSocketName = WeaponDataRow->CharacterAttachRightHandSocketName;
 			ZoomedFOV = WeaponDataRow->ZoomedFOV;
 			ZoomInterpSpeed = WeaponDataRow->ZoomInterpSpeed;
 		}
@@ -335,7 +342,7 @@ bool AWeapon::ClipIsFull()
 
 FVector AWeapon::GetBeamTraceDirection(const FVector& HitTarget)
 {
-	const USkeletalMeshSocket* MuzzleFlashSocket = GetItemMesh()->GetSocketByName(MuzzleSoketName);
+	const USkeletalMeshSocket* MuzzleFlashSocket = GetItemMesh()->GetSocketByName(MuzzleSocketName);
 	if (MuzzleFlashSocket == nullptr) return FVector();
 
 	const FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetItemMesh());

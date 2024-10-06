@@ -300,6 +300,7 @@ public:
 	FORCEINLINE void SetItemName(FString Name) { ItemName = Name; }
 	FORCEINLINE FString GetItemName() { return ItemName; }
 
+	FORCEINLINE int32 GetNumberOfStars() const { return NumberOfStars; }
 	FORCEINLINE void SetIconItem(UTexture2D* Icon) { IconItem = Icon; }
 	FORCEINLINE void SetAmmoIcon(UTexture2D* Icon) { AmmoItem = Icon; }
 	FORCEINLINE UTexture2D* GetIconItem() { return IconItem; }

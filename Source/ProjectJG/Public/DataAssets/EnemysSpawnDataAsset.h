@@ -29,7 +29,6 @@ public:
 		float SpawnIntervalTime = 0.0f;
 };
 
-
 UCLASS()
 class PROJECTJG_API UEnemysSpawnDataAsset : public UDataAsset
 {

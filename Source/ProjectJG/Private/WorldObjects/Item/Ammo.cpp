@@ -74,10 +74,10 @@ void AAmmo::OnConstruction(const FTransform& Transform)
 	//		MuzzleFlash = WeaponDataRow->MuzzleFlash;
 	//		FireSound = WeaponDataRow->FireSound;
 	//		BoneToHide = WeaponDataRow->BoneToHide;
-	//		MuzzleSoketName = WeaponDataRow->MuzzleSoketName;
+	//		MuzzleSocketName = WeaponDataRow->MuzzleSocketName;
 	//		FireType = WeaponDataRow->FireType;
-	//		MainHandSoketName = WeaponDataRow->MainHandSoketName;
-	//		SubHandSoketName = WeaponDataRow->SubHandSoketName;
+	//		MainHandSocketName = WeaponDataRow->MainHandSocketName;
+	//		SubHandSocketName = WeaponDataRow->SubHandSocketName;
 	//		ZoomedFOV = WeaponDataRow->ZoomedFOV;
 	//		ZoomInterpSpeed = WeaponDataRow->ZoomInterpSpeed;
 	//	}

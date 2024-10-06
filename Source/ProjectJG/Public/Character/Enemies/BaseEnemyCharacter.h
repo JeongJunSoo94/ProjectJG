@@ -56,7 +56,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	void SetHealthWidgetSizeAndLocation(FVector location, FVector2D size);
-	virtual void Damaged(float totalAmount);
+	//virtual void Damaged(float totalAmount);
 	//>>
 	virtual void Die();
 	//<<

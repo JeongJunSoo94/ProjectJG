@@ -43,6 +43,12 @@ struct FWeaponDataTable : public FTableRowBase
 		int32 MagazingCapacity;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int32 Damage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int32 HeadDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class USoundCue* PickupSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -103,19 +109,19 @@ struct FWeaponDataTable : public FTableRowBase
 		FName BoneToHide;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FName MuzzleSoketName;
+		FName MuzzleSocketName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FName AmmoEjectSocketName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FName MainHandSoketName;
+		FName MainHandSocketName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FName SubHandSoketName;
+		FName SubHandSocketName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FName CharacterAttachRightHandSoketName;
+		FName CharacterAttachRightHandSocketName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float ZoomedFOV;
@@ -197,13 +203,13 @@ private:
 		FName ClipBoneName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
-		FName MainHandSoketName;
+		FName MainHandSocketName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
-		FName SubHandSoketName;
+		FName SubHandSocketName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
-		FName CharacterAttachRightHandSoketName;
+		FName CharacterAttachRightHandSocketName;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
 		UDataTable* WeaponDataTable;
@@ -221,7 +227,7 @@ private:
 	//	float AutoFireRate;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
-		FName MuzzleSoketName;
+		FName MuzzleSocketName;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
 		FName AmmoEjectSocketName;
@@ -330,10 +336,10 @@ public:
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
 
 	FORCEINLINE void SetMovingClip(bool Move) { bMovingClip = Move; }
-	FORCEINLINE FName GetMuzzleSoketName() const { return MuzzleSoketName; }
+	FORCEINLINE FName GetMuzzleSocketName() const { return MuzzleSocketName; }
 	FORCEINLINE FName GetAmmoEjectSocketName() const { return AmmoEjectSocketName; }
-	FORCEINLINE FName GetMainHandSoketName() const { return MainHandSoketName; }
-	FORCEINLINE FName GetSubHandSoketName() const { return SubHandSoketName; }
-	FORCEINLINE FName GetCharacterAttachRightHandSoketName() const { return CharacterAttachRightHandSoketName; }
+	FORCEINLINE FName GetMainHandSocketName() const { return MainHandSocketName; }
+	FORCEINLINE FName GetSubHandSocketName() const { return SubHandSocketName; }
+	FORCEINLINE FName GetCharacterAttachRightHandSocketName() const { return CharacterAttachRightHandSocketName; }
 	bool ClipIsFull();
 };

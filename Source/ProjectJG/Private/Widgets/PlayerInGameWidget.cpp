@@ -28,9 +28,9 @@ void UPlayerInGameWidget::ShieldUpdate(float CurShield, float MaxShield)
 {
 	if (ShieldBar && ShieldText)
 	{
-		const float HealthPercent = CurShield / MaxShield;
-		HealthBar->SetPercent(HealthPercent);
-		HealthText->SetText(FText::FromString(FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(CurShield), FMath::CeilToInt(MaxShield))));
+		const float ShieldPercent = CurShield / MaxShield;
+		ShieldBar->SetPercent(ShieldPercent);
+		ShieldText->SetText(FText::FromString(FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(CurShield), FMath::CeilToInt(MaxShield))));
 
 	}
 }
