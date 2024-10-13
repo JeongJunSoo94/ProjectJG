@@ -13,11 +13,11 @@ struct FHitScanWeaponDataTable : public FWeaponDataTable
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UParticleSystem* BeamParticles;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UParticleSystem* MuzzleFlash;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//UParticleSystem* MuzzleFlash;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	USoundCue* FireSound;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//USoundCue* FireSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UParticleSystem* ImpactParticles;
@@ -25,6 +25,8 @@ struct FHitScanWeaponDataTable : public FWeaponDataTable
 	UPROPERTY(EditAnywhere)
 	USoundCue* HitSound;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UMaterialInstanceConstant* DecalMaterial;
 };
 
 UCLASS()
@@ -33,7 +35,7 @@ class PROJECTJG_API AHitScanWeapon : public AWeapon
 	GENERATED_BODY()
 public:
 	virtual void Fire(const FVector& HitTarget) override;
-
+	virtual void Tick(float DeltaTime) override;
 protected:
 	void WeaponTraceHit(const FVector& TraceStart, const FVector& HitTarget, FHitResult& OutHit);
 
@@ -42,9 +44,11 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	USoundCue* HitSound;
-
+	
 	UPROPERTY(EditAnywhere)
-	USoundCue* FireSound;
+	class UMaterialInstanceConstant* DecalMaterial;
+	//UPROPERTY(EditAnywhere)
+	//USoundCue* FireSound;
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 	virtual void BeginPlay() override;
@@ -52,7 +56,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* BeamParticles;
 
-	UPROPERTY(EditAnywhere)
-	UParticleSystem* MuzzleFlash;
+	//UPROPERTY(EditAnywhere)
+	//UParticleSystem* MuzzleFlash;
 
 };

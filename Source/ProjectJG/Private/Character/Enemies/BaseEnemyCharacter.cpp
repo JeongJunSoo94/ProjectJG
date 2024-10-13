@@ -16,6 +16,7 @@
 #include "BaseSystem/InGamePlayerController.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Character/Components/ItemDropComponent.h"
 
 ABaseEnemyCharacter::ABaseEnemyCharacter()
 {
@@ -33,6 +34,9 @@ ABaseEnemyCharacter::ABaseEnemyCharacter()
 	HealthWidget->SetWidgetSpace(EWidgetSpace::Screen);
 
 	//CHelpers::CreateActorComponent(this, &PoolObject, "PoolObject");
+
+	ItemDropComp = CreateDefaultSubobject<UItemDropComponent>(TEXT("Combat"));
+	ItemDropComp->SetIsReplicated(true);
 }
 
 void ABaseEnemyCharacter::BeginPlay()
@@ -57,6 +61,15 @@ void ABaseEnemyCharacter::SetHealthWidgetSizeAndLocation(FVector location, FVect
 {
 	HealthWidget->SetRelativeLocation(location);
 	HealthWidget->SetDrawSize(size);
+}
+
+void ABaseEnemyCharacter::Destroyed()
+{
+	Super::Destroyed();
+	if (HasAuthority())
+	{
+		ItemDropComp->SpawnItem();
+	}
 }
 
 void ABaseEnemyCharacter::Tick(float DeltaTime)
@@ -163,6 +176,7 @@ void ABaseEnemyCharacter::Die()
 	CheckNull(BaseAIController);
 	BaseAIController->StopAI();
 }
+
 void ABaseEnemyCharacter::Elim(bool bPlayerLeftGame)
 {
 	//DropOrDestroyWeapons();
@@ -182,6 +196,23 @@ void ABaseEnemyCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 		&ABaseEnemyCharacter::ElimTimerFinished,
 		ElimDelay
 	);
+}
+
+void ABaseEnemyCharacter::MulticastDamageWidget_Implementation(float Damage)
+{
+	UWorld* const World = GetWorld();
+	if (!IsLocallyControlled())
+		return;
+	if (World && DamageWidgetClass)
+	{
+		ADamageFXActor* DamageFXActor = Cast<ADamageFXActor>(World->SpawnActor<AActor>(DamageWidgetClass, FVector::ZeroVector, FRotator::ZeroRotator));
+
+		DamageFXActor->SetDamageText(Damage);
+
+		DamageFXActor->SetActorTransform(GetActorTransform());
+		DamageFXActor->SetDamageWidgetSizeAndLocation(FVector::ZeroVector, FVector2D(120, 20));
+		DamageFXActor->SetWidgetActive(true);
+	}
 }
 
 void ABaseEnemyCharacter::ElimTimerFinished()
@@ -251,18 +282,7 @@ void ABaseEnemyCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, cons
 	UpdateHUDShield();*/
 	//PlayHitReactMontage();
 
-	UWorld* const World = GetWorld();
-	if (World && DamageWidgetClass)
-	{
-		ADamageFXActor* DamageFXActor = Cast<ADamageFXActor>(World->SpawnActor<AActor>(DamageWidgetClass, FVector::ZeroVector, FRotator::ZeroRotator));
-
-		DamageFXActor->SetDamageText(Damage);
-
-		//FTransform Transform = DamageFXActor->GetTransform();
-		DamageFXActor->SetActorTransform(GetActorTransform());
-		DamageFXActor->SetDamageWidgetSizeAndLocation(FVector::ZeroVector, FVector2D(120, 20));
-		DamageFXActor->SetWidgetActive(true);
-	}
+	MulticastDamageWidget(Damage);
 
 	if (Health == 0.f)
 	{

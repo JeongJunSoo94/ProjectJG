@@ -69,7 +69,7 @@ void UCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		bCrouching = OwnerCharacter->bIsCrouched;
 		bReloading = OwnerCharacter->GetCombatState() == ECombatState::ECS_Reloading;
-		bEquipping = OwnerCharacter->GetCombatState() == ECombatState::ECS_Equipping;
+		//bEquipping = OwnerCharacter->GetCombatState() == ECombatState::ECS_Equipping;
 		bShouldUseFABRIK = OwnerCharacter->GetCombatState() == ECombatState::ECS_Unoccupied || OwnerCharacter->GetCombatState() == ECombatState::ECS_FireTimerInProgress;
 
 		FVector Velocity{ OwnerCharacter->GetVelocity() };
@@ -140,7 +140,9 @@ void UCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		{
 			OffsetState = EOffsetState::EOS_Hip;
 		}
+
 		bEquipped = OwnerCharacter->GetCombatComp()->GetEquippedWeapon()==nullptr?false:true;
+
 		if (OwnerCharacter->GetCombatComp()->GetEquippedWeapon() && OwnerCharacter->GetMesh())
 		{
 			LeftHandTransform = OwnerCharacter->GetCombatComp()->GetEquippedWeapon()->GetItemMesh()->GetSocketTransform(OwnerCharacter->GetCombatComp()->GetEquippedWeapon()->GetSubHandSocketName(), ERelativeTransformSpace::RTS_World);
@@ -237,8 +239,8 @@ void UCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 			//CharacterInfoStr.Append("\n");
 			bShouldUseFABRIK = !OwnerCharacter->IsLocallyReloading();
 		}
-		bUseAimOffsets = OwnerCharacter->GetCombatState() == ECombatState::ECS_Unoccupied;//&& !OwnerCharacter->GetDisableGameplay();
-		bTransformRightHand = OwnerCharacter->GetCombatState() == ECombatState::ECS_Unoccupied;// && !BlasterCharacter->GetDisableGameplay();
+		bUseAimOffsets = OwnerCharacter->GetCombatState() == ECombatState::ECS_Unoccupied && !OwnerCharacter->GetDisableGameplay();
+		bTransformRightHand = OwnerCharacter->GetCombatState() == ECombatState::ECS_Unoccupied  && !OwnerCharacter->GetDisableGameplay();
 	}
 	//CharacterInfoStr.Append("bShouldUseFABRIK:");
 	//CharacterInfoStr.Append(bShouldUseFABRIK ? "true" : "false");

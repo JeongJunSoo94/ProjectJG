@@ -317,6 +317,7 @@ void ABaseCharacter::InitializeHitBoxsMap()
 void ABaseCharacter::MoveForward(float Axis)
 {
 	//CheckFalse(bMove);
+	if (bDisableGameplay) return;
 	if ((Controller != nullptr) && (Axis != 0.0f))
 	{
 		const FRotator YawRotation{ 0, Controller->GetControlRotation().Yaw, 0 };
@@ -327,6 +328,7 @@ void ABaseCharacter::MoveForward(float Axis)
 
 void ABaseCharacter::MoveRight(float Axis) 
 {
+	if (bDisableGameplay) return;
 	if ((Controller != nullptr) && (Axis != 0.0f))
 	{
 		const FRotator YawRotation{ 0, Controller->GetControlRotation().Yaw,0 };
@@ -392,7 +394,7 @@ void ABaseCharacter::AimingButtonPressed()
 {
 	//bAimingButtonPressed = true;
 	//if (Combat && Combat->bHoldingTheFlag) return;
-	//if (bDisableGameplay) return;
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->SetAiming(true);
@@ -404,7 +406,7 @@ void ABaseCharacter::AimingButtonReleased()
 	//bAimingButtonPressed = false;
 	//StopAiming();
 	//if (Combat && Combat->bHoldingTheFlag) return;
-	//if (bDisableGameplay) return;
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->SetAiming(false);
@@ -612,6 +614,7 @@ void ABaseCharacter::FinishCrosshairBulletFire()
 
 void ABaseCharacter::FireButtonPressed()
 {
+	if (bDisableGameplay) return;
 	bFireButtonPressed = true;
 	if (Combat)
 	{
@@ -621,6 +624,7 @@ void ABaseCharacter::FireButtonPressed()
 
 void ABaseCharacter::FireButtonReleased()
 {
+	if (bDisableGameplay) return;
 	bFireButtonPressed = false;
 	if (Combat)
 	{
@@ -630,6 +634,7 @@ void ABaseCharacter::FireButtonReleased()
 
 void ABaseCharacter::GrenadeButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		if (Combat->bHoldingTheFlag) return;
@@ -644,7 +649,7 @@ void ABaseCharacter::TraceForItems()
 		FHitResult ItemTraceResult;
 		FVector HitLocation;
 		TraceScreenCrosshairCollision(ItemTraceResult, HitLocation);
-		if (ItemTraceResult.bBlockingHit)
+		if (ItemTraceResult.bBlockingHit&& ItemTraceResult.Distance<100)
 		{
 			TraceHitItem = Cast<AItem>(ItemTraceResult.GetActor());
 			const auto TraceHitWeapon = Cast<AWeapon>(TraceHitItem);
@@ -696,6 +701,16 @@ void ABaseCharacter::TraceForItems()
 
 			TraceHitItemLastFrame = TraceHitItem;
 		}
+		else
+		{
+			if (TraceHitItemLastFrame)
+			{
+				TraceHitItemLastFrame->GetPickupWidget()->SetVisibility(false);
+				TraceHitItemLastFrame->EnableCustomDepth(false);
+				TraceHitItemLastFrame = nullptr;
+				TraceHitItem = nullptr;
+			}
+		}
 	}
 	else if (TraceHitItemLastFrame)
 	{
@@ -704,48 +719,49 @@ void ABaseCharacter::TraceForItems()
 	}
 }
 
-void ABaseCharacter::EquipWeapon(AWeapon* WeaponToEquip, bool bSwapping)
-{
-	//if (WeaponToEquip)
-	//{
-	//	//WeaponToEquip->GetAreaSphere()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	//	//WeaponToEquip->GetCollisionBox()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+//void ABaseCharacter::EquipWeapon(AWeapon* WeaponToEquip, bool bSwapping)
+//{
+//	//if (WeaponToEquip)
+//	//{
+//	//	//WeaponToEquip->GetAreaSphere()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+//	//	//WeaponToEquip->GetCollisionBox()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+//
+//
+//	//	const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName("RightHandSocket"));
+//	//	if (HandSocket)
+//	//	{
+//	//		HandSocket->AttachActor(WeaponToEquip, GetMesh());
+//	//	}
+//
+//	//	if (Combat->EquippedWeapon == nullptr)
+//	//	{
+//	//		//-1 == no EquippedWeapon yet. No need to reverse the icon animation
+//	//		EquipItemDelegate.Broadcast(-1, WeaponToEquip->GetSlotIndex());
+//	//	}
+//	//	else if (!bSwapping)
+//	//	{
+//	//		EquipItemDelegate.Broadcast(Combat->EquippedWeapon->GetSlotIndex(), WeaponToEquip->GetSlotIndex());
+//	//	}
+//	//	Combat->EquippedWeapon = WeaponToEquip;
+//	//	Combat->GetEquippedWeapon()->SetItemState(EItemState::EIS_Equipped);
+//	//}
+//}
 
-
-	//	const USkeletalMeshSocket* HandSocket = GetMesh()->GetSocketByName(FName("RightHandSocket"));
-	//	if (HandSocket)
-	//	{
-	//		HandSocket->AttachActor(WeaponToEquip, GetMesh());
-	//	}
-
-	//	if (Combat->EquippedWeapon == nullptr)
-	//	{
-	//		//-1 == no EquippedWeapon yet. No need to reverse the icon animation
-	//		EquipItemDelegate.Broadcast(-1, WeaponToEquip->GetSlotIndex());
-	//	}
-	//	else if (!bSwapping)
-	//	{
-	//		EquipItemDelegate.Broadcast(Combat->EquippedWeapon->GetSlotIndex(), WeaponToEquip->GetSlotIndex());
-	//	}
-	//	Combat->EquippedWeapon = WeaponToEquip;
-	//	Combat->GetEquippedWeapon()->SetItemState(EItemState::EIS_Equipped);
-	//}
-}
-
-void ABaseCharacter::DropWeapon()
-{
-	if (Combat->GetEquippedWeapon())
-	{
-		FDetachmentTransformRules DetachmentTransformRules(EDetachmentRule::KeepWorld, true);
-		Combat->GetEquippedWeapon()->GetItemMesh()->DetachFromComponent(DetachmentTransformRules);
-
-		Combat->GetEquippedWeapon()->SetItemState(EItemState::EIS_Falling);
-		Combat->GetEquippedWeapon()->Dropped();
-	}
-}
+//void ABaseCharacter::DropWeapon()
+//{
+//	if (Combat->GetEquippedWeapon())
+//	{
+//		FDetachmentTransformRules DetachmentTransformRules(EDetachmentRule::KeepWorld, true);
+//		Combat->GetEquippedWeapon()->GetItemMesh()->DetachFromComponent(DetachmentTransformRules);
+//
+//		Combat->GetEquippedWeapon()->SetItemState(EItemState::EIS_Falling);
+//		Combat->GetEquippedWeapon()->Dropped();
+//	}
+//}
 
 void ABaseCharacter::SelectButtonPressed()
 {
+	if (bDisableGameplay) return;
 	//if (Combat->CombatState != ECombatState::ECS_Unoccupied) return;
 	if (Combat)
 	{
@@ -826,6 +842,7 @@ void ABaseCharacter::ServerNumberButtonPressed_Implementation(int32 slotIndex)
 							return;
 						//장비를 장착하고 있어서 스왑을 한다.
 						Combat->SwapItems(Weapon);
+						
 					}
 					else
 					{
@@ -853,13 +870,13 @@ void ABaseCharacter::SpawDefaultWeapon()
 	}
 }
 
-void ABaseCharacter::SwapWeapon(AWeapon* WeaponToSwap)
-{
-	DropWeapon();
-	EquipWeapon(WeaponToSwap, true);
-	TraceHitItem = nullptr;
-	TraceHitItemLastFrame = nullptr;
-}
+//void ABaseCharacter::SwapWeapon(AWeapon* WeaponToSwap)
+//{
+//	DropWeapon();
+//	EquipWeapon(WeaponToSwap, true);
+//	TraceHitItem = nullptr;
+//	TraceHitItemLastFrame = nullptr;
+//}
 
 void ABaseCharacter::PlayFireMontage(bool bAiming)
 {
@@ -925,6 +942,7 @@ void ABaseCharacter::PlayElimMontage()
 	if (AnimInstance && ElimMontage)
 	{
 		AnimInstance->Montage_Play(ElimMontage);
+		AnimInstance->Montage_JumpToSection("Death_A");
 	}
 }
 
@@ -967,6 +985,7 @@ void ABaseCharacter::CrouchButtonPressed()
 	//{
 	//	bCrouching = !bCrouching;
 	//}
+	if (bDisableGameplay) return;
 	if (bIsCrouched)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = BaseMovementSpeed;
@@ -1032,8 +1051,9 @@ void ABaseCharacter::InitailizeInterpLocations()
 
 void ABaseCharacter::OneKeyPressed()
 {
+	if (bDisableGameplay) return;
 	ServerNumberButtonPressed(0);
-	bool bSwap = Combat->ShouldSwapWeapons() &&
+	bool bSwap = Combat->ShouldSwapWeapons(0) &&
 		!HasAuthority() &&
 		Combat->CombatState == ECombatState::ECS_Unoccupied;
 
@@ -1042,13 +1062,22 @@ void ABaseCharacter::OneKeyPressed()
 		PlaySwapMontage();
 		Combat->CombatState = ECombatState::ECS_SwappingWeapons;
 		bFinishedSwapping = false;
+
+		for (int i = 0; i < Inventory.Num(); ++i)
+		{
+			if (Combat->EquippedWeapon == Inventory[i])
+			{
+				EquipItemDelegate.Broadcast(i, 0);
+			}
+		}
 	}
 }
 
 void ABaseCharacter::TwoKeyPressed()
 {
+	if (bDisableGameplay) return;
 	ServerNumberButtonPressed(1);
-	bool bSwap = Combat->ShouldSwapWeapons() &&
+	bool bSwap = Combat->ShouldSwapWeapons(1) &&
 		!HasAuthority() &&
 		Combat->CombatState == ECombatState::ECS_Unoccupied;
 
@@ -1057,13 +1086,21 @@ void ABaseCharacter::TwoKeyPressed()
 		PlaySwapMontage();
 		Combat->CombatState = ECombatState::ECS_SwappingWeapons;
 		bFinishedSwapping = false;
+		for (int i = 0; i < Inventory.Num(); ++i)
+		{
+			if (Combat->EquippedWeapon == Inventory[i])
+			{
+				EquipItemDelegate.Broadcast(i, 1);
+			}
+		}
 	}
 }
 
 void ABaseCharacter::ThreeKeyPressed()
 {
+	if (bDisableGameplay) return;
 	ServerNumberButtonPressed(2);
-	bool bSwap = Combat->ShouldSwapWeapons() &&
+	bool bSwap = Combat->ShouldSwapWeapons(2) &&
 		!HasAuthority() &&
 		Combat->CombatState == ECombatState::ECS_Unoccupied;
 
@@ -1072,13 +1109,21 @@ void ABaseCharacter::ThreeKeyPressed()
 		PlaySwapMontage();
 		Combat->CombatState = ECombatState::ECS_SwappingWeapons;
 		bFinishedSwapping = false;
+		for (int i = 0; i < Inventory.Num(); ++i)
+		{
+			if (Combat->EquippedWeapon == Inventory[i])
+			{
+				EquipItemDelegate.Broadcast(i, 2);
+			}
+		}
 	}
 }
 
 void ABaseCharacter::FourKeyPressed()
 {
+	if (bDisableGameplay) return;
 	ServerNumberButtonPressed(3);
-	bool bSwap = Combat->ShouldSwapWeapons() &&
+	bool bSwap = Combat->ShouldSwapWeapons(3) &&
 		!HasAuthority() &&
 		Combat->CombatState == ECombatState::ECS_Unoccupied;
 
@@ -1087,13 +1132,21 @@ void ABaseCharacter::FourKeyPressed()
 		PlaySwapMontage();
 		Combat->CombatState = ECombatState::ECS_SwappingWeapons;
 		bFinishedSwapping = false;
+		for (int i = 0; i < Inventory.Num(); ++i)
+		{
+			if (Combat->EquippedWeapon == Inventory[i])
+			{
+				EquipItemDelegate.Broadcast(i, 3);
+			}
+		}
 	}
 }
 
 void ABaseCharacter::FiveKeyPressed()
 {
+	if (bDisableGameplay) return;
 	ServerNumberButtonPressed(4);
-	bool bSwap = Combat->ShouldSwapWeapons() &&
+	bool bSwap = Combat->ShouldSwapWeapons(4) &&
 		!HasAuthority() &&
 		Combat->CombatState == ECombatState::ECS_Unoccupied;
 
@@ -1102,6 +1155,13 @@ void ABaseCharacter::FiveKeyPressed()
 		PlaySwapMontage();
 		Combat->CombatState = ECombatState::ECS_SwappingWeapons;
 		bFinishedSwapping = false;
+		for (int i = 0; i < Inventory.Num(); ++i)
+		{
+			if (Combat->EquippedWeapon == Inventory[i])
+			{
+				EquipItemDelegate.Broadcast(i, 4);
+			}
+		}
 	}
 }
 
@@ -1123,8 +1183,8 @@ void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	//CameraInterpZoom(DeltaTime);
-	SetLookRates();
 	//CalculateCrosshairSpread(DeltaTime);
+	SetLookRates();
 	RotateInPlace(DeltaTime);
 	PollInit();
 	if(HasAuthority())
@@ -1133,27 +1193,62 @@ void ABaseCharacter::Tick(float DeltaTime)
 
 	if (CacheCharacterHeadWidget)
 	{
-		/*FString HeadWidgetStr = "";
-		for (int32 i = 0; i < Inventory.Num(); ++i)
-		{
-			if (Inventory[i])
-			{
-				HeadWidgetStr.Append(Inventory[i]->GetItemName());
-			}
-			else
-			{
-				HeadWidgetStr.Append("nullptr");
-			}
-			HeadWidgetStr.Append("\n");
-		}
+		FString HeadWidgetStr = "";
+		//for (int32 i = 0; i < Inventory.Num(); ++i)
+		//{
+		//	if (Inventory[i])
+		//	{
+		//		HeadWidgetStr.Append(Inventory[i]->GetItemName());
+		//	}
+		//	else
+		//	{
+		//		HeadWidgetStr.Append("nullptr");
+		//	}
+		//	HeadWidgetStr.Append("\n");
+		//}
+		//if (Combat->GetEquippedWeapon())
+		//{
+		//	HeadWidgetStr.Append("euip:");
+		//	HeadWidgetStr.Append(Combat->GetEquippedWeapon()->GetItemName());
+		//	HeadWidgetStr.Append("\n");
+		//}
+		HeadWidgetStr.Append(UEnum::GetValueAsString((Combat->CombatState)));
+		HeadWidgetStr.Append("\n");
+		/*
 		if (Combat->GetEquippedWeapon())
 		{
-			HeadWidgetStr.Append("euip:");
 			HeadWidgetStr.Append(Combat->GetEquippedWeapon()->GetItemName());
 			HeadWidgetStr.Append("\n");
+			HeadWidgetStr.Append(FString::Printf(TEXT("Slot: %d"),Combat->GetEquippedWeapon()->GetSlotIndex()));
+			HeadWidgetStr.Append("\n");
+			for (int32 i = 0; i < Inventory.Num(); ++i)
+			{
+				if (Inventory[i])
+				{
+					HeadWidgetStr.Append(Inventory[i]->GetItemName());
+				}
+				else
+				{
+					HeadWidgetStr.Append("nullptr");
+				}
+				HeadWidgetStr.Append("\n");
+			}
+		}*/
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance)
+		{
+			HeadWidgetStr.Append("ReloadMontage: ");
+			HeadWidgetStr.Append(AnimInstance->Montage_IsPlaying(ReloadMontage) ? "True" : "False");
+			HeadWidgetStr.Append("\n");
+			HeadWidgetStr.Append("HitReactMontage: ");
+			HeadWidgetStr.Append(AnimInstance->Montage_IsPlaying(HitReactMontage) ? "True" : "False");
+			HeadWidgetStr.Append("\n");
+			HeadWidgetStr.Append("ElimMontage: ");
+			HeadWidgetStr.Append(AnimInstance->Montage_IsPlaying(ElimMontage) ? "True" : "False");
+			HeadWidgetStr.Append("\n");
 		}
-		HeadWidgetStr.Append(UEnum::GetValueAsString((Combat->CombatState)));
-		CacheCharacterHeadWidget->SetDisplayText(HeadWidgetStr);*/
+
+		CacheCharacterHeadWidget->SetDisplayText(HeadWidgetStr);
 		//if(CacheCharacterAnimInstance)
 		//	CacheCharacterHeadWidget->SetDisplayText(CacheCharacterAnimInstance->GetCharacterInfo());
 		//else
@@ -1209,12 +1304,8 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	//DOREPLIFETIME(ABaseCharacter, SelectSlotIndex);
 	DOREPLIFETIME(ABaseCharacter, Health);
 	DOREPLIFETIME(ABaseCharacter, Shield);
+	DOREPLIFETIME(ABaseCharacter, bDisableGameplay);
 }
-
-//void ABaseCharacter::OnRep_SelectSlotIndex()
-//{
-//
-//}
 
 void ABaseCharacter::OnRep_ReplicatedMovement()
 {
@@ -1226,7 +1317,6 @@ void ABaseCharacter::OnRep_ReplicatedMovement()
 void ABaseCharacter::Elim(bool bPlayerLeftGame)
 {
 	//DropOrDestroyWeapons();
-	InventoryDestroy();
 	MulticastElim(bPlayerLeftGame);
 }
 
@@ -1250,7 +1340,7 @@ void ABaseCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 	//StartDissolve();
 
 	// Disable character movement
-	//bDisableGameplay = true;
+	bDisableGameplay = true;
 	GetCharacterMovement()->DisableMovement();
 	if (Combat)
 	{
@@ -1303,6 +1393,7 @@ void ABaseCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 
 void ABaseCharacter::ElimTimerFinished()
 {
+	InventoryDestroy();
 	BattleGameMode = BattleGameMode == nullptr ? GetWorld()->GetAuthGameMode<ABattleGameMode>() : BattleGameMode;
 	if (BattleGameMode && !bLeftGame)
 	{
@@ -1421,51 +1512,10 @@ void ABaseCharacter::PostInitializeComponents()
 	}
 }
 
-//void ABaseCharacter::FinishReloading()
-//{
-//	CombatState = ECombatState::ECS_Unoccupied;
-//
-//	if (bAimingButtonPressed)
-//	{
-//		if (Combat)
-//		{
-//			Combat->SetAiming(true);
-//		}
-//		//Aim();
-//	}
-//
-//	const auto AmmoType{ Combat->GetEquippedWeapon()->GetAmmoType() };
-//
-//	if (AmmoMap.Contains(AmmoType))
-//	{
-//		int32 CarriedAmmo = AmmoMap[AmmoType];
-//
-//		const int32 MagEmptySpace = Combat->GetEquippedWeapon()->GetMagazineCapacity() - Combat->GetEquippedWeapon()->GetAmmo();
-//
-//		if (MagEmptySpace > CarriedAmmo)
-//		{
-//			Combat->GetEquippedWeapon()->ReloadAmmo(CarriedAmmo);
-//			CarriedAmmo = 0;
-//			AmmoMap.Add(AmmoType, CarriedAmmo);
-//		}
-//		else
-//		{
-//			Combat->GetEquippedWeapon()->ReloadAmmo(MagEmptySpace);
-//			CarriedAmmo -= MagEmptySpace;
-//			AmmoMap.Add(AmmoType, CarriedAmmo);
-//		}
-//	}
-//}
-
-//void ABaseCharacter::FinishEquipping()
-//{
-//	CombatState = ECombatState::ECS_Unoccupied;
-//}
-
 void ABaseCharacter::ReloadButtonPressed()
 {
 	//if (Combat && Combat->bHoldingTheFlag) return;
-	//if (bDisableGameplay) return;
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->Reload();
@@ -1477,10 +1527,14 @@ void ABaseCharacter::OnRep_TraceItem(AItem* LastTraceHitItem)
 	if (TraceHitItem)
 	{
 		TraceHitItem->GetPickupWidget()->SetVisibility(true);
+		TraceHitItem->EnableCustomDepth(true);
+		HighlightInventorySlot();
 	}
 	if (LastTraceHitItem)
 	{
 		LastTraceHitItem->GetPickupWidget()->SetVisibility(false);
+		LastTraceHitItem->EnableCustomDepth(false);
+		UnHighlightInventorySlot();
 	}
 }
 
@@ -1608,6 +1662,12 @@ void ABaseCharacter::HighlightInventorySlot()
 	HighlightedSlot = EmptySlot;
 }
 
+void ABaseCharacter::HighlightInventorySlot(int32 Slotidx)
+{
+	HighlightIconDelegate.Broadcast(Slotidx, true);
+	HighlightedSlot = Slotidx;
+}
+
 void ABaseCharacter::SetSpawnPoint()
 {
 	if (HasAuthority() && BasePlayerState->GetTeam() != ETeam::ET_NoTeam)
@@ -1645,7 +1705,8 @@ void ABaseCharacter::OnPlayerStateInitialized()
 void ABaseCharacter::PlayHitReactMontage()
 {
 	if (Combat == nullptr || Combat->GetEquippedWeapon() == nullptr) return;
-
+	if (Combat->CombatState != ECombatState::ECS_Unoccupied) return;
+	if (bElimmed)return;
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && HitReactMontage)
 	{
@@ -1738,7 +1799,7 @@ void ABaseCharacter::IncrementInterpLocItemCount(int32 Index, int32 Amount)
 	}
 }
 
-bool ABaseCharacter::TraceScreenCrosshairCollision(FHitResult& OutHitResult, FVector& OutHitLocation)
+bool ABaseCharacter::TraceScreenCrosshairCollision(FHitResult& OutHitResult, FVector& OutHitLocation, ECollisionChannel CollisoinChannel)
 {
 	FVector2D ViewportSize;
 	if (GEngine && GEngine->GameViewport)
@@ -1779,7 +1840,7 @@ bool ABaseCharacter::TraceScreenCrosshairCollision(FHitResult& OutHitResult, FVe
 		//Start += CrosshairWorldDirection * (DistanceToCharacter + 100.f);
 		const FVector End{ Start + CrosshairWorldDirection * 50'000.f };
 		OutHitLocation = End;
-		GetWorld()->LineTraceSingleByChannel(OutHitResult, Start, End, ECollisionChannel::ECC_Visibility);
+		GetWorld()->LineTraceSingleByChannel(OutHitResult, Start, End, CollisoinChannel);
 		if (OutHitResult.bBlockingHit)
 		{
 			//DrawDebugLine(GetWorld(), Start, End, FColor::Cyan, false, 2.f);
@@ -1873,6 +1934,10 @@ void ABaseCharacter::PollInit()
 			UpdateHUDShield();
 		}
 	}
+	if (Inventory.Num() < INVENTORY_CAPACITY)
+	{
+		Inventory.SetNum(INVENTORY_CAPACITY);
+	}
 }
 
 void ABaseCharacter::RotateInPlace(float DeltaTime)
@@ -1886,12 +1951,12 @@ void ABaseCharacter::RotateInPlace(float DeltaTime)
 	//}
 	if (Combat && Combat->GetEquippedWeapon()) GetCharacterMovement()->bOrientRotationToMovement = false;
 	if (Combat && Combat->GetEquippedWeapon()) bUseControllerRotationYaw = true;
-	//if (bDisableGameplay)
-	//{
-	//	bUseControllerRotationYaw = false;
-	//	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
-	//	return;
-	//}
+	if (bDisableGameplay)
+	{
+		bUseControllerRotationYaw = false;
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+		return;
+	}
 	if (GetLocalRole() > ENetRole::ROLE_SimulatedProxy && IsLocallyControlled())
 	{
 		AimOffset(DeltaTime);

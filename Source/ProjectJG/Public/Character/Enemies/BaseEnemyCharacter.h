@@ -52,6 +52,8 @@ public:
 	void Elim(bool bPlayerLeftGame);
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastElim(bool bPlayerLeftGame);
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastDamageWidget(float Damage);
 	//<<
 protected:
 	virtual void BeginPlay() override;
@@ -66,6 +68,7 @@ protected:
 		void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 
 public:	
+	virtual void Destroyed() override;
 	virtual void Tick(float DeltaTime) override;
 	//virtual void BeginHitEffect(AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit) override;
 	virtual void Init()override;
@@ -81,6 +84,9 @@ protected:
 		class UBlackboardComponent* blackboardComp;
 	UPROPERTY()
 		class ABattleGameMode* BattleGameMode;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UItemDropComponent* ItemDropComp;
 	//>>status param
 	UPROPERTY(EditAnywhere, Category = "Player Stats")
 		float MaxHealth = 100.f;

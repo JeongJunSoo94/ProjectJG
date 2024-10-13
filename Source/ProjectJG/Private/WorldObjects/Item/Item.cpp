@@ -94,6 +94,7 @@ void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 		if (BaseCharacter)
 		{
 			BaseCharacter->IncrementOverlappedItemCount(1);
+			//BaseCharacter->HighlightInventorySlot();
 		}
 	}
 }
@@ -174,6 +175,7 @@ void AItem::SetItemProperties(EItemState State)
 		CollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		SetItemTransform(GetActorTransform());
 		EnableGlowMaterial();
+		//EnableCustomDepth(true);
 		break;
 	case EItemState::EIS_Equipped:
 		PickupWidget->SetVisibility(false);

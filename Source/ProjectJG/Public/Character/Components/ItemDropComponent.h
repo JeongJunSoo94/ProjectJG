@@ -43,8 +43,12 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	UPROPERTY(EditAnywhere)
+	TArray<TSubclassOf<class AItem>> ItemClasses;
 
 public:	
+	UFUNCTION()
+	void SpawnItem();
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	

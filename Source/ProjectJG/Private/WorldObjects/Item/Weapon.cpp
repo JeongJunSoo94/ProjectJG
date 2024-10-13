@@ -12,6 +12,7 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Bullet/Projectile.h"
 #include "Bullet/Case.h"
+#include "Sound/SoundCue.h"
 
 AWeapon::AWeapon() :
 	ThrowWeaponTime(0.7f),
@@ -20,7 +21,12 @@ AWeapon::AWeapon() :
 	MagazineCapacity(30),
 	WeaponType(EWeaponType::EWT_SubmachineGun),
 	ReloadMontageSection(FName(TEXT("SubMachineGun"))),
-	ClipBoneName(TEXT("smg_clip"))
+	ClipBoneName(TEXT("smg_clip")),
+	SlideDisplacement(0.f),
+	SlideDisplacementTime(0.2f),
+	bMovingSlide(false),
+	MaxSlideDisplacement(4.f),
+	MaxRecoilRotation(20.f)
 {
 	PrimaryActorTick.bCanEverTick = true;
 }
@@ -32,6 +38,7 @@ void AWeapon::Tick(float DeltaTime)
 		const FRotator MeshRotation{ 0.f,GetItemMesh()->GetComponentRotation().Yaw,0.f };
 		GetItemMesh()->SetWorldRotation(MeshRotation, false, nullptr, ETeleportType::TeleportPhysics);
 	}
+	UpdateSlideDisplacement();
 }
 
 void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -150,7 +157,7 @@ void AWeapon::Dropped()
 
 void AWeapon::ThrowWeapon()
 {
-	if (HasAuthority())
+	//if (HasAuthority())
 	{
 		FRotator MeshRotation{ 0.f,GetItemMesh()->GetComponentRotation().Yaw,0.f };
 		GetItemMesh()->SetWorldRotation(MeshRotation, false, nullptr, ETeleportType::TeleportPhysics);
@@ -161,14 +168,14 @@ void AWeapon::ThrowWeapon()
 
 		float RandomRotation{ 3.f };
 		ImpulseDirection = ImpulseDirection.RotateAngleAxis(RandomRotation, FVector(0.f, 0.f, 1.f));
-		ImpulseDirection *= 20'000.f;
+		ImpulseDirection *= 2000.f;
 		GetItemMesh()->AddImpulse(ImpulseDirection);
 
 		bFalling = true;
 		GetWorldTimerManager().SetTimer(ThrowWeaponTimer, this, &AWeapon::StopFalling, ThrowWeaponTime);
 	}
 	//SetOwner(nullptr);
-	EnableGlowMaterial();
+	//EnableGlowMaterial();
 	//SetItemState(EItemState::EIS_Pickup);
 	//FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
 	//GetItemMesh()->DetachFromComponent(DetachRules);
@@ -241,6 +248,9 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 			SetClipBoneName(WeaponDataRow->ClipBoneName);
 			SetReloadMontageSection(WeaponDataRow->ReloadMontageSection);
 			GetItemMesh()->SetAnimInstanceClass(WeaponDataRow->AnimBP);
+			SlideDisplacementCurve = WeaponDataRow->SlideDisplacementCurve;
+			SlideDisplacementTime = WeaponDataRow->FireDelay * 2.0f;
+			MaxSlideDisplacement = WeaponDataRow->MaxSlideDisplacement;
 			CrosshairsCenter = WeaponDataRow->CrosshairsCenter;
 			CrosshairsLeft = WeaponDataRow->CrosshairsLeft;
 			CrosshairsRight = WeaponDataRow->CrosshairsRight;
@@ -248,6 +258,12 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 			CrosshairsTop = WeaponDataRow->CrosshairsTop;
 			FireDelay = WeaponDataRow->FireDelay;
 			BoneToHide = WeaponDataRow->BoneToHide;
+			//
+			CaseClass = WeaponDataRow->CaseClass;
+			CaseParticle = WeaponDataRow->CaseParticle;
+
+			MuzzleFlash = WeaponDataRow->MuzzleFlash;
+			FireSound = WeaponDataRow->FireSound;
 			MuzzleSocketName = WeaponDataRow->MuzzleSocketName;
 			AmmoEjectSocketName = WeaponDataRow->AmmoEjectSocketName;
 			MainHandSocketName = WeaponDataRow->MainHandSocketName;
@@ -273,6 +289,22 @@ void AWeapon::BeginPlay()
 	if (BoneToHide != FName(""))
 	{
 		GetItemMesh()->HideBoneByName(BoneToHide, EPhysBodyOp::PBO_None);
+	}
+}
+
+void AWeapon::FinishMovingSlide()
+{
+	bMovingSlide = false;
+}
+
+void AWeapon::UpdateSlideDisplacement()
+{
+	if (SlideDisplacementCurve && bMovingSlide)
+	{
+		const float ElapsedTime{ GetWorldTimerManager().GetTimerElapsed(SlideTimer) };
+		const float CurveValue{ SlideDisplacementCurve->GetFloatValue(ElapsedTime) };
+		SlideDisplacement = CurveValue * MaxSlideDisplacement;
+		RecoilRotation = CurveValue * MaxRecoilRotation;
 	}
 }
 
@@ -320,6 +352,17 @@ void AWeapon::ReloadAmmo(int32 Amount)
 	Ammo = FMath::Clamp(Ammo + Amount, 0, MagazineCapacity);
 	SetHUDAmmo();
 	ClientAddAmmo(Amount);
+}
+
+void AWeapon::StartSlideTimer()
+{
+	bMovingSlide = true;
+	GetWorldTimerManager().SetTimer(
+		SlideTimer,
+		this,
+		&AWeapon::FinishMovingSlide,
+		SlideDisplacementTime
+	);
 }
 
 void AWeapon::ClientAddAmmo_Implementation(int32 Amount)
@@ -433,7 +476,7 @@ void AWeapon::Fire(const FVector& HitTarget)
 	{
 		GetItemMesh()->PlayAnimation(FireAnimation, false);
 	}
-	if (CaseClass)
+	if (CaseClass || CaseParticle)
 	{
 		const USkeletalMeshSocket* AmmoEjectSocket = GetItemMesh()->GetSocketByName(AmmoEjectSocketName);
 		if (AmmoEjectSocket)
@@ -443,14 +486,49 @@ void AWeapon::Fire(const FVector& HitTarget)
 			UWorld* World = GetWorld();
 			if (World)
 			{
-				World->SpawnActor<ACase>(
-					CaseClass,
-					SocketTransform.GetLocation(),
-					SocketTransform.GetRotation().Rotator()
-				);
+				if (CaseClass)
+				{
+					World->SpawnActor<ACase>(
+						CaseClass,
+						SocketTransform.GetLocation(),
+						SocketTransform.GetRotation().Rotator()
+					);
+				}
+				else if (CaseParticle)
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(
+						GetWorld(),
+						CaseParticle,
+						SocketTransform
+					);
+				}
 			}
 		}
 	}
+	const USkeletalMeshSocket* MuzzleFlashSocket = GetItemMesh()->GetSocketByName(GetMuzzleSocketName());
+	if (MuzzleFlashSocket)
+	{
+		FTransform SocketTransform = MuzzleFlashSocket->GetSocketTransform(GetItemMesh());
+		if (MuzzleFlash)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(
+				GetWorld(),
+				MuzzleFlash,
+				SocketTransform
+			);
+		}
+	}
+
+	if (FireSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(
+			this,
+			FireSound,
+			GetActorLocation()
+		);
+	}
 
 	DecrementAmmo();
+	if(SlideDisplacementCurve)
+		StartSlideTimer();
 }

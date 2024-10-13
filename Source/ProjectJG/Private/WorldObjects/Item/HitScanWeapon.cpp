@@ -6,6 +6,7 @@
 #include "particles/ParticleSystemComponent.h"
 #include "Sound/SoundCue.h"
 #include "WorldObjects/Item/WeaponType.h"
+#include "Materials/MaterialInstanceConstant.h"
 //#include "Blaster/BlasterComponents/LagCompensationComponent.h"
 
 void AHitScanWeapon::Fire(const FVector& HitTarget)
@@ -24,6 +25,8 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 
 		FHitResult FireHit;
 		WeaponTraceHit(Start, HitTarget, FireHit);
+
+		//DrawDebugLine(GetWorld(), Start, FireHit.TraceEnd, FColor::Green, false, 2.f);
 
 		APawn* HitActor = Cast<APawn>(FireHit.GetActor());
 		if (HitActor && InstigatorController)
@@ -74,22 +77,35 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 			);
 		}
 
-		if (MuzzleFlash)
+		if (DecalMaterial)
 		{
-			UGameplayStatics::SpawnEmitterAtLocation(
+			UGameplayStatics::SpawnDecalAtLocation(
 				GetWorld(),
-				MuzzleFlash,
-				SocketTransform
+				DecalMaterial,
+				FVector(5), 
+				FireHit.Location,
+				FireHit.ImpactNormal.Rotation(),
+				10.0f
 			);
 		}
-		if (FireSound)
-		{
-			UGameplayStatics::PlaySoundAtLocation(
-				this,
-				FireSound,
-				GetActorLocation()
-			);
-		}
+
+		//if (MuzzleFlash)
+		//{
+		//	UGameplayStatics::SpawnEmitterAtLocation(
+		//		GetWorld(),
+		//		MuzzleFlash,
+		//		SocketTransform
+		//	);
+		//}
+
+		//if (FireSound)
+		//{
+		//	UGameplayStatics::PlaySoundAtLocation(
+		//		this,
+		//		FireSound,
+		//		GetActorLocation()
+		//	);
+		//}
 	}
 }
 
@@ -100,11 +116,14 @@ void AHitScanWeapon::WeaponTraceHit(const FVector& TraceStart, const FVector& Hi
 	{
 		FVector End = TraceStart + (HitTarget - TraceStart) * 1.25f;
 
+		FCollisionQueryParams CollisionParams;
+		CollisionParams.AddIgnoredActor(GetOwner());
+
 		World->LineTraceSingleByChannel(
 			OutHit,
 			TraceStart,
 			End,
-			ECollisionChannel::ECC_Visibility
+			ECollisionChannel::ECC_GameTraceChannel7, CollisionParams
 		);
 		FVector BeamEnd = End;
 		if (OutHit.bBlockingHit)
@@ -147,12 +166,12 @@ void AHitScanWeapon::OnConstruction(const FTransform& Transform)
 
 		if (HitScanWeaponDataRow)
 		{
-			MuzzleFlash = HitScanWeaponDataRow->MuzzleFlash;
-			FireSound = HitScanWeaponDataRow->FireSound;
+			//MuzzleFlash = HitScanWeaponDataRow->MuzzleFlash;
+			//FireSound = HitScanWeaponDataRow->FireSound;
 			BeamParticles = HitScanWeaponDataRow->BeamParticles;
 			ImpactParticles = HitScanWeaponDataRow->ImpactParticles;
 			HitSound = HitScanWeaponDataRow->HitSound;
-
+			DecalMaterial = HitScanWeaponDataRow->DecalMaterial;
 			//MuzzleSocketName = HitScanWeaponDataRow->MuzzleSocketName;
 			//FireType = HitScanWeaponDataRow->FireType;
 			//SubHandSocketName = HitScanWeaponDataRow->SubHandSocketName;
@@ -167,4 +186,9 @@ void AHitScanWeapon::BeginPlay()
 	//{
 	//	GetItemMesh()->HideBoneByName(BoneToHide, EPhysBodyOp::PBO_None);
 	//}
+}
+
+void AHitScanWeapon::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
 }

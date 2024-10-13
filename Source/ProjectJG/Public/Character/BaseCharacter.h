@@ -123,14 +123,14 @@ protected:
 	//item weapon
 	//class AWeapon* SpawnDefaultWeapon();
 	
-	void EquipWeapon(AWeapon* WeaponToEquip, bool bSwapping = false);
+	//void EquipWeapon(AWeapon* WeaponToEquip, bool bSwapping = false);
 
-	void DropWeapon();
+	//void DropWeapon();
 
 	void SelectButtonPressed();
 	void SelectButtonReleased();
 	void SpawDefaultWeapon();
-	void SwapWeapon(AWeapon* WeaponToSwap);
+	//void SwapWeapon(AWeapon* WeaponToSwap);
 	//<<
 	
 	//>>
@@ -156,9 +156,8 @@ protected:
 
 	virtual void Jump() override;
 
-	int32 GetEmptyInventorySlot();
-
-	void HighlightInventorySlot();
+	//void HighlightInventorySlot();
+	void HighlightInventorySlot(int32 Slotidx);
 
 	void SetSpawnPoint();
 	void OnPlayerStateInitialized();
@@ -270,6 +269,9 @@ public:
 		void MulticastElim(bool bPlayerLeftGame);
 	virtual void Destroyed() override;
 
+	UPROPERTY(Replicated)
+	bool bDisableGameplay = false;
+
 	UFUNCTION(Server, Reliable)
 		void ServerLeaveGame();
 
@@ -281,13 +283,20 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastLostTheLead();
 	//<<
-	bool TraceScreenCrosshairCollision(FHitResult& OutHitResult, FVector& OutHitLocation);
+	bool TraceScreenCrosshairCollision(FHitResult& OutHitResult, FVector& OutHitLocation, ECollisionChannel CollisoinChannel = ECollisionChannel::ECC_Visibility);
 
 	void UpdateHUDHealth();
 	void UpdateHUDShield();
 	void UpdateHUDAmmo();
 
 	void InventoryDestroy();
+
+	UPROPERTY(BlueprintAssignable, Category = Delegates, meta = (AllowPrivateAccess = "true"))
+	FEquipItemDelegate EquipItemDelegate;
+
+	UPROPERTY(BlueprintAssignable, Category = Delegates, meta = (AllowPrivateAccess = "true"))
+	FHighlightIconDelegate HighlightIconDelegate;
+
 protected:
 	//UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -519,12 +528,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		TArray<FInterpLocation> InterpLocations;
 
-	UPROPERTY(BlueprintAssignable, Category = Delegates, meta = (AllowPrivateAccess = "true"))
-		FEquipItemDelegate EquipItemDelegate;
-
-	UPROPERTY(BlueprintAssignable, Category = Delegates, meta = (AllowPrivateAccess = "true"))
-		FHighlightIconDelegate HighlightIconDelegate;
-
 	UPROPERTY(ReplicatedUsing = OnRep_Inventory,VisibleAnywhere, BlueprintReadOnly, Category = Inventory, meta = (AllowPrivateAccess = "true"))
 		TArray<AItem*> Inventory;
 	UFUNCTION()
@@ -622,6 +625,8 @@ public:
 	FORCEINLINE float GetMaxShield() const { return MaxShield; }
 
 	FORCEINLINE bool IsElimmed() const { return bElimmed; }
+
+	FORCEINLINE UAnimMontage* GetReloadMontage() const {return ReloadMontage;}
 	//FORCEINLINE bool GetAiming() const { return bAiming; }
 	//UFUNCTION(BlueprintCallable)
 	//	float GetCrosshairSpreadMultiplier() const;
@@ -637,11 +642,14 @@ public:
 
 	void GetPickupItem(AItem* Item);
 
+	int32 GetEmptyInventorySlot();
+
 	void StartPickupSoundTimer();
 	void StartEquipSoundTimer();
 
 	void IncrementInterpLocItemCount(int32 Index, int32 Amount);
 
+	void HighlightInventorySlot();
 	void UnHighlightInventorySlot();
 
 	void IncrementOverlappedItemCount(int8 Amount);
@@ -660,6 +668,10 @@ public:
 	FORCEINLINE USceneComponent* GetHandSceneComponent() const { return HandSceneComponent; }
 
 	FORCEINLINE UStaticMeshComponent* GetAttachedGrenade() const { return AttachedGrenade; }
+
+	FORCEINLINE AItem* GetInventorySlotItem(int32 IndexSlot) const { return Inventory[IndexSlot]; }
+
+	FORCEINLINE bool GetDisableGameplay() const { return bDisableGameplay; }
 
 	bool IsLocallyReloading();
 

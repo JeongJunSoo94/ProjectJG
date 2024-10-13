@@ -85,6 +85,12 @@ struct FWeaponDataTable : public FTableRowBase
 		TSubclassOf<UAnimInstance> AnimBP;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UCurveFloat* SlideDisplacementCurve;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float MaxSlideDisplacement;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UAnimationAsset* FireAnimation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -107,6 +113,18 @@ struct FWeaponDataTable : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FName BoneToHide;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TSubclassOf<class ACase> CaseClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UParticleSystem* CaseParticle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UParticleSystem* MuzzleFlash;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		USoundCue* FireSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FName MuzzleSocketName;
@@ -162,6 +180,9 @@ protected:
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 	virtual void BeginPlay() override;
+
+	void FinishMovingSlide();
+	void UpdateSlideDisplacement();
 private:
 	FTimerHandle ThrowWeaponTimer;
 	float ThrowWeaponTime;
@@ -236,6 +257,37 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
 		FName BoneToHide;
 
+		/** Amount that the slide is pushed back during pistol fire */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Slide, meta = (AllowPrivateAccess = "true"))
+		float SlideDisplacement;
+
+		/** Curve for the slide displacement */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Slide, meta = (AllowPrivateAccess = "true"))
+		UCurveFloat* SlideDisplacementCurve;
+
+		/** Timer handle for updating SlideDisplacement */
+		FTimerHandle SlideTimer;
+
+		/** Time for displacing the slide during pistol fire */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Slide, meta = (AllowPrivateAccess = "true"))
+		float SlideDisplacementTime;
+
+		/** True when moving the pistol slide */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Slide, meta = (AllowPrivateAccess = "true"))
+		bool bMovingSlide;
+
+		/** Max distance for the slide on the pistol */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Slide, meta = (AllowPrivateAccess = "true"))
+		float MaxSlideDisplacement;
+
+		/** Max rotation for pistol recoil */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Slide, meta = (AllowPrivateAccess = "true"))
+		float MaxRecoilRotation;
+
+		/** Amount that the pistol will rotate during pistol fire*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Slide, meta = (AllowPrivateAccess = "true"))
+		float RecoilRotation;
+
 protected:
 	//>>
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
@@ -244,11 +296,14 @@ protected:
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	//class UParticleSystem* BeamParticles;
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
-	//class UParticleSystem* MuzzleFlash;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+	class UParticleSystem* CaseParticle;
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
-	//USoundCue* FireSound;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+	class UParticleSystem* MuzzleFlash;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+	USoundCue* FireSound;
 	//<<
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Scatter")
@@ -331,6 +386,8 @@ public:
 	//FORCEINLINE USoundCue* GetFireSound() const { return FireSound; }
 	bool IsEmpty();
 	void ReloadAmmo(int32 Amount);
+
+	void StartSlideTimer();
 
 	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; }
 	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }

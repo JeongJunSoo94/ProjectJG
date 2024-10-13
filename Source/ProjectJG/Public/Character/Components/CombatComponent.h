@@ -282,7 +282,7 @@ public:
 	FORCEINLINE AWeapon* GetEquippedWeapon() const { return EquippedWeapon; }
 	FORCEINLINE TMap<EWeaponType, int32> GetCarriedAmmoMap() const { return CarriedAmmoMap; }
 	FVector GetHitTarget() { return HitTarget; }
-	bool ShouldSwapWeapons();
+	bool ShouldSwapWeapons(int32 IndexSlot);
 
 	void SetCharacter(ABaseCharacter* character) { Character = character; }
 

@@ -90,7 +90,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	if (Character && Character->IsLocallyControlled())
 	{
 		FHitResult HitResult;
-		Character->TraceScreenCrosshairCollision(HitResult, HitTarget);
+		Character->TraceScreenCrosshairCollision(HitResult, HitTarget, ECollisionChannel::ECC_GameTraceChannel7);
 		//DrawDebugPoint(GetWorld(), HitTarget, 5.f, FColor::Black, false, 2.f);
 		SetHUDCrosshairs(DeltaTime);
 		InterpFOV(DeltaTime);
@@ -177,8 +177,8 @@ void UCombatComponent::StartFireTimer()
 
 void UCombatComponent::FireTimerFinished()
 {
-	if (EquippedWeapon == nullptr) return;
 	bCanFire = true;
+	if (EquippedWeapon == nullptr) return;
 	if (bFireButtonPressed && EquippedWeapon->bAutomatic)
 	{
 		Fire();
@@ -336,7 +336,7 @@ void UCombatComponent::EquipPrimaryWeapon(AWeapon* WeaponToEquip)
 {
 	if (WeaponToEquip == nullptr) return;
 	//DropEquippedWeapon();
-	if(EquippedWeapon)
+	if (EquippedWeapon)
 		EquippedWeapon->SetItemState(EItemState::EIS_PickedUp);
 	EquippedWeapon = WeaponToEquip;
 	EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
@@ -412,7 +412,6 @@ void UCombatComponent::DropEquippedWeapon()
 void UCombatComponent::AttachActorToRightHand(AActor* ActorToAttach, FName SocketName)
 {
 	if (Character == nullptr || Character->GetMesh() == nullptr || ActorToAttach == nullptr) return;
-	//Character->GetCharacterHeadWidget()->SetDisplayText("AttachActorToRightHand");
 	const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(SocketName);
 	if (HandSocket)
 	{
@@ -433,10 +432,11 @@ void UCombatComponent::AttachFlagToLeftHand(AWeapon* Flag)
 void UCombatComponent::AttachActorToLeftHand(AActor* ActorToAttach)
 {
 	if (Character == nullptr || Character->GetMesh() == nullptr || ActorToAttach == nullptr || EquippedWeapon == nullptr) return;
-	bool bUsePistolSocket =
-		EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Pistol ||
-		EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SubmachineGun;
-	FName SocketName = bUsePistolSocket ? FName("PistolSocket") : FName("LeftHandSocket");
+	//bool bUsePistolSocket =
+	//	EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Pistol ||
+	//	EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SubmachineGun;
+	//FName SocketName = bUsePistolSocket ? FName("PistolSocket") : FName("LeftHandSocket");
+	FName SocketName = FName("LeftHandSocket");
 	const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(SocketName);
 	if (HandSocket)
 	{
@@ -547,6 +547,7 @@ void UCombatComponent::FinishSwapAttachWeapons()
 	
 	if (SelectItem)
 	{
+		Character->EquipItemDelegate.Broadcast(EquippedWeapon->GetSlotIndex(), SelectItem->GetSlotIndex());
 		auto TempWeapon = Cast<AWeapon>(SelectItem);
 		if (TempWeapon)
 		{
@@ -603,17 +604,17 @@ void UCombatComponent::UpdateShotgunAmmoValues()
 		CarriedAmmoMap[EquippedWeapon->GetWeaponType()] -= 1;
 		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
 	}
-	/*Controller = Controller == nullptr ? Cast<ABlasterPlayerController>(Character->Controller) : Controller;
+	Controller = Controller == nullptr ? Cast<AInGamePlayerController>(Character->Controller) : Controller;
 	if (Controller)
 	{
 		Controller->SetHUDCarriedAmmo(CarriedAmmo);
 	}
 	EquippedWeapon->AddAmmo(1);
 	bCanFire = true;
-	if (EquippedWeapon->IsFull() || CarriedAmmo == 0)
+	if (EquippedWeapon->ClipIsFull() || CarriedAmmo == 0)
 	{
 		JumpToShotgunEnd();
-	}*/
+	}
 }
 
 void UCombatComponent::OnRep_Grenades()
@@ -625,10 +626,10 @@ void UCombatComponent::JumpToShotgunEnd()
 {
 	// Jump to ShotgunEnd section
 	UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance();
-	/*if (AnimInstance && Character->GetReloadMontage())
+	if (AnimInstance && Character->GetReloadMontage())
 	{
 		AnimInstance->Montage_JumpToSection(FName("ShotgunEnd"));
-	}*/
+	}
 }
 
 void UCombatComponent::ThrowGrenadeFinished()
@@ -765,10 +766,10 @@ void UCombatComponent::UpdateHUDGrenades()
 	}*/
 }
 
-bool UCombatComponent::ShouldSwapWeapons()
+bool UCombatComponent::ShouldSwapWeapons(int32 IndexSlot)
 {
 	//return (EquippedWeapon != nullptr && SecondaryWeapon != nullptr);
-	return (EquippedWeapon != nullptr);
+	return (EquippedWeapon != nullptr&& Character->GetInventorySlotItem(IndexSlot));
 }
 
 void UCombatComponent::ShowAttachedGrenade(bool bShowGrenade)
