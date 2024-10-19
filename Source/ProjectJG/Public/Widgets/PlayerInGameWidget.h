@@ -64,11 +64,11 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* ShieldText;
 
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		UCharacterSkillWidget* WB_CharacterSkill_Left;
+	//UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	//	UCharacterSkillWidget* WB_CharacterSkill_Left;
 
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-		UCharacterSkillWidget* WB_CharacterSkill_Mid;
+	//UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	//	UCharacterSkillWidget* WB_CharacterSkill_Mid;
 
 	//UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	//	class UInventoryBarWidget* InventoryBar;
@@ -81,8 +81,8 @@ private:
 
 public:
 	FORCEINLINE ABaseCharacter* GetCharacter() { return player; }
-	FORCEINLINE UCharacterSkillWidget* GetWB_CharacterSkill_Left() { return WB_CharacterSkill_Left; }
-	FORCEINLINE UCharacterSkillWidget* GetWB_CharacterSkill_Mid() { return WB_CharacterSkill_Mid; }
+	//FORCEINLINE UCharacterSkillWidget* GetWB_CharacterSkill_Left() { return WB_CharacterSkill_Left; }
+	//FORCEINLINE UCharacterSkillWidget* GetWB_CharacterSkill_Mid() { return WB_CharacterSkill_Mid; }
 	//FORCEINLINE UCharacterSkillWidget* GetWB_CharacterSkill_Right() { return WB_CharacterSkill_Right; }
 	//FORCEINLINE UInventoryBarWidget* GetInventoryBar() { return InventoryBar; }
 	//FORCEINLINE UItemInfoWidget* GetItemInfo() { return ItemInfo; }

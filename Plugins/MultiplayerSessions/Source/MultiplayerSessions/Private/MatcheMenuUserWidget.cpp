@@ -57,14 +57,16 @@ void UMatcheMenuUserWidget::SetMatcheItems(int32 Page)
 	for (int i=0;MatcheRoomUserWidgets.Num()>i;++i)
 	{
 		FString OwningUserName="";
-		FString NumOpenPublicConnections="";
-		FString NumPublicConnections="";
+		int32 NumOpenPublicConnections;
+		int32 NumPublicConnections;
+		FString Players = "";
 		FString PingInMs="";
 		if (MenuUser->GetSearchResultsInfo(num, OwningUserName, NumOpenPublicConnections, NumPublicConnections, PingInMs))
 		{
-			NumOpenPublicConnections.Append("/");
-			NumOpenPublicConnections.Append(NumPublicConnections);
-			MatcheRoomUserWidgets[i]->UpdateProperty(OwningUserName,NumOpenPublicConnections, PingInMs);
+			Players.AppendInt(NumPublicConnections - NumOpenPublicConnections);
+			Players.Append("/");
+			Players.AppendInt(NumPublicConnections);
+			MatcheRoomUserWidgets[i]->UpdateProperty(OwningUserName, Players, PingInMs);
 			MatcheRoomUserWidgets[i]->SlotNum = num++;
 			MatcheRoomUserWidgets[i]->SetVisibility(ESlateVisibility::Visible);
 		}

@@ -86,6 +86,25 @@ bool UMenuUserWidget::Initialize()
 	return true;
 }
 
+void UMenuUserWidget::RemoveBindings()
+{
+	if (MultiplayerSessionsSubsystem)
+	{
+		MultiplayerSessionsSubsystem->MultiplayerOnCreateSessionComplete.RemoveDynamic(this, &ThisClass::OnCreateSession);
+		MultiplayerSessionsSubsystem->MultiplayerOnFindSessionsComplete.RemoveAll(this);
+		MultiplayerSessionsSubsystem->MultiplayerOnFindSessionsComplete.RemoveAll(this);
+		MultiplayerSessionsSubsystem->MultiplayerOnDestroySessionComplete.RemoveDynamic(this, &ThisClass::OnDestroySession);
+		MultiplayerSessionsSubsystem->MultiplayerOnStartSessionComplete.RemoveDynamic(this, &ThisClass::OnStartSession);
+	}
+}
+
+void UMenuUserWidget::NativeDestruct()
+{
+	RemoveBindings();
+	Super::NativeDestruct();
+}
+
+
 void UMenuUserWidget::OnLevelRemovedFromWorld(ULevel* InLevel, UWorld* InWorld)
 {
 	MenuTearDown();
@@ -97,34 +116,29 @@ void UMenuUserWidget::OnCreateSession(bool bWasSuccessful)
 	if (bWasSuccessful)
 	{
 		UWorld * World = GetWorld();
-		
-		UGameplayStatics::OpenLevel(World, *PathToLobby,true);
-		//PlayerController = GetGameInstance()->GetFirstLocalPlayerController();
-		//if (PlayerController)
+		if(World)
+			UGameplayStatics::OpenLevel(World, *PathToLobby,true);
+		//if (GEngine)
 		//{
-		//	PlayerController->ClientTravel(PathToLobby, ETravelType::TRAVEL_Absolute);
+		//	GEngine->AddOnScreenDebugMessage(
+		//		-1,
+		//		15.f,
+		//		FColor::Green,
+		//		FString(TEXT("Success to create session!"))
+		//	);
 		//}
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				15.f,
-				FColor::Green,
-				FString(TEXT("Success to create session!"))
-			);
-		}
 	}
 	else
 	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				15.f,
-				FColor::Red,
-				FString(TEXT("Failed to create session!"))
-			);
-		}
+		//if (GEngine)
+		//{
+		//	GEngine->AddOnScreenDebugMessage(
+		//		-1,
+		//		15.f,
+		//		FColor::Red,
+		//		FString(TEXT("Failed to create session!"))
+		//	);
+		//}
 		WB_Matche->HostButton->SetIsEnabled(true);
 	}
 }
@@ -135,6 +149,16 @@ void UMenuUserWidget::OnFindSessions(const TArray<FOnlineSessionSearchResult>& S
 	{
 		return;
 	}
+	for (auto value : MultiplayerSessionsSubsystem->GetSearchResults())
+	{
+		UE_LOG(LogTemp, Log, TEXT("OnFindSessionsSearchResult: %s"), *value.Session.OwningUserName);
+		UE_LOG(LogTemp, Log, TEXT("OnFindSessionsSearchResult: %s"), *FText::FromString(value.Session.OwningUserName).ToString());
+		UE_LOG(LogTemp, Log, TEXT("OnFindSessionsSearchResult: %s"), StringCast<TCHAR>(*value.Session.OwningUserName).Get());
+		// OwningUserName이 깨지지 않도록 처리
+		FString EncodedName = StringCast<TCHAR>(*value.Session.OwningUserName).Get();
+		UE_LOG(LogTemp, Log, TEXT("OnFindSessionsSearchResult: %s"), *EncodedName);
+
+	}
 	WB_Matche->SetMatcheItems(0);
 	WB_Matche->SetSliderOption(MultiplayerSessionsSubsystem->GetSearchResults().Num()/10);
 	WB_Matche->Refresh->SetIsEnabled(true);
@@ -142,6 +166,7 @@ void UMenuUserWidget::OnFindSessions(const TArray<FOnlineSessionSearchResult>& S
 
 void UMenuUserWidget::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 {
+	UE_LOG(LogTemp, Log, TEXT("OnJoinSession"));
 	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
 	if (Subsystem)
 	{
@@ -177,7 +202,6 @@ void UMenuUserWidget::RefreshButtonClicked()
 	if (MultiplayerSessionsSubsystem)
 	{
 		MultiplayerSessionsSubsystem->FindSessions(20);
-		//MultiplayerSessionsSubsystem->CreateSession(SessionNumPublicConnections, MatchType);
 	}
 }
 
@@ -186,26 +210,26 @@ void UMenuUserWidget::HostButtonClicked()
 	WB_Matche->HostButton->SetIsEnabled(false);
 	if (MultiplayerSessionsSubsystem)
 	{
-		FString SessionName;
+		FString SessionName{""};
 		if (GEngine)
 		{
 			if(WB_Matche->SessionLobbyName =="")
 			{
-				SessionName = PlayerController->GetPlayerState<APlayerState>()->GetPlayerName();
+				SessionName.Append(PlayerController->GetPlayerState<APlayerState>()->GetPlayerName());
 				SessionName.Append("'s Room");
 			}
 			else
 			{
 				SessionName = *WB_Matche->SessionLobbyName;
-				GEngine->AddOnScreenDebugMessage(
-					-2,
-					15.f,
-					FColor::Green,
-					FString::Printf(TEXT("%s"), *WB_Matche->SessionLobbyName)
-				);
+				//GEngine->AddOnScreenDebugMessage(
+				//	-2,
+				//	15.f,
+				//	FColor::Green,
+				//	FString::Printf(TEXT("%s"), *WB_Matche->SessionLobbyName)
+				//);
 			}
 		}
-		MultiplayerSessionsSubsystem->CreateSession(FName(SessionName), WB_Matche->SessionNumPublicConnections, MatchType);
+		MultiplayerSessionsSubsystem->CreateSession(SessionName, WB_Matche->SessionNumPublicConnections, MatchType);
 	}
 }
 
@@ -250,7 +274,7 @@ void UMenuUserWidget::MenuTearDown()
 	}
 }
 
-bool UMenuUserWidget::GetSearchResultsInfo(int32 Index, FString& OwningUserName, FString& NumOpenPublicConnections, FString& NumPublicConnections, FString& PingInMs)
+bool UMenuUserWidget::GetSearchResultsInfo(int32 Index, FString& OwningUserName, int32& NumOpenPublicConnections, int32& NumPublicConnections, FString& PingInMs)
 {
 	if (MultiplayerSessionsSubsystem->GetSearchResults().Num() > Index)
 	{
@@ -258,8 +282,8 @@ bool UMenuUserWidget::GetSearchResultsInfo(int32 Index, FString& OwningUserName,
 		if(OwningUserName=="")
 			OwningUserName = MultiplayerSessionsSubsystem->GetSearchResults()[Index].Session.OwningUserName;
 
-		NumOpenPublicConnections = FString::FromInt(MultiplayerSessionsSubsystem->GetSearchResults()[Index].Session.NumOpenPublicConnections);
-		NumPublicConnections = FString::FromInt(MultiplayerSessionsSubsystem->GetSearchResults()[Index].Session.SessionSettings.NumPublicConnections);
+		NumOpenPublicConnections = MultiplayerSessionsSubsystem->GetSearchResults()[Index].Session.NumOpenPublicConnections;
+		NumPublicConnections = MultiplayerSessionsSubsystem->GetSearchResults()[Index].Session.SessionSettings.NumPublicConnections;
 		PingInMs = FString::FromInt(MultiplayerSessionsSubsystem->GetSearchResults()[Index].PingInMs);
 		return true;
 	}

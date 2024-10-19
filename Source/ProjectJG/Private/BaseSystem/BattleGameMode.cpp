@@ -197,12 +197,12 @@ void ABattleGameMode::EnemyEliminated(class ABaseEnemyCharacter* ElimmedCharacte
 
 void ABattleGameMode::RequestRespawn(ACharacter* ElimmedCharacter, AController* ElimmedController)
 {
-	if (GEngine)
-	{
-		FString str = "RequestRespawn:";
-		//str.AppendInt(GameInstance->GetLocalPlayers().Num());
-		GEngine->AddOnScreenDebugMessage(4, 20.0f, FColor::Purple, str);
-	}
+	//if (GEngine)
+	//{
+	//	FString str = "RequestRespawn:";
+	//	//str.AppendInt(GameInstance->GetLocalPlayers().Num());
+	//	GEngine->AddOnScreenDebugMessage(4, 20.0f, FColor::Purple, str);
+	//}
 	if (ElimmedCharacter)
 	{
 		ElimmedCharacter->Reset();

@@ -13,7 +13,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void MenuSetup(int32 NumberOfPublicConnections = 4, FString TypeOfMatch = FString(TEXT("FreeForAll")), FString LobbyPath = FString(TEXT("/Game/Developers/JJS/TestMap/MultiLobby/MultiLobby")));
 
-	bool GetSearchResultsInfo(int32 Index, FString& OwningUserName, FString& NumOpenPublicConnections, FString& NumPublicConnections, FString& PingInMs);
+	bool GetSearchResultsInfo(int32 Index, FString& OwningUserName, int32& NumOpenPublicConnections, int32& NumPublicConnections, FString& PingInMs);
 	//
 	//UPROPERTY(meta = (BindWidget))
 	//	class UTextBlock* TestTextBox;
@@ -29,6 +29,7 @@ public:
 protected:
 
 	virtual bool Initialize() override;
+	virtual void NativeDestruct() override;
 	virtual void OnLevelRemovedFromWorld(ULevel* InLevel, UWorld* InWorld) override;
 
 	UFUNCTION()
@@ -40,6 +41,7 @@ protected:
 	UFUNCTION()
 		void OnStartSession(bool bWasSuccessful);
 
+		void RemoveBindings();
 private:
 
 	UPROPERTY(meta = (BindWidget))

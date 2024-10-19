@@ -19,13 +19,12 @@ protected:
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	void UpdatePlayerControllers();
-	void UpdateTest();
+	void UpdateMatcheItems();
 	
-	UPROPERTY(ReplicatedUsing = OnRep_PlayerInfos, VisibleAnywhere, Category = "Players")
-		TArray<int32> PlayerInfos;
+	UPROPERTY(ReplicatedUsing = OnRep_PlayersInfo, VisibleAnywhere, Category = "Players")
+		TArray<int32> PlayersInfo;
 	UFUNCTION()
-		void OnRep_PlayerInfos();
+		void OnRep_PlayersInfo();
 
 	UPROPERTY(ReplicatedUsing = OnRep_PlayerReadys, VisibleAnywhere, Category = "Players")
 		TArray<bool> PlayerReadys;
@@ -34,11 +33,11 @@ public:
 
 	class UMatcheLobbyUserWidget* MatcheMenu;
 
-	/** Add PlayerState to the PlayerArray */
 	virtual void AddPlayerState(APlayerState* PlayerState) override;
 
-	/** Remove PlayerState from the PlayerArray. */
 	virtual void RemovePlayerState(APlayerState* PlayerState) override;
+
+	APlayerState* GetFindPlayerState(int32 SlotIdx);
 
 private:
 	FTimerHandle PlayerCheckDataTimerHandle;

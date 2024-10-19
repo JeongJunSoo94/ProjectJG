@@ -3,6 +3,9 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Interfaces/OnlineSessionInterface.h"
+#include "Interfaces/OnlineFriendsInterface.h"
+#include "Interfaces/OnlineIdentityInterface.h"
+//#include "Interfaces/OnlineExternalUIInterface.h"
 #include "MultiplayerSessionsSubsystem.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultiplayerOnCreateSessionComplete, bool, bWasSuccessful);
@@ -19,15 +22,16 @@ public:
 	UMultiplayerSessionsSubsystem();
 
 	void CreateSession(int32 NumPublicConnections, FString MatchType);
-	void CreateSession(FName SessionName,int32 NumPublicConnections, FString MatchType);
+	void CreateSession(FString SessionName,int32 NumPublicConnections, FString MatchType);
 	void FindSessions(int32 MaxSearchResults);
 	void JoinSession(const FOnlineSessionSearchResult& SessionResult);
 	void DestroySession();
 	void StartSession();
 
 	FName GetSessionName();
+	FString GetSessionOwnerName();
 	int32 GetSessionPlayerNum();
-	FName GetSessionLobbyName();
+	FString GetSessionLobbyName();
 	FName GetOnlineSubsystemName();
 	const TArray<FOnlineSessionSearchResult> GetSearchResults();
 
@@ -39,6 +43,14 @@ public:
 
 	int32 DesiredNumPublicConnections{};
 	FString DesiredMatchType{};
+
+	FORCEINLINE const TArray<TSharedRef<FOnlineFriend>>& GetFriendsList() const {return FriendsList;}
+	void FetchFriendsList();
+
+	void SendSessionInviteToFriend(int32 LocalUserNum, const FUniqueNetId& UniqueNetId);
+	UTexture2D* GetSteamFriendAvatar(const uint64 UniqueNetId);
+
+	void InviteAcceptedLog(int32 ControllerId, FUniqueNetIdPtr UserId, const FOnlineSessionSearchResult& SearchResult);
 protected:
 
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
@@ -47,8 +59,13 @@ protected:
 	void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnStartSessionComplete(FName SessionName, bool bWasSuccessful);
 
+	void Initialize(FSubsystemCollectionBase& Collection) override;
+
+	void OnInviteAccepted(bool bWasSuccessful, int32 ControllerId, FUniqueNetIdPtr UserId, const FOnlineSessionSearchResult& SearchResult);
 private:
 	IOnlineSessionPtr SessionInterface;
+	IOnlineFriendsPtr FriendsInterface;
+	TArray<TSharedRef<FOnlineFriend>> FriendsList;
 	TSharedPtr<FOnlineSessionSettings> LastSessionSettings;
 	TSharedPtr<FOnlineSessionSearch> LastSessionSearch;
 

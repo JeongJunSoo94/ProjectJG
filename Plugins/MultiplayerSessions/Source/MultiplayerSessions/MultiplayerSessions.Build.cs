@@ -8,11 +8,12 @@ public class MultiplayerSessions : ModuleRules
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
+
 		PublicIncludePaths.AddRange(
 			new string[] {
 				// ... add public include paths required here ...
-			}
-			);
+            }
+            );
 				
 		
 		PrivateIncludePaths.AddRange(
@@ -28,15 +29,16 @@ public class MultiplayerSessions : ModuleRules
 				"Core",
 				"OnlineSubsystem",
 				"OnlineSubsystemSteam",
-				"UMG",
+                "OnlineSubsystemUtils",
+				"Steamworks",
+                "UMG",
 				"Slate",
 				"SlateCore"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
-			
-		
-		PrivateDependencyModuleNames.AddRange(
+
+        PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
 				"CoreUObject",
@@ -54,5 +56,6 @@ public class MultiplayerSessions : ModuleRules
 				// ... add any modules that your module loads dynamically here ...
 			}
 			);
-	}
+
+    }
 }

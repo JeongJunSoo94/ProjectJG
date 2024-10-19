@@ -11,51 +11,14 @@ void AMatcheLobbyGameState::BeginPlay()
 {
 }
 
-void AMatcheLobbyGameState::UpdatePlayerControllers()
-{
-	//for (int32 i=0;i< PlayerArray.Num();++i)
-	//{
-	//	if (PlayerArray[i])
-	//	{
-	//		if (MatcheMenu)
-	//		{
-	//			UMatcheLobbyItemUserWidget* MatcheMenuItem = MatcheMenu->GetMatchePalyerWidget(i);
-	//			if (MatcheMenuItem)
-	//			{
-	//				MatcheMenuItem->SetVisibility(ESlateVisibility::Visible);
-	//				MatcheMenuItem->UpdatePlayerName(PlayerArray[i]->GetPlayerName());
-	//				MatcheMenuItem->UpdatePing(FString::SanitizeFloat(PlayerArray[i]->ExactPing));
-	//			}
-	//			else
-	//			{
-	//				//GEngine->AddOnScreenDebugMessage(4, 20.0f, FColor::Red, TEXT("NotMatcheMenuItem"));
-	//			}
-	//		}
-	//		else
-	//		{
-	//			//GEngine->AddOnScreenDebugMessage(4, 20.0f, FColor::Red, TEXT("NotMatcheMenu"));
-	//		}
-	//	}
-	//	else
-	//	{
-	//		if (GEngine)
-	//		{
-	//			FString str = "";
-	//			str.AppendInt(i);
-	//			GEngine->AddOnScreenDebugMessage(i+10, 2.0f, FColor::Yellow, str);
-	//		}
-	//	}
-	//}
-}
-
 void AMatcheLobbyGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(AMatcheLobbyGameState, PlayerInfos);
+	DOREPLIFETIME(AMatcheLobbyGameState, PlayersInfo);
 	DOREPLIFETIME(AMatcheLobbyGameState, PlayerReadys);
 }
 
-void AMatcheLobbyGameState::UpdateTest()
+void AMatcheLobbyGameState::UpdateMatcheItems()
 {
 	for (int32 i = 0; i < PlayerArray.Num(); ++i)
 	{
@@ -63,28 +26,23 @@ void AMatcheLobbyGameState::UpdateTest()
 		{
 			if (MatcheMenu)
 			{
-				int32 idx = PlayerInfos.Find(PlayerArray[i]->GetPlayerId());
+				int32 idx = PlayersInfo.Find(PlayerArray[i]->GetPlayerId());
 				if (idx == INDEX_NONE)
 					continue;
 				UMatcheLobbyItemUserWidget* MatcheMenuItem = MatcheMenu->GetMatchePalyerWidget(idx);
 				if (MatcheMenuItem)
 				{
 					MatcheMenuItem->SetVisibility(ESlateVisibility::Visible);
-					MatcheMenuItem->SetKickButton(HasAuthority());
+					MatcheMenuItem->SetKickButton(i==0?false:HasAuthority());
 					MatcheMenuItem->UpdatePlayerName(PlayerArray[i]->GetPlayerName());
-					MatcheMenuItem->UpdatePing(FString::SanitizeFloat(PlayerArray[i]->ExactPing));
+					//MatcheMenuItem->UpdatePing(FString::SanitizeFloat(PlayerArray[i]->ExactPing));
 				}
 			}
 		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(i, 20.0f, FColor::Red, TEXT("NoPlayer"));
-			return;
-		}
 	}
-	for (int32 i = 0; i < PlayerInfos.Num(); ++i)
+	for (int32 i = 0; i < PlayersInfo.Num(); ++i)
 	{
-		if (PlayerInfos[i] == -1)
+		if (PlayersInfo[i] == -1)
 		{
 			if (MatcheMenu)
 			{
@@ -95,16 +53,14 @@ void AMatcheLobbyGameState::UpdateTest()
 					MatcheMenuItem->UpdatePlayerName("");
 				}
 			}
-			else
-				return;
 		}
 	}
 	GetWorldTimerManager().ClearTimer(PlayerCheckDataTimerHandle);
 }
 
-void AMatcheLobbyGameState::OnRep_PlayerInfos()
+void AMatcheLobbyGameState::OnRep_PlayersInfo()
 {
-	GetWorldTimerManager().SetTimer(PlayerCheckDataTimerHandle, this, &AMatcheLobbyGameState::UpdateTest, 0.1f, true);
+	GetWorldTimerManager().SetTimer(PlayerCheckDataTimerHandle, this, &AMatcheLobbyGameState::UpdateMatcheItems, 0.1f, true);
 }
 
 void AMatcheLobbyGameState::OnRep_PlayerReadys()
@@ -124,11 +80,24 @@ void AMatcheLobbyGameState::OnRep_PlayerReadys()
 void AMatcheLobbyGameState::AddPlayerState(APlayerState* PlayerState)
 {
 	Super::AddPlayerState(PlayerState);
-	GetWorldTimerManager().SetTimer(PlayerCheckDataTimerHandle, this, &AMatcheLobbyGameState::UpdateTest, 0.1f, true);
+	GetWorldTimerManager().SetTimer(PlayerCheckDataTimerHandle, this, &AMatcheLobbyGameState::UpdateMatcheItems, 0.1f, true);
 }
 
 void AMatcheLobbyGameState::RemovePlayerState(APlayerState* PlayerState)
 {
 	Super::RemovePlayerState(PlayerState);
-	GetWorldTimerManager().SetTimer(PlayerCheckDataTimerHandle, this, &AMatcheLobbyGameState::UpdateTest, 0.1f, true);
+	GetWorldTimerManager().SetTimer(PlayerCheckDataTimerHandle, this, &AMatcheLobbyGameState::UpdateMatcheItems, 0.1f, true);
+}
+
+APlayerState* AMatcheLobbyGameState::GetFindPlayerState(int32 SlotIdx)
+{
+	for (int32 i = 0; i < PlayerArray.Num(); ++i)
+	{
+		if (PlayerArray[i]->GetPlayerId() == PlayersInfo[SlotIdx])
+		{
+			return PlayerArray[i];
+		}
+	}
+
+	return nullptr;
 }

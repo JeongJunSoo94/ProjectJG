@@ -5,7 +5,10 @@
 
 void UMatcheLobbyItemUserWidget::NativeConstruct()
 {
-
+	if (KickButton)
+	{
+		KickButton->OnClicked.AddDynamic(this, &ThisClass::KickButtonClicked);
+	}
 }
 
 void UMatcheLobbyItemUserWidget::UpdatePlayerName(FString PlayerName)
@@ -18,15 +21,16 @@ void UMatcheLobbyItemUserWidget::UpdateIsReady(bool IsReady)
 	if (ReadyText)
 		ReadyText->SetText(FText::FromString(IsReady ? "Ready" :""));
 }
-void UMatcheLobbyItemUserWidget::UpdatePing(FString Ping)			  
-{
-	if (PingText)
-		PingText->SetText(FText::FromString(Ping));
-}
+
 void UMatcheLobbyItemUserWidget::SetKickButton(bool OnButton)
 {
 	if(OnButton)
-		MatcheSelectButton->SetVisibility(ESlateVisibility::Visible);
+		KickButton->SetVisibility(ESlateVisibility::Visible);
 	else
-		MatcheSelectButton->SetVisibility(ESlateVisibility::Hidden);
+		KickButton->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void UMatcheLobbyItemUserWidget::KickButtonClicked()
+{
+	KickButtonClickedDelegate.Execute(slotidx);
 }

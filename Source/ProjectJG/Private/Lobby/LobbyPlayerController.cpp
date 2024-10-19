@@ -19,7 +19,7 @@ ALobbyPlayerController::ALobbyPlayerController(const FObjectInitializer& ObjectI
 void ALobbyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	if (MainMenu)
+	if (MainMenuClass)
 	{
 		MainMenu = CreateWidget<UMenuUserWidget>(this, MainMenuClass);
 		if (MainMenu)

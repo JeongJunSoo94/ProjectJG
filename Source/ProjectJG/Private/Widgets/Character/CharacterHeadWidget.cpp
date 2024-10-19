@@ -47,7 +47,7 @@ void UCharacterHeadWidget::ShowPlayerNetRole(APawn* InPawn)
 	}
 	//FString RemoteRoleString = FString::Printf(TEXT("Remote Role: %s"), *RemoteRoleStr);
 	//SetDisplayText(RemoteRoleString);
-	//SetPlayerText();
+	SetPlayerText();
 }
 
 void UCharacterHeadWidget::SetPlayerText()
@@ -60,17 +60,17 @@ void UCharacterHeadWidget::SetPlayerText()
 		{
 			FString InfoString;
 			
-			if (Owner->GetController() != nullptr)
-			{
-				InfoString = FString::Printf(TEXT("PlayerName: %s \nLocal Role: %s \nRemote Role: %s\n Connection: %s \n Have Controller"), *(player->GetPlayerName()), *LocalRoleStr, *RemoteRoleStr,*ConnectionStr);
-				DisplayText->SetText(FText::FromString(InfoString));
-			}
-			else
-			{
-				InfoString = FString::Printf(TEXT("PlayerName: %s \nLocal Role: %s \nRemote Role: %s\n Connection: %s\n Haven't Controller"), *(player->GetPlayerName()), *LocalRoleStr, *RemoteRoleStr, *ConnectionStr);
-				DisplayText->SetText(FText::FromString(InfoString));
-			}
-			//DisplayText->SetText(FText::FromString(player->GetPlayerName()));
+			//if (Owner->GetController() != nullptr)
+			//{
+			//	InfoString = FString::Printf(TEXT("PlayerName: %s \nLocal Role: %s \nRemote Role: %s\n Connection: %s \n Have Controller"), *(player->GetPlayerName()), *LocalRoleStr, *RemoteRoleStr,*ConnectionStr);
+			//	DisplayText->SetText(FText::FromString(InfoString));
+			//}
+			//else
+			//{
+			//	InfoString = FString::Printf(TEXT("PlayerName: %s \nLocal Role: %s \nRemote Role: %s\n Connection: %s\n Haven't Controller"), *(player->GetPlayerName()), *LocalRoleStr, *RemoteRoleStr, *ConnectionStr);
+			//	DisplayText->SetText(FText::FromString(InfoString));
+			//}
+			DisplayText->SetText(FText::FromString(player->GetPlayerName()));
 		}
 	}
 	else

@@ -366,21 +366,21 @@ public:
 public:
 	//void SetWeaponState(EWeaponState State);
 	void ThrowWeapon();
-	FORCEINLINE float GetDamage() const { return Damage; }
-	FORCEINLINE float GetHeadShotDamage() const{ return HeadShotDamage; }
-	FORCEINLINE int32 GetAmmo() const { return Ammo; }
-	FORCEINLINE int32 GetMagazineCapacity() const { return MagazineCapacity; }
+	FORCEINLINE const float GetDamage() const { return Damage; }
+	FORCEINLINE const float GetHeadShotDamage() const{ return HeadShotDamage; }
+	FORCEINLINE const int32 GetAmmo() const { return Ammo; }
+	FORCEINLINE const int32 GetMagazineCapacity() const { return MagazineCapacity; }
 
 	void SendBullet();
 
 	void DecrementAmmo();
 
-	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
-	FORCEINLINE FName GetReloadMontageSection() const { return ReloadMontageSection; }
+	FORCEINLINE const EWeaponType GetWeaponType() const { return WeaponType; }
+	FORCEINLINE const FName GetReloadMontageSection() const { return ReloadMontageSection; }
 	FORCEINLINE void SetReloadMontageSection(FName Name) { ReloadMontageSection = Name; }
-	FORCEINLINE FName GetClipBoneName() const { return ClipBoneName; }
+	FORCEINLINE const FName GetClipBoneName() const { return ClipBoneName; }
 	FORCEINLINE void SetClipBoneName(FName Name) { ClipBoneName = Name; }
-	FORCEINLINE float GetFireDelay() const { return FireDelay; }
+	FORCEINLINE const float GetFireDelay() const { return FireDelay; }
 	//new
 	//FORCEINLINE UParticleSystem* GetMuzzleFlash() const { return MuzzleFlash; }
 	//FORCEINLINE USoundCue* GetFireSound() const { return FireSound; }
@@ -389,14 +389,14 @@ public:
 
 	void StartSlideTimer();
 
-	FORCEINLINE float GetZoomedFOV() const { return ZoomedFOV; }
-	FORCEINLINE float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
+	FORCEINLINE const float GetZoomedFOV() const { return ZoomedFOV; }
+	FORCEINLINE const float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
 
 	FORCEINLINE void SetMovingClip(bool Move) { bMovingClip = Move; }
-	FORCEINLINE FName GetMuzzleSocketName() const { return MuzzleSocketName; }
-	FORCEINLINE FName GetAmmoEjectSocketName() const { return AmmoEjectSocketName; }
-	FORCEINLINE FName GetMainHandSocketName() const { return MainHandSocketName; }
-	FORCEINLINE FName GetSubHandSocketName() const { return SubHandSocketName; }
-	FORCEINLINE FName GetCharacterAttachRightHandSocketName() const { return CharacterAttachRightHandSocketName; }
+	FORCEINLINE const FName GetMuzzleSocketName() const { return MuzzleSocketName; }
+	FORCEINLINE const FName GetAmmoEjectSocketName() const { return AmmoEjectSocketName; }
+	FORCEINLINE const FName GetMainHandSocketName() const { return MainHandSocketName; }
+	FORCEINLINE const FName GetSubHandSocketName() const { return SubHandSocketName; }
+	FORCEINLINE const FName GetCharacterAttachRightHandSocketName() const { return CharacterAttachRightHandSocketName; }
 	bool ClipIsFull();
 };

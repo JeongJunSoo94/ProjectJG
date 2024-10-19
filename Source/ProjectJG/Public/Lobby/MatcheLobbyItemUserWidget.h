@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "MatcheLobbyItemUserWidget.generated.h"
 
+DECLARE_DELEGATE_OneParam(FKickButtonClickedDelegate, int32);
 /**
  * 
  */
@@ -13,6 +14,10 @@ UCLASS()
 class PROJECTJG_API UMatcheLobbyItemUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
+public:
+	int32 slotidx = 0;
+
+	FKickButtonClickedDelegate KickButtonClickedDelegate;
 protected:
 	virtual void NativeConstruct() override;
 
@@ -21,12 +26,11 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* ReadyText;
 	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* PingText;
-	UPROPERTY(meta = (BindWidget))
-		class UButton* MatcheSelectButton;
+		class UButton* KickButton;
 public:
 	void UpdatePlayerName(FString PlayerName);
 	void UpdateIsReady(bool IsReady);
-	void UpdatePing(FString Ping);
 	void SetKickButton(bool OnButton);
+	UFUNCTION()
+	void KickButtonClicked();
 };

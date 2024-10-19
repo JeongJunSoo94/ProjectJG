@@ -1193,7 +1193,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 
 	if (CacheCharacterHeadWidget)
 	{
-		FString HeadWidgetStr = "";
+		//FString HeadWidgetStr = "";
 		//for (int32 i = 0; i < Inventory.Num(); ++i)
 		//{
 		//	if (Inventory[i])
@@ -1212,8 +1212,8 @@ void ABaseCharacter::Tick(float DeltaTime)
 		//	HeadWidgetStr.Append(Combat->GetEquippedWeapon()->GetItemName());
 		//	HeadWidgetStr.Append("\n");
 		//}
-		HeadWidgetStr.Append(UEnum::GetValueAsString((Combat->CombatState)));
-		HeadWidgetStr.Append("\n");
+		//HeadWidgetStr.Append(UEnum::GetValueAsString((Combat->CombatState)));
+		//HeadWidgetStr.Append("\n");
 		/*
 		if (Combat->GetEquippedWeapon())
 		{
@@ -1234,21 +1234,21 @@ void ABaseCharacter::Tick(float DeltaTime)
 				HeadWidgetStr.Append("\n");
 			}
 		}*/
-		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-		if (AnimInstance)
-		{
-			HeadWidgetStr.Append("ReloadMontage: ");
-			HeadWidgetStr.Append(AnimInstance->Montage_IsPlaying(ReloadMontage) ? "True" : "False");
-			HeadWidgetStr.Append("\n");
-			HeadWidgetStr.Append("HitReactMontage: ");
-			HeadWidgetStr.Append(AnimInstance->Montage_IsPlaying(HitReactMontage) ? "True" : "False");
-			HeadWidgetStr.Append("\n");
-			HeadWidgetStr.Append("ElimMontage: ");
-			HeadWidgetStr.Append(AnimInstance->Montage_IsPlaying(ElimMontage) ? "True" : "False");
-			HeadWidgetStr.Append("\n");
-		}
+		//UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		//if (AnimInstance)
+		//{
+		//	HeadWidgetStr.Append("ReloadMontage: ");
+		//	HeadWidgetStr.Append(AnimInstance->Montage_IsPlaying(ReloadMontage) ? "True" : "False");
+		//	HeadWidgetStr.Append("\n");
+		//	HeadWidgetStr.Append("HitReactMontage: ");
+		//	HeadWidgetStr.Append(AnimInstance->Montage_IsPlaying(HitReactMontage) ? "True" : "False");
+		//	HeadWidgetStr.Append("\n");
+		//	HeadWidgetStr.Append("ElimMontage: ");
+		//	HeadWidgetStr.Append(AnimInstance->Montage_IsPlaying(ElimMontage) ? "True" : "False");
+		//	HeadWidgetStr.Append("\n");
+		//}
 
-		CacheCharacterHeadWidget->SetDisplayText(HeadWidgetStr);
+		//CacheCharacterHeadWidget->SetDisplayText(HeadWidgetStr);
 		//if(CacheCharacterAnimInstance)
 		//	CacheCharacterHeadWidget->SetDisplayText(CacheCharacterAnimInstance->GetCharacterInfo());
 		//else

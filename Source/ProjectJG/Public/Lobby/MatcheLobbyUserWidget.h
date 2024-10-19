@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "FriendListUserWidget.h"
+#include "Interfaces/OnlineSessionInterface.h"
 #include "MatcheLobbyUserWidget.generated.h"
 
 /**
@@ -17,6 +19,8 @@ class PROJECTJG_API UMatcheLobbyUserWidget : public UUserWidget
 protected:
 	virtual void NativeConstruct() override;
 	virtual void OnLevelRemovedFromWorld(ULevel* InLevel, UWorld* InWorld) override;
+	virtual void NativeDestruct() override;
+	void RemoveBindings();
 	class UMultiplayerSessionsSubsystem* MultiplayerSessionsSubsystem;
 
 	TArray<class UMatcheLobbyItemUserWidget*> MatcheLobbyItemUserWidgets;
@@ -27,8 +31,8 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		UButton* LeaveButton;
 
-	UPROPERTY(meta = (BindWidget))
-		UButton* CharacterSelectButton;
+	//UPROPERTY(meta = (BindWidget))
+	//	UButton* CharacterSelectButton;
 
 	UPROPERTY(meta = (BindWidget))
 		UButton* FriendButton;
@@ -37,7 +41,16 @@ protected:
 
 	class AMatchePlayerController* MatchePlayerController;
 
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		UFriendListUserWidget* FriendListUserWidget;
+
+
+	class AMatcheLobbyGameState* MatcheLobbyGameState;
 public:
+	UFUNCTION()
+	void OnInviteButtonClicked(int32 SlotIdx);
+	UFUNCTION()
+	void OnKickButtonClicked(int32 SlotIdx);
 	void MenuTearDown();
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* StartTextBlock;
@@ -56,8 +69,8 @@ public:
 	UFUNCTION()
 		void LeaveButtonClicked();
 
-	UFUNCTION()
-		void CharacterSelectButtonClicked();
+	//UFUNCTION()
+	//	void CharacterSelectButtonClicked();
 
 	UFUNCTION()
 		void FriendButtonClicked();

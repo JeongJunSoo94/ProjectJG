@@ -67,10 +67,11 @@ void AMatchePlayerController::CheckData()
 					//if (MatcheLobbyGameState)
 					MatcheLobbyGameState->MatcheMenu = MatcheMenu;
 					//MatcheMenu->MenuSetup(1, "FreeForAll", "/Game/Developers/JJS/TestMap/MultiLobby/TestMap");
+
 				}
 			}
 		}
-		MatcheLobbyGameState->UpdateTest();
+		MatcheLobbyGameState->UpdateMatcheItems();
 		GetWorldTimerManager().ClearTimer(PlayerCheckDataTimerHandle);
 	}
 }
@@ -112,7 +113,7 @@ void AMatchePlayerController::ClickStartButton_Implementation(bool bReady)
 		{
 			if (MatcheLobbyGameState)
 			{
-				int32 idx = MatcheLobbyGameState->PlayerInfos.Find(PlayerState->GetPlayerId());
+				int32 idx = MatcheLobbyGameState->PlayersInfo.Find(PlayerState->GetPlayerId());
 				if (idx == INDEX_NONE)
 					return;
 				MatcheLobbyGameState->PlayerReadys[idx] = bReady;

@@ -81,25 +81,25 @@ void AMatcheGameMode::PostLogin(APlayerController* NewPlayer)
 		//}
 		//FString str;
 		//str.Append("Num:");
-		//str.AppendInt(MatcheLobbyGameState->PlayerInfos.Num());
+		//str.AppendInt(MatcheLobbyGameState->PlayersInfo.Num());
 		//str.Append("PlayerName:");
 		//str.Append(PlayerState->GetPlayerName());
 		//str.Append("PlayerId:");
 		//str.AppendInt(PlayerState->GetPlayerId());
 		//MatchePlayerController->CreateMatcheWidget();
 		MatchePlayerController->JoinMatcheLobby();
-		int32 idx = MatcheLobbyGameState->PlayerInfos.Find(-1);
+		int32 idx = MatcheLobbyGameState->PlayersInfo.Find(-1);
 		if (idx == INDEX_NONE)
 		{
-			MatcheLobbyGameState->PlayerInfos.Add(PlayerState->GetPlayerId());
+			MatcheLobbyGameState->PlayersInfo.Add(PlayerState->GetPlayerId());
 			MatcheLobbyGameState->PlayerReadys.Add(false);
 		}
 		else
 		{
-			MatcheLobbyGameState->PlayerInfos[idx] = PlayerState->GetPlayerId();
+			MatcheLobbyGameState->PlayersInfo[idx] = PlayerState->GetPlayerId();
 			MatcheLobbyGameState->PlayerReadys[idx] = false;
 		}
-		MatcheLobbyGameState->UpdateTest();
+		MatcheLobbyGameState->UpdateMatcheItems();
 		//for (int32 i =0; i< MatcheLobbyGameState->PlayerControllers.Num();++i)
 		//{
 		//	MatcheLobbyGameState->PlayerControllers[i]->SlotIdx = i;
@@ -123,8 +123,8 @@ void AMatcheGameMode::Logout(AController* Exiting)
 	AMatchePlayerController* MatchePlayerController = Cast<AMatchePlayerController>(Exiting);
 	if (MatcheLobbyGameState)
 	{
-		int32 idx = MatcheLobbyGameState->PlayerInfos.Find(MatchePlayerController->GetPlayerState<APlayerState>()->GetPlayerId());
-		MatcheLobbyGameState->PlayerInfos[idx] = -1;
+		int32 idx = MatcheLobbyGameState->PlayersInfo.Find(MatchePlayerController->GetPlayerState<APlayerState>()->GetPlayerId());
+		MatcheLobbyGameState->PlayersInfo[idx] = -1;
 		MatcheLobbyGameState->PlayerReadys[idx] = false;
 	}
 	if (MatchePlayerController)

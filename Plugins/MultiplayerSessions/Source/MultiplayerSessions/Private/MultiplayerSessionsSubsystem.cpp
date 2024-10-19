@@ -1,6 +1,17 @@
 #include "MultiplayerSessionsSubsystem.h"
 #include "OnlineSubsystem.h"
 #include "OnlineSessionSettings.h"
+#include "Kismet/GameplayStatics.h"
+
+#include "Engine/Texture2D.h"
+#include "ThirdParty/Steamworks/Steamv151/sdk/public/steam/steam_api.h"
+#include "ThirdParty/Steamworks/Steamv151/sdk/public/steam/isteamuser.h"
+#include "ThirdParty/Steamworks/Steamv151/sdk/public/steam/isteamutils.h"
+
+
+#include "GameFramework/PlayerController.h"
+#include "GameFramework/GameStateBase.h"
+#include "GameFramework/PlayerState.h"
 
 UMultiplayerSessionsSubsystem::UMultiplayerSessionsSubsystem() :
 	CreateSessionCompleteDelegate(FOnCreateSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnCreateSessionComplete)),
@@ -9,10 +20,15 @@ UMultiplayerSessionsSubsystem::UMultiplayerSessionsSubsystem() :
 	DestroySessionCompleteDelegate(FOnDestroySessionCompleteDelegate::CreateUObject(this, &ThisClass::OnDestroySessionComplete)),
 	StartSessionCompleteDelegate(FOnStartSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnStartSessionComplete))
 {
+	
 	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
 	if (Subsystem)
 	{
 		SessionInterface = Subsystem->GetSessionInterface();
+		if (SessionInterface)
+		{
+			SessionInterface->OnSessionUserInviteAcceptedDelegates.AddUObject(this, &UMultiplayerSessionsSubsystem::OnInviteAccepted);
+		}
 	}
 }
 
@@ -50,6 +66,7 @@ void UMultiplayerSessionsSubsystem::CreateSession(int32 NumPublicConnections, FS
 	LastSessionSettings->bUseLobbiesIfAvailable = true;
 
 	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
+
 	if (!SessionInterface->CreateSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *LastSessionSettings))
 	{
 		SessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteDelegateHandle);
@@ -59,7 +76,7 @@ void UMultiplayerSessionsSubsystem::CreateSession(int32 NumPublicConnections, FS
 	}
 }
 
-void UMultiplayerSessionsSubsystem::CreateSession(FName SessionName,int32 NumPublicConnections, FString MatchType)
+void UMultiplayerSessionsSubsystem::CreateSession(FString SessionName,int32 NumPublicConnections, FString MatchType)
 {
 	DesiredNumPublicConnections = NumPublicConnections;
 	DesiredMatchType = MatchType;
@@ -89,12 +106,12 @@ void UMultiplayerSessionsSubsystem::CreateSession(FName SessionName,int32 NumPub
 	LastSessionSettings->bShouldAdvertise = true;
 	LastSessionSettings->bUsesPresence = true;
 	LastSessionSettings->Set(FName("MatchType"), MatchType, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
-	LastSessionSettings->Set(FName("SESSION_LOBBY_NAME"), SessionName.ToString(), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	LastSessionSettings->Set(FName("SESSION_LOBBY_NAME"), SessionName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 	LastSessionSettings->BuildUniqueId = 1;
 	LastSessionSettings->bUseLobbiesIfAvailable = true;
 
-
 	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
+
 	if (!SessionInterface->CreateSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *LastSessionSettings))
 	{
 		SessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteDelegateHandle);
@@ -118,12 +135,18 @@ void UMultiplayerSessionsSubsystem::FindSessions(int32 MaxSearchResults)
 	LastSessionSearch->bIsLanQuery = IOnlineSubsystem::Get()->GetSubsystemName() == "NULL" ? true : false;
 	LastSessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
 
-	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
-	if (!SessionInterface->FindSessions(*LocalPlayer->GetPreferredUniqueNetId(), LastSessionSearch.ToSharedRef()))
+	UWorld* world = GetWorld();
+	if (world)
 	{
-		SessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(FindSessionsCompleteDelegateHandle);
-
-		MultiplayerOnFindSessionsComplete.Broadcast(TArray<FOnlineSessionSearchResult>(), false);
+		const ULocalPlayer* LocalPlayer = world->GetFirstLocalPlayerFromController();
+		if(LocalPlayer)
+			UE_LOG(LogTemp, Log, TEXT("LocalPlayerGetFName %s"), *LocalPlayer->GetFName().ToString());
+		if (!SessionInterface->FindSessions(*LocalPlayer->GetPreferredUniqueNetId(), LastSessionSearch.ToSharedRef()))
+		{
+			SessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(FindSessionsCompleteDelegateHandle);
+			UE_LOG(LogTemp, Log, TEXT("Find MultiplayerOnFindSessionsComplete."));
+			MultiplayerOnFindSessionsComplete.Broadcast(TArray<FOnlineSessionSearchResult>(), false);
+		}
 	}
 }
 
@@ -137,12 +160,16 @@ void UMultiplayerSessionsSubsystem::JoinSession(const FOnlineSessionSearchResult
 
 	JoinSessionCompleteDelegateHandle = SessionInterface->AddOnJoinSessionCompleteDelegate_Handle(JoinSessionCompleteDelegate);
 
-	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
-	if (!SessionInterface->JoinSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, SessionResult))
+	UWorld* world = GetWorld();
+	if (world)
 	{
-		SessionInterface->ClearOnJoinSessionCompleteDelegate_Handle(JoinSessionCompleteDelegateHandle);
-
-		MultiplayerOnJoinSessionComplete.Broadcast(EOnJoinSessionCompleteResult::UnknownError);
+		const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
+		if (!SessionInterface->JoinSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, SessionResult))
+		{
+			SessionInterface->ClearOnJoinSessionCompleteDelegate_Handle(JoinSessionCompleteDelegateHandle);
+			UE_LOG(LogTemp, Log, TEXT("Find MultiplayerOnJoinSessionComplete."));
+			MultiplayerOnJoinSessionComplete.Broadcast(EOnJoinSessionCompleteResult::UnknownError);
+		}
 	}
 }
 
@@ -195,6 +222,25 @@ FName UMultiplayerSessionsSubsystem::GetSessionName()
 	return NAME_None;
 }
 
+FString UMultiplayerSessionsSubsystem::GetSessionOwnerName()
+{
+	IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get();
+	if (OnlineSubsystem)
+	{
+		IOnlineSessionPtr Sessions = OnlineSubsystem->GetSessionInterface();
+		if (Sessions.IsValid())
+		{
+			FNamedOnlineSession* CurrentSession = Sessions->GetNamedSession(NAME_GameSession);
+			if (CurrentSession)
+			{
+				return CurrentSession->OwningUserName;
+			}
+		}
+	}
+
+	return "NAME_None";
+}
+
 int32 UMultiplayerSessionsSubsystem::GetSessionPlayerNum()
 {
 	IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get();
@@ -214,7 +260,7 @@ int32 UMultiplayerSessionsSubsystem::GetSessionPlayerNum()
 	return -1;
 }
 
-FName UMultiplayerSessionsSubsystem::GetSessionLobbyName()
+FString UMultiplayerSessionsSubsystem::GetSessionLobbyName()
 {
 	IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get();
 	if (OnlineSubsystem)
@@ -226,17 +272,16 @@ FName UMultiplayerSessionsSubsystem::GetSessionLobbyName()
 
 			if (CurrentSession)
 			{
-
 				FString SessionName;
 				if (CurrentSession->SessionSettings.Get(FName("SESSION_LOBBY_NAME"), SessionName))
 				{
-					return FName(SessionName);
+					return SessionName;
 				}
 			}
 		}
 	}
 
-	return NAME_None;
+	return "NAME_None";
 }
 
 FName UMultiplayerSessionsSubsystem::GetOnlineSubsystemName()
@@ -311,3 +356,163 @@ void UMultiplayerSessionsSubsystem::OnStartSessionComplete(FName SessionName, bo
 		//SessionInterface->StartSession(SessionName);
 	}
 }
+
+void UMultiplayerSessionsSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
+	if (Subsystem)
+	{
+		SessionInterface = Subsystem->GetSessionInterface();
+		FriendsInterface = Subsystem->GetFriendsInterface();
+
+		if (FriendsInterface.IsValid())
+		{
+			FetchFriendsList();
+		}
+	}
+}
+
+
+void UMultiplayerSessionsSubsystem::FetchFriendsList()
+{
+	if (FriendsInterface.IsValid())
+	{
+		FriendsInterface->ReadFriendsList(0, TEXT("Default"), FOnReadFriendsListComplete::CreateLambda([this](int32 LocalUserNum, bool bWasSuccessful, const FString& ListName, const FString& ErrorStr)
+			{
+				if (bWasSuccessful)
+				{
+					UE_LOG(LogTemp, Log, TEXT("FriendsInterfaceSuccess"));
+					FriendsList.Empty();
+					if (FriendsInterface->GetFriendsList(LocalUserNum, ListName, FriendsList))
+					{
+						UE_LOG(LogTemp, Log, TEXT("FriendsListSuccess"));
+					}
+					else
+					{
+						UE_LOG(LogTemp, Log, TEXT("FriendsListFail"));
+					}
+
+				}
+				else
+				{
+					UE_LOG(LogTemp, Error, TEXT("FriendsInterface Fail: %s"), *ErrorStr);
+				}
+			}));
+	}
+}
+
+
+UTexture2D* UMultiplayerSessionsSubsystem::GetSteamFriendAvatar(const uint64 UniqueNetId)  //, PlayerAvatarSize PlayerAvatarSize)
+{
+
+	uint32 Width = 0;
+	uint32 Height = 0;
+
+	if (SteamAPI_Init())
+	{
+		int Picture = 0;
+
+		//switch (PlayerAvatarSize)
+		//{
+		//case PlayerAvatarSize::PlayerAvatar_Small: Picture = SteamFriends()->GetSmallFriendAvatar(UniqueNetId); break;
+		//case PlayerAvatarSize::PlayerAvatar_Medium: Picture = SteamFriends()->GetMediumFriendAvatar(UniqueNetId); break;
+		//case PlayerAvatarSize::PlayerAvatar_Large: Picture = SteamFriends()->GetLargeFriendAvatar(UniqueNetId); break;
+		//default: break;
+		//}
+
+		Picture = SteamFriends()->GetMediumFriendAvatar(UniqueNetId);
+
+		if (Picture == -1)
+		{
+			return NULL;
+		}
+
+		SteamUtils()->GetImageSize(Picture, &Width, &Height);
+
+		if (Width > 0 && Height > 0)
+		{
+			//Creating the buffer "oAvatarRGBA" and then filling it with the RGBA Stream from the Steam Avatar
+			uint8* oAvatarRGBA = new uint8[Width * Height * 4];
+
+
+			//Filling the buffer with the RGBA Stream from the Steam Avatar and creating a UTextur2D to parse the RGBA Steam in
+			SteamUtils()->GetImageRGBA(Picture, (uint8*)oAvatarRGBA, 4 * Height * Width * sizeof(char));
+
+			UTexture2D* Avatar = UTexture2D::CreateTransient(Width, Height, PF_R8G8B8A8);
+			// Switched to a Memcpy instead of byte by byte transer
+			uint8* MipData = (uint8*)Avatar->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+			FMemory::Memcpy(MipData, (void*)oAvatarRGBA, Height * Width * 4);
+			Avatar->PlatformData->Mips[0].BulkData.Unlock();
+
+			// Original implementation was missing this!!
+			// the hell man......
+			delete[] oAvatarRGBA;
+
+			//Setting some Parameters for the Texture and finally returning it
+			Avatar->PlatformData->SetNumSlices(1);
+			Avatar->NeverStream = true;
+			//Avatar->CompressionSettings = TC_EditorIcon;
+
+			Avatar->UpdateResource();
+
+			//TextureCacheMap.Add(UniqueNetId, Avatar);
+			return Avatar;
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Bad Height / Width with steam avatar!"));
+		}
+
+		return nullptr;
+	}
+	return nullptr;
+}
+
+void UMultiplayerSessionsSubsystem::SendSessionInviteToFriend(int32 LocalUserNum,const FUniqueNetId& UniqueNetId)
+{
+	if (SessionInterface->SendSessionInviteToFriend(LocalUserNum, NAME_GameSession, UniqueNetId))
+	{
+		UE_LOG(LogTemp, Log, TEXT("Invite sent to friend!"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to send invite to friend!"));
+	}
+}
+
+void UMultiplayerSessionsSubsystem::OnInviteAccepted(bool bWasSuccessful, int32 ControllerId, FUniqueNetIdPtr UserId, const FOnlineSessionSearchResult& SearchResult)
+{
+	if (bWasSuccessful && SearchResult.IsValid())
+	{
+		if (SessionInterface.IsValid())
+		{
+			JoinSession(SearchResult);
+
+			UE_LOG(LogTemp, Log, TEXT("Invite acceptance Success."));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Invite acceptance failed."));
+	}
+}
+
+void UMultiplayerSessionsSubsystem::InviteAcceptedLog(int32 ControllerId, FUniqueNetIdPtr UserId, const FOnlineSessionSearchResult& SearchResult)
+{
+	UE_LOG(LogTemp, Log, TEXT("ControllerId: %d"), ControllerId);
+	UE_LOG(LogTemp, Log, TEXT("UserId: %s"), *UserId->ToString());
+	UE_LOG(LogTemp, Log, TEXT("SearchResult: %s"), *SearchResult.GetSessionIdStr());
+
+	FString SessionName;
+	SearchResult.Session.SessionSettings.Get(FName("SESSION_LOBBY_NAME"), SessionName);
+	UE_LOG(LogTemp, Log, TEXT("SESSION_LOBBY_NAME: %s"),
+		*SessionName);
+	UE_LOG(LogTemp, Log, TEXT("SearchResult.Session.OwningUserId: %s"),
+		*SearchResult.Session.OwningUserId.Get()->ToString());
+	UE_LOG(LogTemp, Log, TEXT("SearchResult.Session.OwningUserName: %s"),
+		*SearchResult.Session.OwningUserName);
+	UE_LOG(LogTemp, Log, TEXT("SearchResult.Session.SessionInfo: %s"),
+		*SearchResult.Session.SessionInfo.Get()->ToString());
+}
+
