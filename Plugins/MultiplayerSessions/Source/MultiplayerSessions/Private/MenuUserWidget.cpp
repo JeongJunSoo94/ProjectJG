@@ -15,7 +15,6 @@
 void UMenuUserWidget::MenuSetup(int32 NumberOfPublicConnections, FString TypeOfMatch, FString LobbyPath)
 {
 	PathToLobby = FString::Printf(TEXT("%s?listen"), *LobbyPath);
-	//SessionNumPublicConnections = NumberOfPublicConnections;
 	MatchType = TypeOfMatch;
 	AddToViewport();
 	SetVisibility(ESlateVisibility::Visible);
@@ -118,27 +117,10 @@ void UMenuUserWidget::OnCreateSession(bool bWasSuccessful)
 		UWorld * World = GetWorld();
 		if(World)
 			UGameplayStatics::OpenLevel(World, *PathToLobby,true);
-		//if (GEngine)
-		//{
-		//	GEngine->AddOnScreenDebugMessage(
-		//		-1,
-		//		15.f,
-		//		FColor::Green,
-		//		FString(TEXT("Success to create session!"))
-		//	);
-		//}
+
 	}
 	else
 	{
-		//if (GEngine)
-		//{
-		//	GEngine->AddOnScreenDebugMessage(
-		//		-1,
-		//		15.f,
-		//		FColor::Red,
-		//		FString(TEXT("Failed to create session!"))
-		//	);
-		//}
 		WB_Matche->HostButton->SetIsEnabled(true);
 	}
 }
@@ -154,7 +136,6 @@ void UMenuUserWidget::OnFindSessions(const TArray<FOnlineSessionSearchResult>& S
 		UE_LOG(LogTemp, Log, TEXT("OnFindSessionsSearchResult: %s"), *value.Session.OwningUserName);
 		UE_LOG(LogTemp, Log, TEXT("OnFindSessionsSearchResult: %s"), *FText::FromString(value.Session.OwningUserName).ToString());
 		UE_LOG(LogTemp, Log, TEXT("OnFindSessionsSearchResult: %s"), StringCast<TCHAR>(*value.Session.OwningUserName).Get());
-		// OwningUserName이 깨지지 않도록 처리
 		FString EncodedName = StringCast<TCHAR>(*value.Session.OwningUserName).Get();
 		UE_LOG(LogTemp, Log, TEXT("OnFindSessionsSearchResult: %s"), *EncodedName);
 
@@ -180,7 +161,6 @@ void UMenuUserWidget::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 			if (PlayerController)
 			{
 				PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
-				//TestTextBox->SetText(FText::FromString("OnJoinSession"));
 			}
 		}
 	}
@@ -221,12 +201,6 @@ void UMenuUserWidget::HostButtonClicked()
 			else
 			{
 				SessionName = *WB_Matche->SessionLobbyName;
-				//GEngine->AddOnScreenDebugMessage(
-				//	-2,
-				//	15.f,
-				//	FColor::Green,
-				//	FString::Printf(TEXT("%s"), *WB_Matche->SessionLobbyName)
-				//);
 			}
 		}
 		MultiplayerSessionsSubsystem->CreateSession(SessionName, WB_Matche->SessionNumPublicConnections, MatchType);
@@ -245,9 +219,8 @@ void UMenuUserWidget::JoinButtonClicked()
 		if (WB_Matche->SelectRoomNum >= 0 && MultiplayerSessionsSubsystem->GetSearchResults().Num() > WB_Matche->SelectRoomNum)
 		{
 			MultiplayerSessionsSubsystem->JoinSession(MultiplayerSessionsSubsystem->GetSearchResults()[WB_Matche->SelectRoomNum]);
-			//TestTextBox->SetText(FText::FromString("JoinButtonClicked"));
+
 		}
-		//MultiplayerSessionsSubsystem->FindSessions(10000);
 	}
 }
 

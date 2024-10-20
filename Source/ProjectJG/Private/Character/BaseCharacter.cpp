@@ -1501,6 +1501,8 @@ void ABaseCharacter::PostInitializeComponents()
 			GetCharacterMovement()->MaxWalkSpeedCrouched
 		);
 		Buff->SetInitialJumpVelocity(GetCharacterMovement()->JumpZVelocity);
+
+		Buff->SetInitialFireSpeed(GetCombatComp()->GetBuffFireSpeed());
 	}
 	if (LagCompensation)
 	{

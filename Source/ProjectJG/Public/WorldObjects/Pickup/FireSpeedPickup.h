@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "WorldObjects/Pickup/Pickup.h"
-#include "JumpPickup.generated.h"
+#include "FireSpeedPickup.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTJG_API AJumpPickup : public APickup
+class PROJECTJG_API AFireSpeedPickup : public APickup
 {
 	GENERATED_BODY()
 protected:
@@ -25,8 +25,8 @@ protected:
 private:
 
 	UPROPERTY(EditAnywhere)
-	float JumpZVelocityBuff = 2000.f;
+	float BaseSpeedBuff = 0.5f;
 
 	UPROPERTY(EditAnywhere)
-	float JumpBuffTime = 30.f;
+	float SpeedBuffTime = 30.f;
 };

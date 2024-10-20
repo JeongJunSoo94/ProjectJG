@@ -29,10 +29,16 @@ void UItemDropComponent::InitailizeItemDropTable()
 
 void UItemDropComponent::SpawnItem()
 {
-	int32 NumItemClasses = ItemClasses.Num();
+	int32 DropRandom = FMath::RandRange(0, 2);
+	int32 NumItemClasses;
+	NumItemClasses = DropRandom < 1 ? PickupClasses.Num() : ItemClasses.Num();
 	if (NumItemClasses > 0)
 	{
 		int32 Selection = FMath::RandRange(0, NumItemClasses - 1);
-		GetWorld()->SpawnActor<AItem>(ItemClasses[Selection], GetOwner()->GetActorTransform());
+		if(DropRandom < 1)
+			GetWorld()->SpawnActor<APickup>(PickupClasses[Selection], GetOwner()->GetActorTransform());
+		else
+			GetWorld()->SpawnActor<AItem>(ItemClasses[Selection], GetOwner()->GetActorTransform());
+
 	}
 }

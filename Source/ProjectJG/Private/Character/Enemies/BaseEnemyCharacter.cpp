@@ -201,8 +201,7 @@ void ABaseEnemyCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 void ABaseEnemyCharacter::MulticastDamageWidget_Implementation(float Damage)
 {
 	UWorld* const World = GetWorld();
-	if (!IsLocallyControlled())
-		return;
+
 	if (World && DamageWidgetClass)
 	{
 		ADamageFXActor* DamageFXActor = Cast<ADamageFXActor>(World->SpawnActor<AActor>(DamageWidgetClass, FVector::ZeroVector, FRotator::ZeroRotator));

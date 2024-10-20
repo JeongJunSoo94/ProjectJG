@@ -18,8 +18,10 @@ public:
 	void Heal(float HealAmount, float HealingTime);
 	void ReplenishShield(float ShieldAmount, float ReplenishTime);
 	void BuffSpeed(float BuffBaseSpeed, float BuffCrouchSpeed, float BuffTime);
+	void BuffFireSpeed(float BuffBaseSpeed, float BuffTime);
 	void BuffJump(float BuffJumpVelocity, float BuffTime);
 	void SetInitialSpeeds(float BaseSpeed, float CrouchSpeed);
+	void SetInitialFireSpeed(float BaseSpeed);
 	void SetInitialJumpVelocity(float Velocity);
 protected:
 	virtual void BeginPlay() override;
@@ -56,6 +58,17 @@ private:
 
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastSpeedBuff(float BaseSpeed, float CrouchSpeed);
+
+		/**
+		* Fire Speed buff
+		*/
+
+		FTimerHandle FireSpeedBuffTimer;
+		void ResetFireSpeeds();
+		float InitialBaseFireSpeed;
+
+		UFUNCTION(NetMulticast, Reliable)
+		void MulticastFireSpeedBuff(float BaseSpeed);
 
 	/**
 	* Jump buff

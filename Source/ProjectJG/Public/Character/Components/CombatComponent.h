@@ -134,6 +134,9 @@ private:
 	UPROPERTY()
 		class AGameHUD* HUD;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+		UTexture2D* CrosshairsCenter;
+
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon, VisibleAnywhere, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 		AWeapon* EquippedWeapon;
 
@@ -201,6 +204,8 @@ private:
 
 	FTimerHandle FireTimer;
 	bool bCanFire = true;
+
+	float BuffFireSpeed =1.f;
 
 	void StartFireTimer();
 	void FireTimerFinished();
@@ -286,4 +291,6 @@ public:
 
 	void SetCharacter(ABaseCharacter* character) { Character = character; }
 
+	FORCEINLINE float GetBuffFireSpeed() const { return BuffFireSpeed; }
+	void SetBuffFireSpeed(float FireSpeed) {BuffFireSpeed = FireSpeed;}
 };

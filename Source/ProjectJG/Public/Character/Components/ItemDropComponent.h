@@ -46,6 +46,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TArray<TSubclassOf<class AItem>> ItemClasses;
 
+	UPROPERTY(EditAnywhere)
+	TArray<TSubclassOf<class APickup>> PickupClasses;
+
 public:	
 	UFUNCTION()
 	void SpawnItem();

@@ -138,7 +138,7 @@ void UCombatComponent::FireProjectileWeapon()
 	{
 		HitTarget = EquippedWeapon->bUseScatter ? EquippedWeapon->GetBeamTraceDirection(HitTarget) : HitTarget;
 		if (!Character->HasAuthority()) LocalFire(HitTarget);
-		ServerFire(HitTarget, EquippedWeapon->GetFireDelay());
+		ServerFire(HitTarget, EquippedWeapon->GetFireDelay()*BuffFireSpeed);
 	}
 }
 
@@ -148,7 +148,7 @@ void UCombatComponent::FireHitScanWeapon()
 	{
 		HitTarget = EquippedWeapon->bUseScatter ? EquippedWeapon->GetBeamTraceDirection(HitTarget) : HitTarget;
 		if (!Character->HasAuthority()) LocalFire(HitTarget);
-		ServerFire(HitTarget, EquippedWeapon->GetFireDelay());
+		ServerFire(HitTarget, EquippedWeapon->GetFireDelay()*BuffFireSpeed);
 	}
 }
 
@@ -160,7 +160,7 @@ void UCombatComponent::FireShotgun()
 		TArray<FVector_NetQuantize> HitTargets;
 		Shotgun->ShotgunTraceEndWithScatter(HitTarget, HitTargets);
 		if (!Character->HasAuthority()) ShotgunLocalFire(HitTargets);
-		ServerShotgunFire(HitTargets, EquippedWeapon->GetFireDelay());
+		ServerShotgunFire(HitTargets, EquippedWeapon->GetFireDelay()*BuffFireSpeed);
 	}
 }
 
@@ -171,7 +171,7 @@ void UCombatComponent::StartFireTimer()
 		FireTimer,
 		this,
 		&UCombatComponent::FireTimerFinished,
-		EquippedWeapon->GetFireDelay()
+		EquippedWeapon->GetFireDelay()*BuffFireSpeed
 	);
 }
 
@@ -195,7 +195,7 @@ bool UCombatComponent::ServerFire_Validate(const FVector_NetQuantize& TraceHitTa
 {
 	if (EquippedWeapon)
 	{
-		bool bNearlyEqual = FMath::IsNearlyEqual(EquippedWeapon->GetFireDelay(), FireDelay, 0.001f);
+		bool bNearlyEqual = FMath::IsNearlyEqual(EquippedWeapon->GetFireDelay()*BuffFireSpeed, FireDelay, 0.001f);
 		return bNearlyEqual;
 	}
 	return true;
@@ -216,7 +216,7 @@ bool UCombatComponent::ServerShotgunFire_Validate(const TArray<FVector_NetQuanti
 {
 	if (EquippedWeapon)
 	{
-		bool bNearlyEqual = FMath::IsNearlyEqual(EquippedWeapon->GetFireDelay(), FireDelay, 0.001f);
+		bool bNearlyEqual = FMath::IsNearlyEqual(EquippedWeapon->GetFireDelay()*BuffFireSpeed, FireDelay, 0.001f);
 		return bNearlyEqual;
 	}
 	return true;
@@ -895,7 +895,7 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 			}
 			else
 			{
-				HUDPackage.CrosshairsCenter = nullptr;
+				HUDPackage.CrosshairsCenter = CrosshairsCenter;
 				HUDPackage.CrosshairsLeft = nullptr;
 				HUDPackage.CrosshairsRight = nullptr;
 				HUDPackage.CrosshairsBottom = nullptr;

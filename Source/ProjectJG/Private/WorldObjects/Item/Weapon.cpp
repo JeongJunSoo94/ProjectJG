@@ -228,8 +228,8 @@ void AWeapon::OnConstruction(const FTransform& Transform)
 		if (WeaponDataRow)
 		{
 			//AmmoType = WeaponDataRow->AmmoType;
-			Ammo = WeaponDataRow->WeaponAmmo;
-			MagazineCapacity = WeaponDataRow->MagazingCapacity;
+			Ammo = WeaponDataRow->WeaponAmmo + GetNumberOfStars();
+			MagazineCapacity = WeaponDataRow->MagazingCapacity + GetNumberOfStars();
 
 			Damage = WeaponDataRow->Damage*GetNumberOfStars();
 			HeadShotDamage = WeaponDataRow->HeadDamage * GetNumberOfStars();

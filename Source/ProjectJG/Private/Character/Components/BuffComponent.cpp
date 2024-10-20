@@ -1,6 +1,7 @@
 #include "Character/Components/BuffComponent.h"
 #include "Character/BaseCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Character/Components/CombatComponent.h"
 
 UBuffComponent::UBuffComponent()
 {
@@ -67,6 +68,11 @@ void UBuffComponent::SetInitialSpeeds(float BaseSpeed, float CrouchSpeed)
 	InitialCrouchSpeed = CrouchSpeed;
 }
 
+void UBuffComponent::SetInitialFireSpeed(float BaseSpeed)
+{
+	InitialBaseFireSpeed = BaseSpeed;
+}
+
 void UBuffComponent::SetInitialJumpVelocity(float Velocity)
 {
 	InitialJumpVelocity = Velocity;
@@ -109,6 +115,40 @@ void UBuffComponent::MulticastSpeedBuff_Implementation(float BaseSpeed, float Cr
 	}
 }
 
+void UBuffComponent::BuffFireSpeed(float BuffBaseSpeed, float BuffTime)
+{
+	if (Character == nullptr) return;
+
+	Character->GetWorldTimerManager().SetTimer(
+		FireSpeedBuffTimer,
+		this,
+		&UBuffComponent::ResetFireSpeeds,
+		BuffTime
+	);
+
+	if (Character->GetCombatComp())
+	{
+		Character->GetCombatComp()->SetBuffFireSpeed(BuffBaseSpeed);
+		MulticastFireSpeedBuff(BuffBaseSpeed);
+	}
+}
+
+void UBuffComponent::ResetFireSpeeds()
+{
+	if (Character == nullptr || Character->GetCombatComp() == nullptr) return;
+
+	Character->GetCombatComp()->SetBuffFireSpeed(InitialBaseFireSpeed);
+	MulticastFireSpeedBuff(InitialBaseFireSpeed);
+}
+
+void UBuffComponent::MulticastFireSpeedBuff_Implementation(float BaseSpeed)
+{
+	if (Character && Character->GetCombatComp())
+	{
+		Character->GetCombatComp()->SetBuffFireSpeed(BaseSpeed);
+	}
+}
+
 void UBuffComponent::BuffJump(float BuffJumpVelocity, float BuffTime)
 {
 	if (Character == nullptr) return;
@@ -134,6 +174,7 @@ void UBuffComponent::MulticastJumpBuff_Implementation(float JumpVelocity)
 		Character->GetCharacterMovement()->JumpZVelocity = JumpVelocity;
 	}
 }
+
 
 void UBuffComponent::ResetJump()
 {
