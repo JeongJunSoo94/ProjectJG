@@ -233,11 +233,9 @@ void UCombatComponent::LocalFire(const FVector_NetQuantize& TraceHitTarget)
 	if (EquippedWeapon == nullptr) return;
 	if (Character && CombatState == ECombatState::ECS_Unoccupied)
 	{
-		//Character->PlayFireMontage();
 		Character->PlayFireMontage(bAiming);
 		EquippedWeapon->Fire(TraceHitTarget);
 		StartCrosshairBulletFire();
-		//EquippedWeapon->Fire(TraceHitTarget);
 	}
 }
 
@@ -322,20 +320,12 @@ void UCombatComponent::SwapItems(AItem* ItemToEquip)
 	Character->PlaySwapMontage();
 	CombatState = ECombatState::ECS_SwappingWeapons;
 	Character->bFinishedSwapping = false;
-	
 	SelectItem = ItemToEquip;
-	//if (SecondaryWeapon) SecondaryWeapon->EnableCustomDepth(false);
-
-	/*DropWeapon();
-	EquipWeapon(WeaponToSwap);
-	TraceHitItem = nullptr;
-	TraceHitItemLastFrame = nullptr;*/
 }
 
 void UCombatComponent::EquipPrimaryWeapon(AWeapon* WeaponToEquip)
 {
 	if (WeaponToEquip == nullptr) return;
-	//DropEquippedWeapon();
 	if (EquippedWeapon)
 		EquippedWeapon->SetItemState(EItemState::EIS_PickedUp);
 	EquippedWeapon = WeaponToEquip;
@@ -492,7 +482,8 @@ void UCombatComponent::ReloadEmptyWeapon()
 
 void UCombatComponent::Reload()
 {
-	if (CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied && EquippedWeapon && !EquippedWeapon->ClipIsFull() && !bLocallyReloading)
+	if (CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied && EquippedWeapon 
+		&& !EquippedWeapon->ClipIsFull() && !bLocallyReloading)
 	{
 		ServerReload();
 		HandleReload();
@@ -530,21 +521,13 @@ void UCombatComponent::FinishSwap()
 		CombatState = ECombatState::ECS_Unoccupied;
 	}
 	if (Character) Character->bFinishedSwapping = true;
-
-	//if (SecondaryWeapon) SecondaryWeapon->EnableCustomDepth(true);
 }
 
 //서버에서 캐릭터 손에 무기 장착
 void UCombatComponent::FinishSwapAttachWeapons()
 {
-
-	//무기에 있는 장비 장착 소리
-	//PlayEquipWeaponSound(SecondaryWeapon);
 	if (Character == nullptr || !Character->HasAuthority()) return;
 
-	//무기 교환
-	//여기에 바꿀 무기들의 정보가 필요하다. 
-	
 	if (SelectItem)
 	{
 		Character->EquipItemDelegate.Broadcast(EquippedWeapon->GetSlotIndex(), SelectItem->GetSlotIndex());
@@ -564,18 +547,6 @@ void UCombatComponent::FinishSwapAttachWeapons()
 		}
 		SelectItem = nullptr;
 	}
-
-	//AWeapon* TempWeapon = EquippedWeapon;
-	//EquippedWeapon = SecondaryWeapon;
-	//SecondaryWeapon = TempWeapon;
-
-	//EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
-	//AttachActorToRightHand(EquippedWeapon);
-	////EquippedWeapon->SetHUDAmmo();
-	//UpdateCarriedAmmo();
-
-	////SecondaryWeapon->SetWeaponState(EWeaponState::EWS_EquippedSecondary);
-	//AttachActorToBackpack(SecondaryWeapon);
 }
 
 void UCombatComponent::UpdateAmmoValues()

@@ -425,8 +425,7 @@ void ABaseCharacter::AimOffset(float DeltaTime)
 	if (Combat && Combat->GetEquippedWeapon() == nullptr) return;
 	float Speed = CalculateSpeed();
 	bool bIsInAir = GetCharacterMovement()->IsFalling();
-
-	if (Speed == 0.f && !bIsInAir) // standing still, not jumping
+	if (Speed == 0.f && !bIsInAir)
 	{
 		bRotateRootBone = true;
 		FRotator CurrentAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
@@ -439,7 +438,7 @@ void ABaseCharacter::AimOffset(float DeltaTime)
 		bUseControllerRotationYaw = true;
 		TurnInPlace(DeltaTime);
 	}
-	if (Speed > 0.f || bIsInAir) // running, or jumping
+	if (Speed > 0.f || bIsInAir)
 	{
 		bRotateRootBone = false;
 		StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
@@ -447,7 +446,6 @@ void ABaseCharacter::AimOffset(float DeltaTime)
 		bUseControllerRotationYaw = true;
 		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 	}
-
 	CalculateAO_Pitch();
 }
 
@@ -456,7 +454,6 @@ void ABaseCharacter::CalculateAO_Pitch()
 	AO_Pitch = GetBaseAimRotation().Pitch;
 	if (AO_Pitch > 90.f && !IsLocallyControlled())
 	{
-		// map pitch from [270, 360) to [-90, 0)
 		FVector2D InRange(270.f, 360.f);
 		FVector2D OutRange(-90.f, 0.f);
 		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
@@ -473,7 +470,6 @@ void ABaseCharacter::SimProxiesTurn()
 		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 		return;
 	}
-
 	ProxyRotationLastFrame = ProxyRotation;
 	ProxyRotation = GetActorRotation();
 	ProxyYaw = UKismetMathLibrary::NormalizedDeltaRotator(ProxyRotation, ProxyRotationLastFrame).Yaw;
@@ -495,7 +491,6 @@ void ABaseCharacter::SimProxiesTurn()
 		return;
 	}
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
-
 }
 
 void ABaseCharacter::TurnInPlace(float DeltaTime)
@@ -657,21 +652,17 @@ void ABaseCharacter::TraceForItems()
 			if (TraceHitWeapon)
 			{
 				if (HighlightedSlot == -1)
-				{
 					HighlightInventorySlot();
-				}
 			}
 			else
 			{
 				if (HighlightedSlot != -1)
-				{
 					UnHighlightInventorySlot();
-				}
 			}
+
 			if (TraceHitItem && TraceHitItem->GetItemState() == EItemState::EIS_EquipInterping)
-			{
 				TraceHitItem = nullptr;
-			}
+
 
 			if (TraceHitItem && TraceHitItem->GetPickupWidget())
 			{
@@ -680,13 +671,9 @@ void ABaseCharacter::TraceForItems()
 					TraceHitItem->GetPickupWidget()->SetVisibility(true);
 					TraceHitItem->EnableCustomDepth(true);
 					if (Inventory.Num() >= INVENTORY_CAPACITY)
-					{
 						TraceHitItem->SetCharacterInventoryFull(true);
-					}
 					else
-					{
 						TraceHitItem->SetCharacterInventoryFull(false);
-					}
 				}
 			}
 
@@ -698,7 +685,6 @@ void ABaseCharacter::TraceForItems()
 					TraceHitItemLastFrame->EnableCustomDepth(false);
 				}
 			}
-
 			TraceHitItemLastFrame = TraceHitItem;
 		}
 		else
@@ -762,24 +748,10 @@ void ABaseCharacter::TraceForItems()
 void ABaseCharacter::SelectButtonPressed()
 {
 	if (bDisableGameplay) return;
-	//if (Combat->CombatState != ECombatState::ECS_Unoccupied) return;
 	if (Combat)
 	{
 		if (Combat->bHoldingTheFlag) return;
 		if (Combat->CombatState == ECombatState::ECS_Unoccupied) ServerSelectButtonPressed();
-
-		
-		//bool bSwap = Combat->ShouldSwapWeapons() &&
-		//	!HasAuthority() &&
-		//	Combat->CombatState == ECombatState::ECS_Unoccupied &&
-		//	TraceHitItem == nullptr;
-
-		//if (bSwap)
-		//{
-		//	PlaySwapMontage();
-		//	Combat->CombatState = ECombatState::ECS_SwappingWeapons;
-		//	bFinishedSwapping = false;
-		//}
 	}
 }
 
@@ -1301,7 +1273,6 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME_CONDITION(ABaseCharacter, TraceHitItem, COND_OwnerOnly);
 	DOREPLIFETIME(ABaseCharacter, Inventory);
-	//DOREPLIFETIME(ABaseCharacter, SelectSlotIndex);
 	DOREPLIFETIME(ABaseCharacter, Health);
 	DOREPLIFETIME(ABaseCharacter, Shield);
 	DOREPLIFETIME(ABaseCharacter, bDisableGameplay);

@@ -63,8 +63,8 @@ void UPauseMenuUserWidget::LeaveButtonClicked()
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		UGameplayStatics::OpenLevel(World, *PathToMainMenu, true);
 		MultiplayerSessionsSubsystem->DestroySession();
+		UGameplayStatics::OpenLevel(World, *PathToMainMenu, true);
 	}
 }
 

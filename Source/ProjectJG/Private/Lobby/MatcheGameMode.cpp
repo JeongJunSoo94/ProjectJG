@@ -173,24 +173,24 @@ void AMatcheGameMode::TravelToMap(const FString& MapName)
 	}
 }
 
-int32 AMatcheGameMode::GetSlotIdx(APlayerController* Controller)
-{
-	int32 Idx = GameState.Get()->PlayerArray.Find(Controller->GetPlayerState<APlayerState>());
-	return Idx;
-}
-int32 AMatcheGameMode::GetSessionPlayerNum() const
-{
-	return MultiplayerSessionsSubsystem->GetSessionPlayerNum(); 
-}
-
-void AMatcheGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	Super::EndPlay(EndPlayReason);
-	if (EndPlayReason == EEndPlayReason::LevelTransition)
-	{
-		UE_LOG(LogTemp, Log, TEXT("Level transitioning..."));
-	}
-}
+//int32 AMatcheGameMode::GetSlotIdx(APlayerController* Controller)
+//{
+//	int32 Idx = GameState.Get()->PlayerArray.Find(Controller->GetPlayerState<APlayerState>());
+//	return Idx;
+//}
+//int32 AMatcheGameMode::GetSessionPlayerNum() const
+//{
+//	return MultiplayerSessionsSubsystem->GetSessionPlayerNum(); 
+//}
+//
+//void AMatcheGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
+//{
+//	Super::EndPlay(EndPlayReason);
+//	if (EndPlayReason == EEndPlayReason::LevelTransition)
+//	{
+//		UE_LOG(LogTemp, Log, TEXT("Level transitioning..."));
+//	}
+//}
 void AMatcheGameMode::PlayersWidgetDelete()
 {
 	if (MatcheLobbyGameState)
@@ -206,21 +206,21 @@ void AMatcheGameMode::PlayersWidgetDelete()
 	}
 }
 
-void AMatcheGameMode::PostSeamlessTravel()
-{
-	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 200.0f, FColor::Red, TEXT("PostSeamlessTravel"));
-	UWorld* World = GetWorld();
-	if (World)
-	{
-		if (GEngine)
-			GEngine->AddOnScreenDebugMessage(2, 200.0f, FColor::Red, World->GetMapName());
-	}
-	Super::PostSeamlessTravel();
-	World = GetWorld();
-	if (World)
-	{
-		if(GEngine)
-			GEngine->AddOnScreenDebugMessage(3, 200.0f, FColor::Blue, World->GetMapName());
-	}
-}
+//void AMatcheGameMode::PostSeamlessTravel()
+//{
+//	if (GEngine)
+//		GEngine->AddOnScreenDebugMessage(-1, 200.0f, FColor::Red, TEXT("PostSeamlessTravel"));
+//	UWorld* World = GetWorld();
+//	if (World)
+//	{
+//		if (GEngine)
+//			GEngine->AddOnScreenDebugMessage(2, 200.0f, FColor::Red, World->GetMapName());
+//	}
+//	Super::PostSeamlessTravel();
+//	World = GetWorld();
+//	if (World)
+//	{
+//		if(GEngine)
+//			GEngine->AddOnScreenDebugMessage(3, 200.0f, FColor::Blue, World->GetMapName());
+//	}
+//}
