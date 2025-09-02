@@ -155,6 +155,110 @@ void AWeapon::Dropped()
 	//Super::Dropped();
 }
 
+void AWeapon::ItemInitialize()
+{
+	Super::ItemInitialize();
+	const FString WeaponTablePath(TEXT("DataTable'/Game/Developers/JJS/Weapons/WeaponsDataTable/WeaponDataTable.WeaponDataTable'"));
+	UDataTable* WeaponTableObject = Cast<UDataTable>(StaticLoadObject(UDataTable::StaticClass(), nullptr, *WeaponTablePath));
+
+	if (WeaponTableObject)
+	{
+		FWeaponDataTable* WeaponDataRow = nullptr;
+		switch (WeaponType)
+		{
+		case EWeaponType::EWT_SubmachineGun:
+			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("SubmachineGun"), TEXT(""));
+			break;
+		case EWeaponType::EWT_AssaultRifle:
+			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("AssaultRifle"), TEXT(""));
+			break;
+		case EWeaponType::EWT_Pistol:
+			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("Pistol"), TEXT(""));
+			break;
+		case EWeaponType::EWT_RocketLauncher:
+			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("RocketLauncher"), TEXT(""));
+			break;
+		case EWeaponType::EWT_Shotgun:
+			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("Shotgun"), TEXT(""));
+			break;
+		case EWeaponType::EWT_SniperRifle:
+			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("SniperRifle"), TEXT(""));
+			break;
+		case EWeaponType::EWT_GrenadeLauncher:
+			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("GrenadeLauncher"), TEXT(""));
+			break;
+		}
+
+		if (WeaponDataRow)
+		{
+			//AmmoType = WeaponDataRow->AmmoType;
+			Ammo = WeaponDataRow->WeaponAmmo + GetNumberOfStars();
+			MagazineCapacity = WeaponDataRow->MagazingCapacity + GetNumberOfStars();
+
+			Damage = WeaponDataRow->Damage * GetNumberOfStars();
+			HeadShotDamage = WeaponDataRow->HeadDamage * GetNumberOfStars();
+
+			SetPickupSound(WeaponDataRow->PickupSound);
+			SetEquipSound(WeaponDataRow->EquipSound);
+			GetItemMesh()->SetSkeletalMesh(WeaponDataRow->ItemMesh);
+			SetItemName(WeaponDataRow->ItemName);
+			SetIconItem(WeaponDataRow->InventoryIcon);
+			SetAmmoIcon(WeaponDataRow->AmmoIcon);
+
+			SetMaterialInstance(WeaponDataRow->MaterialInstance);
+			PreviousMaterialIndex = GetMaterialIndex();
+			GetItemMesh()->SetMaterial(PreviousMaterialIndex, nullptr);
+			SetMaterialIndex(WeaponDataRow->MaterialIndex);
+			SetClipBoneName(WeaponDataRow->ClipBoneName);
+			SetReloadMontageSection(WeaponDataRow->ReloadMontageSection);
+			GetItemMesh()->SetAnimInstanceClass(WeaponDataRow->AnimBP);
+			SlideDisplacementCurve = WeaponDataRow->SlideDisplacementCurve;
+			SlideDisplacementTime = WeaponDataRow->FireDelay * 2.0f;
+			MaxSlideDisplacement = WeaponDataRow->MaxSlideDisplacement;
+			CrosshairType = WeaponDataRow->CrosshairType;
+			CrosshairsCenter = WeaponDataRow->CrosshairsCenter;
+			CrosshairsTop = WeaponDataRow->CrosshairsTop;
+			CrosshairsLeft = WeaponDataRow->CrosshairsLeft;
+			CrosshairsRight = WeaponDataRow->CrosshairsRight;
+			CrosshairsBottom = WeaponDataRow->CrosshairsBottom;
+			CrosshairsTopLeft = WeaponDataRow->CrosshairsTopLeft;
+			CrosshairsTopRight = WeaponDataRow->CrosshairsTopRight;
+			CrosshairsBottomLeft = WeaponDataRow->CrosshairsBottomLeft;
+			CrosshairsBottomRight = WeaponDataRow->CrosshairsBottomRight;
+
+			FireDelay = WeaponDataRow->FireDelay;
+			BoneToHide = WeaponDataRow->BoneToHide;
+			//
+			CaseClass = WeaponDataRow->CaseClass;
+			CaseParticle = WeaponDataRow->CaseParticle;
+
+			MuzzleFlash = WeaponDataRow->MuzzleFlash;
+			FireSound = WeaponDataRow->FireSound;
+			MuzzleSocketName = WeaponDataRow->MuzzleSocketName;
+			AmmoEjectSocketName = WeaponDataRow->AmmoEjectSocketName;
+			MainHandSocketName = WeaponDataRow->MainHandSocketName;
+			SubHandSocketName = WeaponDataRow->SubHandSocketName;
+			CharacterAttachRightHandSocketName = WeaponDataRow->CharacterAttachRightHandSocketName;
+			ZoomedFOV = WeaponDataRow->ZoomedFOV;
+			ZoomInterpSpeed = WeaponDataRow->ZoomInterpSpeed;
+		}
+		if (GetMaterialInstance())
+		{
+			SetDynamicMaterialInstance(UMaterialInstanceDynamic::Create(GetMaterialInstance(), this));
+			GetDynamicMaterialInstance()->SetVectorParameterValue(TEXT("FresnelColor"), GetGlowColor());
+			GetItemMesh()->SetMaterial(GetMaterialIndex(), GetDynamicMaterialInstance());
+
+			EnableGlowMaterial();
+		}
+	}
+}
+
+void AWeapon::CombinationItem(AItem* Item)
+{
+	Super::CombinationItem(Item);
+	ItemInitialize();
+}
+
 void AWeapon::ThrowWeapon()
 {
 	//if (HasAuthority())
@@ -194,93 +298,7 @@ void AWeapon::StopFalling()
 void AWeapon::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
-	const FString WeaponTablePath(TEXT("DataTable'/Game/Developers/JJS/Weapons/WeaponsDataTable/WeaponDataTable.WeaponDataTable'"));
-	UDataTable* WeaponTableObject = Cast<UDataTable>(StaticLoadObject(UDataTable::StaticClass(), nullptr, *WeaponTablePath));
-
-	if (WeaponTableObject)
-	{
-		FWeaponDataTable* WeaponDataRow = nullptr;
-		switch (WeaponType)
-		{
-		case EWeaponType::EWT_SubmachineGun:
-			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("SubmachineGun"), TEXT(""));
-			break;
-		case EWeaponType::EWT_AssaultRifle:
-			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("AssaultRifle"), TEXT(""));
-			break;
-		case EWeaponType::EWT_Pistol:
-			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("Pistol"), TEXT(""));
-			break;
-		case EWeaponType::EWT_RocketLauncher:
-			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("RocketLauncher"), TEXT(""));
-			break;
-		case EWeaponType::EWT_Shotgun:
-			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("Shotgun"), TEXT(""));
-			break;
-		case EWeaponType::EWT_SniperRifle:
-			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("SniperRifle"), TEXT(""));
-			break;
-		case EWeaponType::EWT_GrenadeLauncher:
-			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("GrenadeLauncher"), TEXT(""));
-			break;
-		}
-
-		if (WeaponDataRow)
-		{
-			//AmmoType = WeaponDataRow->AmmoType;
-			Ammo = WeaponDataRow->WeaponAmmo + GetNumberOfStars();
-			MagazineCapacity = WeaponDataRow->MagazingCapacity + GetNumberOfStars();
-
-			Damage = WeaponDataRow->Damage*GetNumberOfStars();
-			HeadShotDamage = WeaponDataRow->HeadDamage * GetNumberOfStars();
-
-			SetPickupSound(WeaponDataRow->PickupSound);
-			SetEquipSound(WeaponDataRow->EquipSound);
-			GetItemMesh()->SetSkeletalMesh(WeaponDataRow->ItemMesh);
-			SetItemName(WeaponDataRow->ItemName);
-			SetIconItem(WeaponDataRow->InventoryIcon);
-			SetAmmoIcon(WeaponDataRow->AmmoIcon);
-
-			SetMaterialInstance(WeaponDataRow->MaterialInstance);
-			PreviousMaterialIndex = GetMaterialIndex();
-			GetItemMesh()->SetMaterial(PreviousMaterialIndex, nullptr);
-			SetMaterialIndex(WeaponDataRow->MaterialIndex);
-			SetClipBoneName(WeaponDataRow->ClipBoneName);
-			SetReloadMontageSection(WeaponDataRow->ReloadMontageSection);
-			GetItemMesh()->SetAnimInstanceClass(WeaponDataRow->AnimBP);
-			SlideDisplacementCurve = WeaponDataRow->SlideDisplacementCurve;
-			SlideDisplacementTime = WeaponDataRow->FireDelay * 2.0f;
-			MaxSlideDisplacement = WeaponDataRow->MaxSlideDisplacement;
-			CrosshairsCenter = WeaponDataRow->CrosshairsCenter;
-			CrosshairsLeft = WeaponDataRow->CrosshairsLeft;
-			CrosshairsRight = WeaponDataRow->CrosshairsRight;
-			CrosshairsBottom = WeaponDataRow->CrosshairsBottom;
-			CrosshairsTop = WeaponDataRow->CrosshairsTop;
-			FireDelay = WeaponDataRow->FireDelay;
-			BoneToHide = WeaponDataRow->BoneToHide;
-			//
-			CaseClass = WeaponDataRow->CaseClass;
-			CaseParticle = WeaponDataRow->CaseParticle;
-
-			MuzzleFlash = WeaponDataRow->MuzzleFlash;
-			FireSound = WeaponDataRow->FireSound;
-			MuzzleSocketName = WeaponDataRow->MuzzleSocketName;
-			AmmoEjectSocketName = WeaponDataRow->AmmoEjectSocketName;
-			MainHandSocketName = WeaponDataRow->MainHandSocketName;
-			SubHandSocketName = WeaponDataRow->SubHandSocketName;
-			CharacterAttachRightHandSocketName = WeaponDataRow->CharacterAttachRightHandSocketName;
-			ZoomedFOV = WeaponDataRow->ZoomedFOV;
-			ZoomInterpSpeed = WeaponDataRow->ZoomInterpSpeed;
-		}
-		if (GetMaterialInstance())
-		{
-			SetDynamicMaterialInstance(UMaterialInstanceDynamic::Create(GetMaterialInstance(), this));
-			GetDynamicMaterialInstance()->SetVectorParameterValue(TEXT("FresnelColor"), GetGlowColor());
-			GetItemMesh()->SetMaterial(GetMaterialIndex(), GetDynamicMaterialInstance());
-
-			EnableGlowMaterial();
-		}
-	}
+	//ItemInitialize();
 }
 
 void AWeapon::BeginPlay()
@@ -373,7 +391,7 @@ void AWeapon::ClientAddAmmo_Implementation(int32 Amount)
 	//BlasterOwnerCharacter = BlasterOwnerCharacter == nullptr ? Cast<ABlasterCharacter>(GetOwner()) : BlasterOwnerCharacter;
 	if (BaseOwnerCharacter && BaseOwnerCharacter->GetCombatComp())// && IsFull())
 	{
-		//BaseOwnerCharacter->GetCombat()->JumpToShotgunEnd();
+		BaseOwnerCharacter->GetCombatComp()->JumpToShotgunEnd();
 	}
 	SetHUDAmmo();
 }
@@ -393,10 +411,18 @@ FVector AWeapon::GetBeamTraceDirection(const FVector& HitTarget)
 
 	const FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
 	const FVector SphereCenter = TraceStart + ToTargetNormalized * DistanceToSphere;
-	const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SphereRadius);
+	//const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SphereRadius);
+	//const FVector EndLoc = SphereCenter + RandVec;
+	//const FVector ToEndLoc = EndLoc - TraceStart;
+
+	//const FVector ToTargetNormalized = (HitTarget - TraceStart).GetSafeNormal();
+	//const FVector SphereCenter =  HitTarget;//TraceStart + ToTargetNormalized * FVector::Distance(HitTarget, TraceStart);
+	const FVector RandVec = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SphereRadius * CrosshairSpread);
 	const FVector EndLoc = SphereCenter + RandVec;
 	const FVector ToEndLoc = EndLoc - TraceStart;
 
+	//GEngine->AddOnScreenDebugMessage(1, 12.0f, FColor::Red, WeaponTransform.GetLocation().ToString());
+	//DrawDebugPoint(GetWorld(), SphereCenter, SphereRadius * CrosshairSpread*0.5f, FColor::Blue, false, 2.f);
 	return FVector(TraceStart + ToEndLoc * TRACE_LENGTH / ToEndLoc.Size());
 }
 

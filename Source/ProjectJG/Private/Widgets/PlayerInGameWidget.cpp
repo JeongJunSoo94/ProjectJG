@@ -60,3 +60,11 @@ void UPlayerInGameWidget::SetItemInfoType(FString ItemType)
 		ItemInfo->ItemTypeText->SetText(FText::FromString(ItemType));
 	}
 }
+
+void UPlayerInGameWidget::SetInventoryBar(APawn* character)
+{
+	if (InventoryBar&& character)
+	{
+		InventoryBar->BlueprintInitialize(character);
+	}
+}

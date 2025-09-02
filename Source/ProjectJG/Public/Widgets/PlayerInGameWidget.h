@@ -29,6 +29,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void SetItemInfoType(FString ItemType);
+
+	UFUNCTION(BlueprintCallable)
+		void SetInventoryBar(APawn* character);
 public:
 	UPROPERTY(meta = (BindWidget))
 		UTextBlock* ScoreAmount;
@@ -51,6 +54,11 @@ public:
 	UPROPERTY(meta = (BindWidget))
 		UTextBlock* GrenadesText;
 
+	UPROPERTY(meta = (BindWidget))
+		class UImage* HighPingImage;
+
+	UPROPERTY(meta = (BindWidgetAnim),Transient)
+		UWidgetAnimation* HighPingAnimation;
 protected:
 	UPROPERTY(meta = (BindWidget))
 		class UProgressBar* HealthBar;
@@ -70,8 +78,8 @@ protected:
 	//UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	//	UCharacterSkillWidget* WB_CharacterSkill_Mid;
 
-	//UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	//	class UInventoryBarWidget* InventoryBar;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+		class UInventoryBarWidget* InventoryBar;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 		class UItemInfoWidget* ItemInfo;

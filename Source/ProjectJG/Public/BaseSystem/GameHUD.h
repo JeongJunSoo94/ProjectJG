@@ -5,20 +5,43 @@
 #include "Character/Components/CActionComponent.h"
 #include "GameHUD.generated.h"
 
+UENUM(BlueprintType)
+enum class ECrosshairType : uint8
+{
+	CT_Normal UMETA(DisplayName = "Normal"),
+	CT_Horizontal UMETA(DisplayName = "Horizontal"),
+	CT_Vertical UMETA(DisplayName = "Vertical"),
+	CT_VerticalHorizontal UMETA(DisplayName = "VerticalHorizontal"),
+	CT_Diagonal UMETA(DisplayName = "Diagonal"),
+	CT_Triangle UMETA(DisplayName = "Triangle"),
+	CT_AllDirections UMETA(DisplayName = "AllDirections"),
+
+	CT_MAX UMETA(DisplayName = "DefaultMAX")
+};
+
 USTRUCT(BlueprintType)
 struct FHUDPackage
 {
 	GENERATED_BODY()
 public:
+	ECrosshairType CrosshairType;
 	class UTexture2D* CrosshairsCenter;
+
 	UTexture2D* CrosshairsLeft;
 	UTexture2D* CrosshairsRight;
 	UTexture2D* CrosshairsTop;
 	UTexture2D* CrosshairsBottom;
+
+	UTexture2D* CrosshairsTopLeft;
+	UTexture2D* CrosshairsTopRight;
+	UTexture2D* CrosshairsBottomLeft;
+	UTexture2D* CrosshairsBottomRight;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float CrosshairSpread;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FLinearColor CrosshairsColor;
+
 };
 
 UCLASS()
@@ -85,6 +108,12 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUDCrosshairPackage, meta = (AllowPrivateAccess = "true"))
 		FHUDPackage HUDPackage;
+
+	void DrawCrosshairNormal(const FVector2D& ViewportCenter,const float& SpreadScaled);
+	void DrawCrosshairHorizontal(const FVector2D& ViewportCenter, const float& SpreadScaled);
+	void DrawCrosshairVertical(const FVector2D& ViewportCenter, const float& SpreadScaled);
+	void DrawCrosshairDiagonal(const FVector2D& ViewportCenter, const float& SpreadScaled);
+	void DrawCrosshairTriangle(const FVector2D& ViewportCenter, const float& SpreadScaled);
 
 	void DrawCrosshair(UTexture2D* Texture, FVector2D ViewportCenter, FVector2D Spread, FLinearColor CrosshairColor);
 

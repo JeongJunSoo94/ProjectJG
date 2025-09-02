@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
@@ -51,6 +51,10 @@ public:
 	UTexture2D* GetSteamFriendAvatar(const uint64 UniqueNetId);
 
 	void InviteAcceptedLog(int32 ControllerId, FUniqueNetIdPtr UserId, const FOnlineSessionSearchResult& SearchResult);
+
+	FString StringToUTF8Encoded(FString str);
+	FString UTF8ToStringDecoded(FString str);
+
 protected:
 
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);

@@ -25,6 +25,12 @@ void AInGamePlayerController::BroadcastElim(APlayerState* Attacker, APlayerState
 void AInGamePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+	//if (GEngine)
+	//{
+	//	FString str = "BeginPlay:";
+	//	str.Append(MatchState.ToString());
+	//	GEngine->AddOnScreenDebugMessage(5, 20.0f, FColor::Purple, str);
+	//}
 	GameHUD = Cast<AGameHUD>(GetHUD());
 	ServerCheckMatchState();
 }
@@ -151,22 +157,35 @@ void AInGamePlayerController::ClientJoinMidgame_Implementation(FName StateOfMatc
 void AInGamePlayerController::HighPingWarning()
 {
 	GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
-	//bool bHUDValid = GameHUD &&
-	//	GameHUD->GetPlayerInGameWidget() &&
-	//	GameHUD->GetPlayerInGameWidget()->HighPingImage &&
-	//	GameHUD->GetPlayerInGameWidget()->HighPingAnimation;
-	//if (bHUDValid)
-	//{
-	//	GameHUD->GetPlayerInGameWidget()->HighPingImage->SetOpacity(1.f);
-	//	GameHUD->GetPlayerInGameWidget()->PlayAnimation(
-	//		GameHUD->GetPlayerInGameWidget()->HighPingAnimation,
-	//		0.f,
-	//		5);
-	//}
+	bool bHUDValid = GameHUD &&
+		GameHUD->GetPlayerInGameWidget() &&
+		GameHUD->GetPlayerInGameWidget()->HighPingImage &&
+		GameHUD->GetPlayerInGameWidget()->HighPingAnimation;
+	if (bHUDValid)
+	{
+		GameHUD->GetPlayerInGameWidget()->HighPingImage->SetOpacity(1.f);
+		GameHUD->GetPlayerInGameWidget()->PlayAnimation(
+			GameHUD->GetPlayerInGameWidget()->HighPingAnimation,
+			0.f,
+			5);
+	}
 }
 
 void AInGamePlayerController::StopHighPingWarning()
 {
+	GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
+	bool bHUDValid = GameHUD &&
+		GameHUD->GetPlayerInGameWidget() &&
+		GameHUD->GetPlayerInGameWidget()->HighPingImage &&
+		GameHUD->GetPlayerInGameWidget()->HighPingAnimation;
+	if (bHUDValid)
+	{
+		GameHUD->GetPlayerInGameWidget()->HighPingImage->SetOpacity(0.f);
+		if (GameHUD->GetPlayerInGameWidget()->IsAnimationPlaying(GameHUD->GetPlayerInGameWidget()->HighPingAnimation))
+		{
+			GameHUD->GetPlayerInGameWidget()->StopAnimation(GameHUD->GetPlayerInGameWidget()->HighPingAnimation);
+		}
+	}
 }
 
 void AInGamePlayerController::CheckPing(float DeltaTime)
@@ -191,11 +210,11 @@ void AInGamePlayerController::CheckPing(float DeltaTime)
 		}
 		HighPingRunningTime = 0.f;
 	}
-	/*bool bHighPingAnimationPlaying =
-		GameHUD && GameHUD->GetCharacterOverlay() &&
-		GameHUD->GetCharacterOverlay()->HighPingAnimation &&
-		GameHUD->GetCharacterOverlay()->IsAnimationPlaying(GameHUD->GetCharacterOverlay()->HighPingAnimation);
-	if (bHighPingAnimationPlaying)*/
+	bool bHighPingAnimationPlaying =
+		GameHUD && GameHUD->GetPlayerInGameWidget() &&
+		GameHUD->GetPlayerInGameWidget()->HighPingAnimation &&
+		GameHUD->GetPlayerInGameWidget()->IsAnimationPlaying(GameHUD->GetPlayerInGameWidget()->HighPingAnimation);
+	if (bHighPingAnimationPlaying)
 	{
 		PingAnimationRunningTime += DeltaTime;
 		if (PingAnimationRunningTime > HighPingDuration)
@@ -335,7 +354,8 @@ FString AInGamePlayerController::GetTeamsInfoText(ABattleGameState* BlasterGameS
 void AInGamePlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	//if (GEngine)
+		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, "AInGamePlayerController");
 	SetHUDTime();
 	CheckTimeSync(DeltaTime);
 	PollInit();
@@ -352,7 +372,7 @@ void AInGamePlayerController::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 
 void AInGamePlayerController::OnRep_ShowTeamScores()
 {
-	GEngine->AddOnScreenDebugMessage(4, 2.0f, FColor::Blue, TEXT("OnRep_ShowTeamScores"));
+	//GEngine->AddOnScreenDebugMessage(4, 2.0f, FColor::Blue, TEXT("OnRep_ShowTeamScores"));
 	if (bShowTeamScores)
 	{
 		InitTeamScores();
@@ -438,6 +458,14 @@ void AInGamePlayerController::ReceivedPlayer()
 
 void AInGamePlayerController::OnMatchStateSet(FName State, bool bTeamsMatch)
 {
+	//if (GEngine)
+	//{
+	//	FString str = "OnMatchStateSet";
+	//	str.Append(MatchState.ToString());
+	//	str.Append(" -> Next : ");
+	//	str.Append(State.ToString());
+	//	GEngine->AddOnScreenDebugMessage(1, 20.0f, FColor::Purple, str);
+	//}
 	MatchState = State;
 
 	if (MatchState == MatchState::InProgress)
@@ -452,6 +480,11 @@ void AInGamePlayerController::OnMatchStateSet(FName State, bool bTeamsMatch)
 
 void AInGamePlayerController::HandleMatchHasStarted(bool bTeamsMatch)
 {
+	//if (GEngine)
+	//{
+	//	FString str = "HandleMatchHasStarted";
+	//	GEngine->AddOnScreenDebugMessage(2, 20.0f, FColor::Purple, str);
+	//}
 	if (HasAuthority())
 	{
 		bShowTeamScores = bTeamsMatch;
@@ -478,6 +511,11 @@ void AInGamePlayerController::HandleMatchHasStarted(bool bTeamsMatch)
 
 void AInGamePlayerController::HandleCooldown()
 {
+	//if (GEngine)
+	//{
+	//	FString str = "HandleCooldown";
+	//	GEngine->AddOnScreenDebugMessage(3, 20.0f, FColor::Purple, str);
+	//}
 	GameHUD = GameHUD == nullptr ? Cast<AGameHUD>(GetHUD()) : GameHUD;
 	if (GameHUD)
 	{
@@ -660,6 +698,12 @@ void AInGamePlayerController::SetHUDAnnouncementCountdown(float CountdownTime)
 	}
 }
 
+void AInGamePlayerController::SetHUDInventory(APawn* character)
+{
+	if (GameHUD && GameHUD->GetPlayerInGameWidget())
+		GameHUD->GetPlayerInGameWidget()->SetInventoryBar(character);
+}
+
 
 //void AInGamePlayerController::SetHUDInventorySlot(AItem* Item)
 //{
@@ -683,6 +727,12 @@ void AInGamePlayerController::OnPossess(APawn* InPawn)
 
 void AInGamePlayerController::OnRep_MatchState()
 {
+	//if (GEngine)
+	//{
+	//	FString str = "OnRep_MatchState:";
+	//	str.Append(MatchState.ToString());
+	//	GEngine->AddOnScreenDebugMessage(4, 20.0f, FColor::Purple, str);
+	//}
 	if (MatchState == MatchState::InProgress)
 	{
 		HandleMatchHasStarted();

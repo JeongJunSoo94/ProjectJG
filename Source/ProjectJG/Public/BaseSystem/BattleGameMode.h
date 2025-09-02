@@ -31,7 +31,7 @@ public:
 		float WarmupTime = 5.f;
 
 	UPROPERTY(EditDefaultsOnly)
-		float MatchTime = 600.f;
+		float MatchTime = 60.f;
 
 	UPROPERTY(EditDefaultsOnly)
 		float CooldownTime = 5.f;
@@ -43,6 +43,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void OnMatchStateSet() override;
 
+	bool CheckReadyPlayer();
 private:
 	float CountdownTime = 0.f;
 public:

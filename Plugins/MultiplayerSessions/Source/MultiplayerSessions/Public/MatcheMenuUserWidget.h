@@ -27,7 +27,13 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 		UButton* Refresh;
+	//debugLog
+	UPROPERTY(meta = (BindWidget))
+		UButton* LogButton;
 
+	UFUNCTION()
+	void LogClicked();
+	//
 	FString TestText;
 
 	UPROPERTY(meta = (BindWidget))

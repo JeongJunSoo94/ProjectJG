@@ -70,7 +70,7 @@ void UCombatComponent::BeginPlay()
 		Character = Cast<ABaseCharacter>(GetOwner());
 	}
 	Character->GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
-
+	SetHUDCrosshairs();
 	if (Character->GetCharacterCamera())
 	{
 		DefaultFOV = Character->GetCharacterCamera()->FieldOfView;
@@ -91,8 +91,22 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	{
 		FHitResult HitResult;
 		Character->TraceScreenCrosshairCollision(HitResult, HitTarget, ECollisionChannel::ECC_GameTraceChannel7);
+		
+		if (HitResult.GetActor())
+		{
+			if(Cast<ACharacter>(HitResult.GetActor()))
+				HUDPackage.CrosshairsColor = FLinearColor::Red;
+			else
+			{
+				HUDPackage.CrosshairsColor = FLinearColor::White;
+			}
+		}
+		else
+		{
+			HUDPackage.CrosshairsColor = FLinearColor::White;
+		}
 		//DrawDebugPoint(GetWorld(), HitTarget, 5.f, FColor::Black, false, 2.f);
-		SetHUDCrosshairs(DeltaTime);
+		UpdateHUDCrosshairs(DeltaTime);
 		InterpFOV(DeltaTime);
 	}
 }
@@ -259,26 +273,12 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	
 	if (WeaponToEquip->GetWeaponType() == EWeaponType::EWT_Flag)
 	{
-		/*Character->Crouch();
-		bHoldingTheFlag = true;
-		WeaponToEquip->SetWeaponState(EWeaponState::EWS_Equipped);*/
 		WeaponToEquip->SetItemState(EItemState::EIS_Equipped);
 		WeaponToEquip->SetOwner(Character);
-		//AttachFlagToLeftHand(WeaponToEquip);
-		//TheFlag = WeaponToEquip;
 	}
 	else
 	{
 		EquipPrimaryWeapon(WeaponToEquip);
-		//if (EquippedWeapon != nullptr && SecondaryWeapon == nullptr)
-		//{
-		//	EquipSecondaryWeapon(WeaponToEquip);
-		//}
-		//else
-		//{
-		//	EquipPrimaryWeapon(WeaponToEquip);
-		//}
-
 		Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 		Character->bUseControllerRotationYaw = true;
 	}
@@ -327,12 +327,21 @@ void UCombatComponent::EquipPrimaryWeapon(AWeapon* WeaponToEquip)
 {
 	if (WeaponToEquip == nullptr) return;
 	if (EquippedWeapon)
+	{
 		EquippedWeapon->SetItemState(EItemState::EIS_PickedUp);
+		Character->InventoryItemDelegate.Broadcast(EquippedWeapon->GetSlotIndex(),true);
+		Character->InventoryItemDelegate.Broadcast(WeaponToEquip->GetSlotIndex(), false);
+	}
+	else
+	{
+		Character->InventoryItemDelegate.Broadcast(WeaponToEquip->GetSlotIndex(), false);
+	}
 	EquippedWeapon = WeaponToEquip;
 	EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
 	AttachActorToRightHand(EquippedWeapon, EquippedWeapon->GetCharacterAttachRightHandSocketName());
 	EquippedWeapon->SetOwner(Character);
 	EquippedWeapon->SetHUDAmmo();
+	SetHUDCrosshairs();
 	UpdateCarriedAmmo();
 	PlayEquipWeaponSound(WeaponToEquip);
 	ReloadEmptyWeapon();
@@ -530,20 +539,10 @@ void UCombatComponent::FinishSwapAttachWeapons()
 
 	if (SelectItem)
 	{
-		Character->EquipItemDelegate.Broadcast(EquippedWeapon->GetSlotIndex(), SelectItem->GetSlotIndex());
 		auto TempWeapon = Cast<AWeapon>(SelectItem);
 		if (TempWeapon)
 		{
-			if (EquippedWeapon)
-				EquippedWeapon->SetItemState(EItemState::EIS_PickedUp);
-			EquippedWeapon = TempWeapon;
-			EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
-			AttachActorToRightHand(EquippedWeapon, EquippedWeapon->GetCharacterAttachRightHandSocketName());
-			EquippedWeapon->SetOwner(Character);
-			EquippedWeapon->SetHUDAmmo();
-			UpdateCarriedAmmo();
-			PlayEquipWeaponSound(TempWeapon);
-			ReloadEmptyWeapon();
+			EquipPrimaryWeapon(TempWeapon);
 		}
 		SelectItem = nullptr;
 	}
@@ -740,7 +739,7 @@ void UCombatComponent::UpdateHUDGrenades()
 bool UCombatComponent::ShouldSwapWeapons(int32 IndexSlot)
 {
 	//return (EquippedWeapon != nullptr && SecondaryWeapon != nullptr);
-	return (EquippedWeapon != nullptr&& Character->GetInventorySlotItem(IndexSlot));
+	return (EquippedWeapon != nullptr&& Character->GetInventorySlotItem(IndexSlot)&& IndexSlot != CurEquipSlotIndex);
 }
 
 void UCombatComponent::ShowAttachedGrenade(bool bShowGrenade)
@@ -772,8 +771,10 @@ void UCombatComponent::ReleaseClip()
 	EquippedWeapon->SetMovingClip(false);
 }
 
-void UCombatComponent::OnRep_EquippedWeapon()
+void UCombatComponent::OnRep_EquippedWeapon(AWeapon* LastItem)
 {
+	int32 curSlot=-1;
+	int32 lastSlot=-1;
 	if (EquippedWeapon && Character)
 	{
 		EquippedWeapon->SetItemState(EItemState::EIS_Equipped);
@@ -784,6 +785,46 @@ void UCombatComponent::OnRep_EquippedWeapon()
 		EquippedWeapon->EnableCustomDepth(false);
 		EquippedWeapon->SetHUDAmmo();
 		UpdateCarriedAmmo();
+		SetHUDCrosshairs();
+
+		for (int i = 0; i < 5; ++i)
+		{
+			if (EquippedWeapon == Character->GetInventorySlotItem(i))
+			{
+				curSlot = i;
+			}
+		}
+		if (LastItem)
+		{
+			for (int i = 0; i < 5; ++i)
+			{
+				if (LastItem == Character->GetInventorySlotItem(i))
+				{
+					lastSlot = i;
+				}
+			}
+		}
+		if (curSlot != -1)
+		{
+			CurEquipSlotIndex = curSlot;
+			Character->InventoryItemDelegate.Broadcast(CurEquipSlotIndex, false);
+		}
+		if (lastSlot != -1)
+		{
+			Character->InventoryItemDelegate.Broadcast(lastSlot, true);
+		}
+	}
+	else
+	{
+		//for (int i = 0; i < 5; ++i)
+		//{
+		//	if (LastItem == Character->GetInventorySlotItem(i))
+		//	{
+		//		lastSlot = i;
+		//	}
+		//}
+		//이전 슬롯 정상화
+		Character->InventoryItemDelegate.Broadcast(CurEquipSlotIndex, true);
 	}
 }
 
@@ -845,7 +886,7 @@ void UCombatComponent::TraceUnderCrosshairs(FHitResult& TraceHitResult)
 	}
 }
 
-void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
+void UCombatComponent::UpdateHUDCrosshairs(float DeltaTime)
 {
 	if (Character == nullptr || Character->Controller == nullptr) return;
 
@@ -855,25 +896,6 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 		HUD = HUD == nullptr ? Cast<AGameHUD>(Controller->GetHUD()) : HUD;
 		if (HUD)
 		{
-			if (EquippedWeapon)
-			{
-				HUDPackage.CrosshairsCenter = EquippedWeapon->CrosshairsCenter;
-				HUDPackage.CrosshairsLeft = EquippedWeapon->CrosshairsLeft;
-				HUDPackage.CrosshairsRight = EquippedWeapon->CrosshairsRight;
-				HUDPackage.CrosshairsBottom = EquippedWeapon->CrosshairsBottom;
-				HUDPackage.CrosshairsTop = EquippedWeapon->CrosshairsTop;
-				HUDPackage.CrosshairsColor = FLinearColor::White;
-			}
-			else
-			{
-				HUDPackage.CrosshairsCenter = CrosshairsCenter;
-				HUDPackage.CrosshairsLeft = nullptr;
-				HUDPackage.CrosshairsRight = nullptr;
-				HUDPackage.CrosshairsBottom = nullptr;
-				HUDPackage.CrosshairsTop = nullptr;
-			}
-			// Calculate crosshair spread
-
 			// [0, 600] -> [0, 1]
 			FVector2D WalkSpeedRange(0.f, Character->GetCharacterMovement()->MaxWalkSpeed);
 			FVector2D VelocityMultiplierRange(0.f, 1.f);
@@ -911,8 +933,40 @@ void UCombatComponent::SetHUDCrosshairs(float DeltaTime)
 
 			HUDPackage.CrosshairSpread =0.5f +CrosshairVelocityFactor +CrosshairInAirFactor -CrosshairAimFactor +CrosshairShootingFactor;
 
+			if (EquippedWeapon)
+				EquippedWeapon->SetCrosshairScatter(HUDPackage.CrosshairSpread);
+
 			HUD->SetHUDPackage(HUDPackage);
 		}
+	}
+}
+
+void UCombatComponent::SetHUDCrosshairs()
+{
+	if (EquippedWeapon)
+	{
+		HUDPackage.CrosshairType = EquippedWeapon->CrosshairType;
+		HUDPackage.CrosshairsCenter = EquippedWeapon->CrosshairsCenter;
+		HUDPackage.CrosshairsLeft = EquippedWeapon->CrosshairsLeft;
+		HUDPackage.CrosshairsRight = EquippedWeapon->CrosshairsRight;
+		HUDPackage.CrosshairsBottom = EquippedWeapon->CrosshairsBottom;
+		HUDPackage.CrosshairsTop = EquippedWeapon->CrosshairsTop;
+		HUDPackage.CrosshairsTopLeft = EquippedWeapon->CrosshairsTopLeft;
+		HUDPackage.CrosshairsTopRight = EquippedWeapon->CrosshairsTopRight;
+		HUDPackage.CrosshairsBottomLeft = EquippedWeapon->CrosshairsBottomLeft;
+		HUDPackage.CrosshairsBottomRight = EquippedWeapon->CrosshairsBottomRight;
+	}
+	else
+	{
+		HUDPackage.CrosshairsCenter = CrosshairsCenter;
+		HUDPackage.CrosshairsLeft = nullptr;
+		HUDPackage.CrosshairsRight = nullptr;
+		HUDPackage.CrosshairsBottom = nullptr;
+		HUDPackage.CrosshairsTop = nullptr;
+		HUDPackage.CrosshairsLeft = nullptr;
+		HUDPackage.CrosshairsTopLeft = nullptr;
+		HUDPackage.CrosshairsBottomLeft = nullptr;
+		HUDPackage.CrosshairsBottomRight = nullptr;
 	}
 }
 

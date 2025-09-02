@@ -34,6 +34,8 @@ void AMatchePlayerController::Tick(float DeltaTime)
 	}*/
 	//if (MatcheLobbyGameState)
 		//MatcheLobbyGameState->UpdatePlayerControllers();
+	//if (GEngine)
+		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, "AMatchePlayerController");
 }
 
 void AMatchePlayerController::BeginDestroy()

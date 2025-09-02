@@ -55,6 +55,7 @@ struct FInterpLocation
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FEquipItemDelegate, int32, CurrentSlotIndex, int32, NewSlotIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FInventoryItemDelegate, int32, CurrentSlotIndex,bool, bReverse);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHighlightIconDelegate, int32, SlotIndex, bool, bStartAnimation);
 
 UCLASS()
@@ -129,6 +130,7 @@ protected:
 
 	void SelectButtonPressed();
 	void SelectButtonReleased();
+	void DropButtonPressed();
 	void SpawDefaultWeapon();
 	//void SwapWeapon(AWeapon* WeaponToSwap);
 	//<<
@@ -183,6 +185,7 @@ protected:
 
 	void QKeyPressed();
 	void EKeyPressed();
+	void GKeyPressed();
 
 	UPROPERTY(EditAnywhere)
 		class UBoxComponent* head;
@@ -293,6 +296,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = Delegates, meta = (AllowPrivateAccess = "true"))
 	FEquipItemDelegate EquipItemDelegate;
+
+	UPROPERTY(BlueprintAssignable, Category = Delegates, meta = (AllowPrivateAccess = "true"))
+	FInventoryItemDelegate InventoryItemDelegate;
 
 	UPROPERTY(BlueprintAssignable, Category = Delegates, meta = (AllowPrivateAccess = "true"))
 	FHighlightIconDelegate HighlightIconDelegate;
@@ -416,8 +422,17 @@ private:
 	UFUNCTION()
 		void OnRep_TraceItem(AItem* LastTraceHitItem);
 
+	UPROPERTY(ReplicatedUsing = OnRep_OverlappingItem)
+		class AItem* OverlappingItem;
+
+	UFUNCTION()
+		void OnRep_OverlappingItem(AItem* LastItem);
+
 	UFUNCTION(Server, Reliable)
 		void ServerSelectButtonPressed();
+
+	UFUNCTION(Server, Reliable)
+		void ServerDropButtonPressed();
 
 	UFUNCTION(Server, Reliable)
 		void ServerNumberButtonPressed(int32 slotIndex);
@@ -608,9 +623,12 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = FX, meta = (AllowPrivateAccess = "true"))
 		TSubclassOf<class ADamageFXActor> DamageWidgetClass;
 
+		void DamageWidget(float Damage);
 	//<<
-
+		virtual void OnRep_Controller()override;
 public:
+	void SetOverlappingItem(AItem* Item);
+
 	FORCEINLINE USpringArmComponent* GetCameraSpringArm() const { return CameraSpringArm; }
 	FORCEINLINE UCameraComponent* GetCharacterCamera() const { return CharacterCamera; }
 	FORCEINLINE UCharacterHeadWidget* GetCharacterHeadWidget() const { return CacheCharacterHeadWidget; }
@@ -640,7 +658,9 @@ public:
 	FORCEINLINE bool ShouldPlayPickupSound() const { return bShouldPlayPickupSound; }
 	FORCEINLINE bool ShouldPlayEquipSound() const { return bShouldPlayEquipSound; }
 
-	void GetPickupItem(AItem* Item);
+	AItem* FindCombinationMatchingItemInInventory(AItem* PickupItem);
+
+	void InventoryAddPickupItem(AItem* PickupItem);
 
 	int32 GetEmptyInventorySlot();
 

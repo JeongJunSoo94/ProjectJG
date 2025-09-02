@@ -33,9 +33,9 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly)
 	class UCActionComponent* QAbility;
 	UPROPERTY(VisibleDefaultsOnly)
-	class UEAbliltyActionComponent* LtBelicaEAbility;
+	class UCActionComponent* EAbility;
 	UPROPERTY(VisibleDefaultsOnly)
-	class URAbilityActionComponent* LtBelicaRAbility;
+	class UCActionComponent* GAbility;
 	UPROPERTY(EditAnywhere)
 	ESkillState eSkillState;
 public:	

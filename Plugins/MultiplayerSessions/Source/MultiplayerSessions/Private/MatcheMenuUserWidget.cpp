@@ -25,11 +25,28 @@ void UMatcheMenuUserWidget::NativeConstruct()
 	if (WB_RoomSliderSelector)
 		WB_RoomSliderSelector->SelectDelegate.AddDynamic(this, &UMatcheMenuUserWidget::OnSelectRoomPageCount);
 
+	if (LogButton)
+	{
+		LogButton->OnClicked.AddDynamic(this, &ThisClass::LogClicked);
+	}
+
 	if (RoomNameTextBox)
 	{
 		RoomNameTextBox->OnTextChanged.AddDynamic(this, &UMatcheMenuUserWidget::OnEditableTextBoxChanged);
 		RoomNameTextBox->OnTextCommitted.AddDynamic(this, &UMatcheMenuUserWidget::OnEditableTextBoxCommitted);
 	}
+}
+
+void UMatcheMenuUserWidget::LogClicked()
+{
+	//현재 접속중인 세션 정보 확인
+	//FString OwningUserName = "";
+	//int32 NumOpenPublicConnections;
+	//int32 NumPublicConnections;
+	//FString Players = "";
+	//FString PingInMs = "";
+	//GEngine->AddOnScreenDebugMessage(3, 200.0f, FColor::Purple, MenuUser);
+
 }
 
 void UMatcheMenuUserWidget::InitMatcheItems()
@@ -80,6 +97,9 @@ void UMatcheMenuUserWidget::SetMatcheItems(int32 Page)
 
 void UMatcheMenuUserWidget::OnSelectMatcheItem(int32 SelectSlotNum)
 {
+	//누르면 세션 정보 나오게 만들기
+
+
 	if (SelectRoomNum >= 0)
 	{
 		//클릭하면 이전 룸의 컬러를 변경한다.

@@ -116,6 +116,8 @@ protected:
 	void ResetPulseTimer();
 	void StartPulseTimer();
 
+	virtual void ItemInitialize();
+
 public:
 	virtual void Tick(float DeltaTime) override;
 
@@ -124,6 +126,7 @@ public:
 	virtual void Dropped();
 public:
 	void SetItemTransform(FTransform NewTransform);
+	virtual void CombinationItem(AItem* Item);
 protected:
 	UPROPERTY(ReplicatedUsing = OnRep_ItemState, VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 		EItemState ItemState;
@@ -145,6 +148,11 @@ protected:
 
 	//UFUNCTION()
 	//	void OnPingTooHigh(bool bPingTooHigh);
+	UPROPERTY(ReplicatedUsing = OnRep_ItemRarity, EditAnywhere, BlueprintReadOnly, Category = Rarity, meta = (AllowPrivateAccess = "true"))
+		EItemRarity ItemRarity;
+
+	UFUNCTION()
+		virtual void OnRep_ItemRarity();
 
 private:
 
@@ -165,9 +173,10 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 		int32 ItemCount;
+		
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
+		bool bRandomItemRarity;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Rarity, meta = (AllowPrivateAccess = "true"))
-		EItemRarity ItemRarity;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 		TArray<bool> ActiveStars;
@@ -285,6 +294,7 @@ public:
 	FORCEINLINE UBoxComponent* GetCollisionBox() const { return CollisionBox; }
 	FORCEINLINE EItemState GetItemState() const { return ItemState; }
 	FORCEINLINE EItemType GetItemType() const { return ItemType; }
+	FORCEINLINE EItemRarity GetItemRarity() const { return ItemRarity; }
 	void SetItemState(EItemState State);
 	FORCEINLINE USkeletalMeshComponent* GetItemMesh() const { return ItemMesh; }
 	FORCEINLINE USoundCue* GetPickupSound() const { return PickupSound; }

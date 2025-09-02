@@ -7,6 +7,11 @@
 #include "Lobby/MatcheLobbyGameState.h"
 #include "Engine.h"
 
+AMatcheGameMode::AMatcheGameMode()
+{
+	bDelayedStart = true;
+}
+
 void AMatcheGameMode::BeginPlay()
 {
 	UGameInstance* GameInstance = GetGameInstance();
@@ -14,13 +19,21 @@ void AMatcheGameMode::BeginPlay()
 	{
 		MultiplayerSessionsSubsystem = GameInstance->GetSubsystem<UMultiplayerSessionsSubsystem>();
 	}
-	bUseSeamlessTravel = true;
+	//bUseSeamlessTravel = true;
 }
 
 void AMatcheGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
-
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			15.f,
+			FColor::Green,
+			FString(TEXT("PostLogin MatcheGameMode!"))
+		);
+	}
 	AMatchePlayerController* MatchePlayerController=Cast<AMatchePlayerController>(NewPlayer);
 	APlayerState* PlayerState = MatchePlayerController->GetPlayerState<APlayerState>();
 	if (MatcheLobbyGameState == nullptr)

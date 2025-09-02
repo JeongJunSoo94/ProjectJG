@@ -84,6 +84,8 @@ void AItem::BeginPlay()
 	InitializeCustomDepth();
 
 	StartPulseTimer();
+
+	ItemInitialize();
 }
 
 void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -94,7 +96,7 @@ void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 		if (BaseCharacter)
 		{
 			BaseCharacter->IncrementOverlappedItemCount(1);
-			//BaseCharacter->HighlightInventorySlot();
+			BaseCharacter->SetOverlappingItem(this);
 		}
 	}
 }
@@ -107,7 +109,7 @@ void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 		if (BaseCharacter)
 		{
 			BaseCharacter->IncrementOverlappedItemCount(-1);
-			BaseCharacter->UnHighlightInventorySlot();
+			BaseCharacter->SetOverlappingItem(nullptr);
 		}
 	}
 }
@@ -116,6 +118,7 @@ void AItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimePro
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AItem, ItemState);
+	DOREPLIFETIME(AItem, ItemRarity);
 	DOREPLIFETIME(AItem, WorldTransform);
 }
 
@@ -361,6 +364,12 @@ void AItem::OnRep_SetWorldTransform()
 	SetActorTransform(WorldTransform);
 }
 
+void AItem::OnRep_ItemRarity()
+{
+	SetActiveStars();
+	ItemInitialize();
+}
+
 void AItem::InitializeCustomDepth()
 {
 	EnableCustomDepth(false);
@@ -368,12 +377,34 @@ void AItem::InitializeCustomDepth()
 
 void AItem::OnConstruction(const FTransform& Transform)
 {
-
-	FString RarityTablePath(TEXT("DataTable'/Game/Developers/JJS/Weapons/WeaponsDataTable/ItemRarityDataTable.ItemRarityDataTable'"));
+	if (bRandomItemRarity)
+	{
+		if (HasAuthority())
+		{
+			int32 MinValue = static_cast<int32>(EItemRarity::EIR_Damaged);
+			int32 MaxValue = static_cast<int32>(EItemRarity::EIR_Legendary);
+			int32 RandomIndex = FMath::RandRange(MinValue, MaxValue);
+			ItemRarity = static_cast<EItemRarity>(RandomIndex);
+		}
+	}
+	ItemInitialize();
+	/*FString RarityTablePath(TEXT("DataTable'/Game/Developers/JJS/Weapons/WeaponsDataTable/ItemRarityDataTable.ItemRarityDataTable'"));
 	UDataTable* RarityTableObject = Cast<UDataTable>(StaticLoadObject(UDataTable::StaticClass(), nullptr, *RarityTablePath));
 	if (RarityTableObject)
 	{
 		FItemRarityTable* RarityRow = nullptr;
+
+		if (bRandomItemRarity)
+		{
+			if (HasAuthority())
+			{
+				int32 MinValue = static_cast<int32>(EItemRarity::EIR_Damaged);
+				int32 MaxValue = static_cast<int32>(EItemRarity::EIR_Legendary);
+				int32 RandomIndex = FMath::RandRange(MinValue, MaxValue);
+				ItemRarity = static_cast<EItemRarity>(RandomIndex);
+			}
+		}
+
 		switch (ItemRarity)
 		{
 		case EItemRarity::EIR_Damaged:
@@ -413,7 +444,7 @@ void AItem::OnConstruction(const FTransform& Transform)
 		ItemMesh->SetMaterial(MaterialIndex, DynamicMaterialInstance);
 
 		EnableGlowMaterial();
-	}
+	}*/
 }
 
 void AItem::EnableGlowMaterial()
@@ -505,6 +536,86 @@ void AItem::StartPulseTimer()
 	if (ItemState == EItemState::EIS_Pickup)
 	{
 		GetWorldTimerManager().SetTimer(PulseTimer, this, &AItem::ResetPulseTimer, PulseCurveTime);
+	}
+}
+
+void AItem::ItemInitialize()
+{
+	FString RarityTablePath(TEXT("DataTable'/Game/Developers/JJS/Weapons/WeaponsDataTable/ItemRarityDataTable.ItemRarityDataTable'"));
+	UDataTable* RarityTableObject = Cast<UDataTable>(StaticLoadObject(UDataTable::StaticClass(), nullptr, *RarityTablePath));
+	if (RarityTableObject)
+	{
+		FItemRarityTable* RarityRow = nullptr;
+
+		switch (ItemRarity)
+		{
+		case EItemRarity::EIR_Damaged:
+			RarityRow = RarityTableObject->FindRow<FItemRarityTable>(FName("Damaged"), TEXT(""));
+			break;
+		case EItemRarity::EIR_Common:
+			RarityRow = RarityTableObject->FindRow<FItemRarityTable>(FName("Common"), TEXT(""));
+			break;
+		case EItemRarity::EIR_Uncommon:
+			RarityRow = RarityTableObject->FindRow<FItemRarityTable>(FName("Uncommon"), TEXT(""));
+			break;
+		case EItemRarity::EIR_Rare:
+			RarityRow = RarityTableObject->FindRow<FItemRarityTable>(FName("Rare"), TEXT(""));
+			break;
+		case EItemRarity::EIR_Legendary:
+			RarityRow = RarityTableObject->FindRow<FItemRarityTable>(FName("Legendary"), TEXT(""));
+			break;
+		}
+		if (RarityRow)
+		{
+			GlowColor = RarityRow->GlowColor;
+			LightColor = RarityRow->LightColor;
+			DarkColor = RarityRow->DarkColor;
+			NumberOfStars = RarityRow->NumberOfStars;
+			IconBackground = RarityRow->IconBackground;
+			if (GetItemMesh())
+			{
+				GetItemMesh()->SetCustomDepthStencilValue(RarityRow->CustomDepthStencil);
+			}
+		}
+	}
+
+	if (MaterialInstance)
+	{
+		DynamicMaterialInstance = UMaterialInstanceDynamic::Create(MaterialInstance, this);
+		DynamicMaterialInstance->SetVectorParameterValue(TEXT("FresnelColor"), GlowColor);
+		ItemMesh->SetMaterial(MaterialIndex, DynamicMaterialInstance);
+
+		EnableGlowMaterial();
+	}
+}
+
+void AItem::CombinationItem(AItem* Item)
+{
+	if (GetItemName() == Item->GetItemName())
+	{
+		if (GetItemRarity() == Item->GetItemRarity())
+		{
+			switch (ItemRarity)
+			{
+			case EItemRarity::EIR_Damaged:
+				ItemRarity = EItemRarity::EIR_Common;
+				break;
+			case EItemRarity::EIR_Common:
+				ItemRarity = EItemRarity::EIR_Uncommon;
+				break;
+			case EItemRarity::EIR_Uncommon:
+				ItemRarity = EItemRarity::EIR_Rare;
+				break;
+			case EItemRarity::EIR_Rare:
+				ItemRarity = EItemRarity::EIR_Legendary;
+				break;
+			case EItemRarity::EIR_Legendary:
+				break;
+			}
+			SetActiveStars();
+			ItemInitialize();
+			Item->Destroy();
+		}
 	}
 }
 

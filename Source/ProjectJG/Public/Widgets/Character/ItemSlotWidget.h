@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Engine/Texture2D.h"
+#include "WorldObjects/Item/Item.h"
 #include "ItemSlotWidget.generated.h"
 
 /**
@@ -23,6 +24,7 @@ public:
 		void SelectItemSlotImage(bool value);
 	UFUNCTION(BlueprintCallable)
 		void UpdateItemSlotCount(FString Count);
+
 public:
 	UPROPERTY(EditAnywhere)
 		int32 SlotIndex;

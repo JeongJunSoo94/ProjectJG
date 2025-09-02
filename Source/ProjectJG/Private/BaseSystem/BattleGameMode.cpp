@@ -16,7 +16,7 @@ namespace MatchState
 
 ABattleGameMode::ABattleGameMode()
 {
-	bDelayedStart = true;
+	bDelayedStart = true; 
 }
 
 void ABattleGameMode::BeginPlay()
@@ -35,6 +35,7 @@ void ABattleGameMode::Tick(float DeltaTime)
 
 		if (CountdownTime <= 0.f)
 		{
+			//플레이어가 모두 참여 했는지 확인
 			StartMatch();
 		}
 	}
@@ -55,6 +56,12 @@ void ABattleGameMode::Tick(float DeltaTime)
 		if (CountdownTime <= 0.f)
 		{
 			RestartGame();
+			//UWorld* World = GetWorld();
+			//if (World)
+			//{
+			//	//MatcheMenu->MenuSetup(1, "FreeForAll", "/Game/Developers/JJS/TestMap/MultiLobby/TestMap");
+			//	World->ServerTravel(FString("/Game/Developers/JJS/TestMap/MultiLobby/MultiLobby?listen"), true);
+			//}
 		}
 	}
 	else if (MatchState == MatchState::LeavingMap)
@@ -77,6 +84,46 @@ void ABattleGameMode::OnMatchStateSet()
 			PlayerController->OnMatchStateSet(MatchState, bTeamsMatch);
 		}
 	}
+}
+
+bool ABattleGameMode::CheckReadyPlayer()
+{
+	int32 playerNum = GameState.Get()->PlayerArray.Num();
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		AInGamePlayerController* PlayerController = Cast<AInGamePlayerController>(*It);
+		if (PlayerController)
+		{
+			--playerNum;
+		}
+		else
+		{
+			APlayerController* tempController = Cast<APlayerController>(*It);
+			RestartPlayer(tempController);
+			//It->Get()->ClientTravel("/Game/Developers/JJS/TestMap/TestMap?listen", ETravelType::TRAVEL_Relative);
+			//APlayerController* OldController = It->Get();
+			//if (GEngine)
+				//GEngine->AddOnScreenDebugMessage(-1, 12.0f, FColor::Blue, "CheckReadyPlayer");
+			//if (!OldController->IsA(AInGamePlayerController::StaticClass()))
+			//{
+			//	// 기존 컨트롤러를 새 컨트롤러로 변경
+			//	APlayerController* NewController = GetWorld()->SpawnActor<AInGamePlayerController>();
+
+			//	// 기존 Pawn 소유권 이전
+			//	APawn* OldPawn = OldController->GetPawn();
+			//	if (OldPawn)
+			//	{
+			//		NewController->Possess(OldPawn);
+			//	}
+
+			//	// 기존 컨트롤러 제거
+			//	OldController->Destroy();
+			//}
+		}
+	}
+	if(playerNum==0)
+		return true;
+	return false;
 }
 
 float ABattleGameMode::CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage)

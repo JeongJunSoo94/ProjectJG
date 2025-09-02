@@ -61,7 +61,7 @@ protected:
 		void ServerSetAiming(bool bIsAiming);
 
 	UFUNCTION()
-		void OnRep_EquippedWeapon();
+		void OnRep_EquippedWeapon(AWeapon* LastItem);
 
 	//UFUNCTION()
 	//	void OnRep_SecondaryWeapon();
@@ -87,7 +87,9 @@ protected:
 
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
 
-	void SetHUDCrosshairs(float DeltaTime);
+	void UpdateHUDCrosshairs(float DeltaTime);
+
+	void SetHUDCrosshairs();
 
 	void StartCrosshairBulletFire();
 
@@ -141,6 +143,8 @@ private:
 		AWeapon* EquippedWeapon;
 
 		AItem* SelectItem;
+
+		int32 CurEquipSlotIndex = 0;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 		TSubclassOf<AWeapon> DefaultWeaponClass;

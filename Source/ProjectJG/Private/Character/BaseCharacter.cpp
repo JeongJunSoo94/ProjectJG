@@ -651,13 +651,13 @@ void ABaseCharacter::TraceForItems()
 
 			if (TraceHitWeapon)
 			{
-				if (HighlightedSlot == -1)
-					HighlightInventorySlot();
+				//if (HighlightedSlot == -1)
+					//HighlightInventorySlot();
 			}
 			else
 			{
-				if (HighlightedSlot != -1)
-					UnHighlightInventorySlot();
+				//if (HighlightedSlot != -1)
+					//UnHighlightInventorySlot();
 			}
 
 			if (TraceHitItem && TraceHitItem->GetItemState() == EItemState::EIS_EquipInterping)
@@ -755,6 +755,16 @@ void ABaseCharacter::SelectButtonPressed()
 	}
 }
 
+void ABaseCharacter::DropButtonPressed()
+{
+	if (bDisableGameplay) return;
+	if (Combat)
+	{
+		if (Combat->bHoldingTheFlag) return;
+		if (Combat->CombatState == ECombatState::ECS_Unoccupied) ServerDropButtonPressed();
+	}
+}
+
 void ABaseCharacter::SelectButtonReleased()
 {
 }
@@ -766,36 +776,48 @@ void ABaseCharacter::ServerSelectButtonPressed_Implementation()
 		if (TraceHitItem)
 		{
 			AWeapon* TraceWeapon = Cast<AWeapon>(TraceHitItem);
-			if (Combat->GetEquippedWeapon() == nullptr)
+			AItem* FindItem = FindCombinationMatchingItemInInventory(TraceHitItem);
+			if (FindItem)
 			{
-				//빈손이면 장비 습득 후 장착
-				GetPickupItem(TraceWeapon);
-				Combat->EquipWeapon(TraceWeapon);
+				FindItem->CombinationItem(TraceHitItem);
 			}
 			else
 			{
-				//인벤토리 꽉 차있으면
-
-				//인벤토리 드롭 후 장착
-				GetPickupItem(TraceWeapon);
+				InventoryAddPickupItem(TraceWeapon);
 			}
 			TraceHitItem = nullptr;
 			TraceHitItemLastFrame = nullptr;
 		}
-		else
+		else if(OverlappingItem)
 		{
-			//범위에 아이템이 없음 손에 장비가 있으면 버려야함
-			if (Combat->GetEquippedWeapon())
+			AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
+			AItem* FindItem = FindCombinationMatchingItemInInventory(OverlappingItem);
+			if (FindItem)
 			{
-				//손에 아이템 있으니깐 장비 드롭
-				Inventory[Combat->GetEquippedWeapon()->GetSlotIndex()] = nullptr;
-				Combat->DropEquippedWeapon();
+				FindItem->CombinationItem(OverlappingItem);
 			}
+			else
+			{
+				InventoryAddPickupItem(OverlappingItem);
+			}
+			OverlappingItem = nullptr;
 		}
 	}
 }
 
-//스왑 상태일때 못하게 하기
+void ABaseCharacter::ServerDropButtonPressed_Implementation()
+{
+	if (Combat)
+	{
+		if (Combat->GetEquippedWeapon())
+		{
+			InventoryItemDelegate.Broadcast(Combat->GetEquippedWeapon()->GetSlotIndex(), true);
+			Inventory[Combat->GetEquippedWeapon()->GetSlotIndex()] = nullptr;
+			Combat->DropEquippedWeapon();
+		}
+	}
+}
+
 void ABaseCharacter::ServerNumberButtonPressed_Implementation(int32 slotIndex)
 {
 	if (Combat)
@@ -807,18 +829,14 @@ void ABaseCharacter::ServerNumberButtonPressed_Implementation(int32 slotIndex)
 				auto Weapon = Cast<AWeapon>(Inventory[slotIndex]);
 				if (Weapon)
 				{
-					//장비가 있어야 스왑을 한다.
 					if (Combat->GetEquippedWeapon())
 					{
 						if (Combat->GetEquippedWeapon()->GetSlotIndex() == slotIndex)
 							return;
-						//장비를 장착하고 있어서 스왑을 한다.
 						Combat->SwapItems(Weapon);
-						
 					}
 					else
 					{
-						//손에 장비가 없어서 바로 장착한다.
 						Combat->EquipWeapon(Weapon);
 					}
 				}
@@ -1034,14 +1052,6 @@ void ABaseCharacter::OneKeyPressed()
 		PlaySwapMontage();
 		Combat->CombatState = ECombatState::ECS_SwappingWeapons;
 		bFinishedSwapping = false;
-
-		for (int i = 0; i < Inventory.Num(); ++i)
-		{
-			if (Combat->EquippedWeapon == Inventory[i])
-			{
-				EquipItemDelegate.Broadcast(i, 0);
-			}
-		}
 	}
 }
 
@@ -1058,13 +1068,13 @@ void ABaseCharacter::TwoKeyPressed()
 		PlaySwapMontage();
 		Combat->CombatState = ECombatState::ECS_SwappingWeapons;
 		bFinishedSwapping = false;
-		for (int i = 0; i < Inventory.Num(); ++i)
+		/*for (int i = 0; i < Inventory.Num(); ++i)
 		{
 			if (Combat->EquippedWeapon == Inventory[i])
 			{
 				EquipItemDelegate.Broadcast(i, 1);
 			}
-		}
+		}*/
 	}
 }
 
@@ -1081,13 +1091,13 @@ void ABaseCharacter::ThreeKeyPressed()
 		PlaySwapMontage();
 		Combat->CombatState = ECombatState::ECS_SwappingWeapons;
 		bFinishedSwapping = false;
-		for (int i = 0; i < Inventory.Num(); ++i)
+		/*for (int i = 0; i < Inventory.Num(); ++i)
 		{
 			if (Combat->EquippedWeapon == Inventory[i])
 			{
 				EquipItemDelegate.Broadcast(i, 2);
 			}
-		}
+		}*/
 	}
 }
 
@@ -1104,13 +1114,13 @@ void ABaseCharacter::FourKeyPressed()
 		PlaySwapMontage();
 		Combat->CombatState = ECombatState::ECS_SwappingWeapons;
 		bFinishedSwapping = false;
-		for (int i = 0; i < Inventory.Num(); ++i)
+		/*for (int i = 0; i < Inventory.Num(); ++i)
 		{
 			if (Combat->EquippedWeapon == Inventory[i])
 			{
 				EquipItemDelegate.Broadcast(i, 3);
 			}
-		}
+		}*/
 	}
 }
 
@@ -1127,13 +1137,13 @@ void ABaseCharacter::FiveKeyPressed()
 		PlaySwapMontage();
 		Combat->CombatState = ECombatState::ECS_SwappingWeapons;
 		bFinishedSwapping = false;
-		for (int i = 0; i < Inventory.Num(); ++i)
+		/*for (int i = 0; i < Inventory.Num(); ++i)
 		{
 			if (Combat->EquippedWeapon == Inventory[i])
 			{
 				EquipItemDelegate.Broadcast(i, 4);
 			}
-		}
+		}*/
 	}
 }
 
@@ -1247,8 +1257,8 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("Aiming", IE_Pressed, this,&ABaseCharacter::AimingButtonPressed);
 	PlayerInputComponent->BindAction("Aiming", IE_Released, this,&ABaseCharacter::AimingButtonReleased);
 
-	PlayerInputComponent->BindAction("Select", IE_Pressed, this, &ABaseCharacter::SelectButtonPressed);
-	PlayerInputComponent->BindAction("Select", IE_Released, this, &ABaseCharacter::SelectButtonReleased);
+	PlayerInputComponent->BindAction("F", IE_Pressed, this, &ABaseCharacter::DropButtonPressed);
+	//PlayerInputComponent->BindAction("F", IE_Released, this, &ABaseCharacter::SelectButtonReleased);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABaseCharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ABaseCharacter::StopJumping);
@@ -1262,7 +1272,8 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("OnEquipNum5", IE_Released, this, &ABaseCharacter::FiveKeyPressed);
 
 	PlayerInputComponent->BindAction("Q", EInputEvent::IE_Pressed, this, &ABaseCharacter::QKeyPressed);
-	PlayerInputComponent->BindAction("E", EInputEvent::IE_Pressed, this, &ABaseCharacter::EKeyPressed);
+	PlayerInputComponent->BindAction("E", EInputEvent::IE_Pressed, this, &ABaseCharacter::SelectButtonPressed);
+	PlayerInputComponent->BindAction("G", EInputEvent::IE_Pressed, this, &ABaseCharacter::GKeyPressed);
 	PlayerInputComponent->BindAction("R", EInputEvent::IE_Pressed, this, &ABaseCharacter::ReloadButtonPressed);
 
 	PlayerInputComponent->BindAction("ThrowGrenade", IE_Pressed, this, &ABaseCharacter::GrenadeButtonPressed);
@@ -1272,6 +1283,7 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME_CONDITION(ABaseCharacter, TraceHitItem, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(ABaseCharacter, OverlappingItem, COND_OwnerOnly);
 	DOREPLIFETIME(ABaseCharacter, Inventory);
 	DOREPLIFETIME(ABaseCharacter, Health);
 	DOREPLIFETIME(ABaseCharacter, Shield);
@@ -1501,15 +1513,51 @@ void ABaseCharacter::OnRep_TraceItem(AItem* LastTraceHitItem)
 	{
 		TraceHitItem->GetPickupWidget()->SetVisibility(true);
 		TraceHitItem->EnableCustomDepth(true);
-		HighlightInventorySlot();
+		//HighlightInventorySlot();
 	}
 	if (LastTraceHitItem)
 	{
 		LastTraceHitItem->GetPickupWidget()->SetVisibility(false);
 		LastTraceHitItem->EnableCustomDepth(false);
-		UnHighlightInventorySlot();
+		//UnHighlightInventorySlot();
 	}
 }
+
+void ABaseCharacter::SetOverlappingItem(AItem* Item)
+{
+	if (IsLocallyControlled())
+	{
+		if (OverlappingItem)
+		{
+			OverlappingItem->GetPickupWidget()->SetVisibility(false);
+			//UnHighlightInventorySlot();
+		}
+	}
+	OverlappingItem = Item;
+	if (IsLocallyControlled())
+	{
+		if (OverlappingItem)
+		{
+			OverlappingItem->GetPickupWidget()->SetVisibility(true);
+			//HighlightInventorySlot();
+		}
+	}
+}
+
+void ABaseCharacter::OnRep_OverlappingItem(AItem* LastItem)
+{
+	if (OverlappingItem)
+	{
+		OverlappingItem->GetPickupWidget()->SetVisibility(true);
+		//HighlightInventorySlot();
+	}
+	if (LastItem)
+	{
+		LastItem->GetPickupWidget()->SetVisibility(false);
+		//UnHighlightInventorySlot();
+	}
+}
+
 
 void ABaseCharacter::IncrementOverlappedItemCount(int8 Amount)
 {
@@ -1525,50 +1573,68 @@ void ABaseCharacter::IncrementOverlappedItemCount(int8 Amount)
 	}
 }
 
-void ABaseCharacter::GetPickupItem(AItem* Item)
+
+//인벤토리에 아이템이 조합이 될 수 있는지 확인
+AItem* ABaseCharacter::FindCombinationMatchingItemInInventory(AItem* PickupItem)
+{
+	if (PickupItem->GetItemRarity() != EItemRarity::EIR_Legendary)
+	{
+		for (int i = 0; i < Inventory.Num(); ++i)
+		{
+			if (Inventory[i])
+			{
+				if (Inventory[i]->GetItemName() == PickupItem->GetItemName())
+				{
+					if (Inventory[i]->GetItemRarity() == PickupItem->GetItemRarity())
+					{
+						return Inventory[i];
+					}
+				}
+			}
+		}
+	}
+	return nullptr;
+}
+
+void ABaseCharacter::InventoryAddPickupItem(AItem* PickupItem)
 {
 	//Item->PlayEquipSound();
 	//if (Item->GetEquipSound())
 	//{
 	//	//UGameplayStatics::PlaySound2D(this, Item->GetEquipSound());
 	//}
+
 	int32 slotIndex = GetEmptyInventorySlot();
 	if (slotIndex != -1)
 	{
-		Item->SetSlotIndex(slotIndex);
+		PickupItem->SetSlotIndex(slotIndex);
 		if (slotIndex < Inventory.Num())
 		{
-			Inventory[slotIndex] = Item;
+			Inventory[slotIndex] = PickupItem;
 		}
 		else
 		{
-			Inventory.Add(Item);
+			Inventory.Add(PickupItem);
 		}
-		Item->SetItemState(EItemState::EIS_PickedUp);
+		PickupItem->SetItemState(EItemState::EIS_PickedUp);
 	}
 	else
 	{
 		if (Inventory[Combat->GetEquippedWeapon()->GetSlotIndex()])
 		{
-			Inventory[Combat->GetEquippedWeapon()->GetSlotIndex()] = nullptr;
+			slotIndex = Combat->GetEquippedWeapon()->GetSlotIndex();
 			Combat->DropEquippedWeapon();
+			Inventory[slotIndex] = PickupItem;
 		}
 	}
 
-	//if (Combat->GetEquippedWeapon() == nullptr)
-	//{
-	//	auto Weapon = Cast<AWeapon>(Item);
-	//	if (Weapon)
-	//	{
-	//		Combat->EquipWeapon(Weapon);
-	//	}
-	//}
-
-	auto Ammo = Cast<AAmmo>(Item);
-
-	if (Ammo)
+	if (Combat->GetEquippedWeapon() == nullptr)
 	{
-		//PickupAmmo(Ammo);
+		AWeapon* PickupWeapon = Cast<AWeapon>(PickupItem);
+		if (PickupWeapon)
+		{
+			Combat->EquipWeapon(PickupWeapon);
+		}
 	}
 }
 
@@ -1695,10 +1761,12 @@ void ABaseCharacter::QKeyPressed()
 
 void ABaseCharacter::EKeyPressed()
 {
+	//equip
 }
 
-
-
+void ABaseCharacter::GKeyPressed()
+{
+}
 
 void ABaseCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
 {
@@ -1727,18 +1795,8 @@ void ABaseCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDa
 	UpdateHUDShield();
 	PlayHitReactMontage();
 
-	UWorld* const World = GetWorld();
-	if (World && DamageWidgetClass)
-	{
-		ADamageFXActor* DamageActor = Cast<ADamageFXActor>(World->SpawnActor<AActor>(DamageWidgetClass, FVector::ZeroVector, FRotator::ZeroRotator));
-
-		DamageActor->SetDamageText(Damage);
-
-		//FTransform Transform = DamageActor->GetTransform();
-		DamageActor->SetActorTransform(GetActorTransform());
-		DamageActor->SetDamageWidgetSizeAndLocation(GetActorLocation(), FVector2D(120, 20));
-		DamageActor->SetWidgetActive(true);
-	}
+	if(!IsLocallyControlled())
+		DamageWidget(Damage);
 
 	if (Health == 0.f)
 	{
@@ -1905,6 +1963,7 @@ void ABaseCharacter::PollInit()
 			UpdateHUDAmmo();
 			UpdateHUDHealth();
 			UpdateHUDShield();
+			BasePlayerController->SetHUDInventory(this);
 		}
 	}
 	if (Inventory.Num() < INVENTORY_CAPACITY)
@@ -1950,6 +2009,8 @@ void ABaseCharacter::OnRep_Health(float LastHealth)
 	UpdateHUDHealth();
 	if (Health < LastHealth)
 	{
+		if (!IsLocallyControlled())
+			DamageWidget(LastHealth - Health);
 		PlayHitReactMontage();
 	}
 }
@@ -1959,6 +2020,8 @@ void ABaseCharacter::OnRep_Shield(float LastShield)
 	UpdateHUDShield();
 	if (Shield < LastShield)
 	{
+		if (!IsLocallyControlled())
+			DamageWidget(LastShield- Shield);
 		PlayHitReactMontage();
 	}
 }
@@ -1977,4 +2040,39 @@ bool ABaseCharacter::IsLocallyReloading()
 {
 	if (Combat == nullptr) return false;
 	return Combat->bLocallyReloading;
+}
+
+void ABaseCharacter::OnRep_Controller()
+{
+	//if (GEngine)
+	//{
+	//	GEngine->AddOnScreenDebugMessage(7, 12.0f, FColor::Red, TEXT("OnRep_Controller"));
+	//}
+	if (BasePlayerController == nullptr)
+	{
+		BasePlayerController = BasePlayerController == nullptr ? Cast<AInGamePlayerController>(Controller) : BasePlayerController;
+	}
+	if (BasePlayerController)
+	{
+		UpdateHUDAmmo();
+		UpdateHUDHealth();
+		UpdateHUDShield();
+		BasePlayerController->SetHUDInventory(this);
+	}
+}
+
+void ABaseCharacter::DamageWidget(float Damage)
+{
+	UWorld* const World = GetWorld();
+
+	if (World && DamageWidgetClass)
+	{
+		ADamageFXActor* DamageFXActor = Cast<ADamageFXActor>(World->SpawnActor<AActor>(DamageWidgetClass, FVector::ZeroVector, FRotator::ZeroRotator));
+
+		DamageFXActor->SetDamageText(Damage);
+
+		DamageFXActor->SetActorTransform(GetActorTransform());
+		DamageFXActor->SetDamageWidgetSizeAndLocation(FVector::ZeroVector, FVector2D(120, 20));
+		DamageFXActor->SetWidgetActive(true);
+	}
 }

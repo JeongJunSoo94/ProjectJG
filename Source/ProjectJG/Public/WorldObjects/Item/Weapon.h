@@ -6,6 +6,7 @@
 #include "WorldObjects/Item/Item.h"
 #include "WorldObjects/Item/WeaponType.h"
 #include "WorldObjects/Item/AmmoType.h"
+#include "BaseSystem/GameHUD.h"
 #include "Engine/DataTable.h"
 #include "Weapon.generated.h"
 
@@ -94,6 +95,9 @@ struct FWeaponDataTable : public FTableRowBase
 		UAnimationAsset* FireAnimation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		ECrosshairType CrosshairType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UTexture2D* CrosshairsCenter;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -107,6 +111,15 @@ struct FWeaponDataTable : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UTexture2D* CrosshairsTop;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UTexture2D* CrosshairsTopLeft;	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UTexture2D* CrosshairsTopRight;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UTexture2D* CrosshairsBottomLeft;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UTexture2D* CrosshairsBottomRight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float FireDelay;
@@ -312,6 +325,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Weapon Scatter")
 		float SphereRadius = 75.f;
 
+	UPROPERTY(EditAnywhere, Category = "Weapon Scatter")
+		float CrosshairSpread = 75.f;
+
 	UPROPERTY(EditAnywhere)
 		float Damage = 20.f;
 
@@ -333,6 +349,9 @@ protected:
 public:
 	//>>
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+	ECrosshairType CrosshairType;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
 		UTexture2D* CrosshairsCenter;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
 		UTexture2D* CrosshairsLeft;
@@ -342,6 +361,15 @@ public:
 		UTexture2D* CrosshairsBottom;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
 		UTexture2D* CrosshairsTop;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+		UTexture2D* CrosshairsTopLeft;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+		UTexture2D* CrosshairsTopRight;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+		UTexture2D* CrosshairsBottomLeft;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = DataTable, meta = (AllowPrivateAccess = "true"))
+		UTexture2D* CrosshairsBottomRight;
+
 	//<<
 
 	//>>
@@ -362,9 +390,12 @@ public:
 		float ZoomInterpSpeed = 20.f;
 
 	//<<
+		virtual void ItemInitialize() override;
 
 public:
 	//void SetWeaponState(EWeaponState State);
+	virtual void CombinationItem(AItem* Item) override;
+
 	void ThrowWeapon();
 	FORCEINLINE const float GetDamage() const { return Damage; }
 	FORCEINLINE const float GetHeadShotDamage() const{ return HeadShotDamage; }
@@ -391,6 +422,8 @@ public:
 
 	FORCEINLINE const float GetZoomedFOV() const { return ZoomedFOV; }
 	FORCEINLINE const float GetZoomInterpSpeed() const { return ZoomInterpSpeed; }
+
+	FORCEINLINE void SetCrosshairScatter(float CrosshairScatter) { CrosshairSpread = CrosshairScatter; }
 
 	FORCEINLINE void SetMovingClip(bool Move) { bMovingClip = Move; }
 	FORCEINLINE const FName GetMuzzleSocketName() const { return MuzzleSocketName; }

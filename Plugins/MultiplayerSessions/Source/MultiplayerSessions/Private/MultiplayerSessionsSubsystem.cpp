@@ -1,4 +1,4 @@
-#include "MultiplayerSessionsSubsystem.h"
+﻿#include "MultiplayerSessionsSubsystem.h"
 #include "OnlineSubsystem.h"
 #include "OnlineSessionSettings.h"
 #include "Kismet/GameplayStatics.h"
@@ -30,6 +30,7 @@ UMultiplayerSessionsSubsystem::UMultiplayerSessionsSubsystem() :
 			SessionInterface->OnSessionUserInviteAcceptedDelegates.AddUObject(this, &UMultiplayerSessionsSubsystem::OnInviteAccepted);
 		}
 	}
+	UE_LOG(LogTemp, Log, TEXT("Create MultiplayerSessionsSubsystem"));
 }
 
 void UMultiplayerSessionsSubsystem::CreateSession(int32 NumPublicConnections, FString MatchType)
@@ -106,7 +107,7 @@ void UMultiplayerSessionsSubsystem::CreateSession(FString SessionName,int32 NumP
 	LastSessionSettings->bShouldAdvertise = true;
 	LastSessionSettings->bUsesPresence = true;
 	LastSessionSettings->Set(FName("MatchType"), MatchType, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
-	LastSessionSettings->Set(FName("SESSION_LOBBY_NAME"), SessionName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	LastSessionSettings->Set(FName("SESSION_LOBBY_NAME"), StringToUTF8Encoded(SessionName), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 	LastSessionSettings->BuildUniqueId = 1;
 	LastSessionSettings->bUseLobbiesIfAvailable = true;
 
@@ -275,6 +276,8 @@ FString UMultiplayerSessionsSubsystem::GetSessionLobbyName()
 				FString SessionName;
 				if (CurrentSession->SessionSettings.Get(FName("SESSION_LOBBY_NAME"), SessionName))
 				{
+					SessionName = UTF8ToStringDecoded(SessionName);
+					UE_LOG(LogTemp, Log, TEXT("SESSION_LOBBY_NAME: %s"), *SessionName);
 					return SessionName;
 				}
 			}
@@ -351,9 +354,15 @@ void UMultiplayerSessionsSubsystem::OnDestroySessionComplete(FName SessionName, 
 
 void UMultiplayerSessionsSubsystem::OnStartSessionComplete(FName SessionName, bool bWasSuccessful)
 {
+	UE_LOG(LogTemp, Log, TEXT("OnStartSessionComplete"));
 	if (SessionInterface)
 	{
-		//SessionInterface->StartSession(SessionName);
+		UE_LOG(LogTemp, Log, TEXT("StartSessionSuccess"));
+		SessionInterface->StartSession(SessionName);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("StartSessionFail"));
 	}
 }
 
@@ -372,7 +381,6 @@ void UMultiplayerSessionsSubsystem::Initialize(FSubsystemCollectionBase& Collect
 		}
 	}
 }
-
 
 void UMultiplayerSessionsSubsystem::FetchFriendsList()
 {
@@ -446,7 +454,6 @@ UTexture2D* UMultiplayerSessionsSubsystem::GetSteamFriendAvatar(const uint64 Uni
 			Avatar->PlatformData->Mips[0].BulkData.Unlock();
 
 			// Original implementation was missing this!!
-			// the hell man......
 			delete[] oAvatarRGBA;
 
 			//Setting some Parameters for the Texture and finally returning it
@@ -488,7 +495,7 @@ void UMultiplayerSessionsSubsystem::OnInviteAccepted(bool bWasSuccessful, int32 
 		if (SessionInterface.IsValid())
 		{
 			JoinSession(SearchResult);
-
+			InviteAcceptedLog(ControllerId, UserId, SearchResult);
 			UE_LOG(LogTemp, Log, TEXT("Invite acceptance Success."));
 		}
 	}
@@ -509,10 +516,27 @@ void UMultiplayerSessionsSubsystem::InviteAcceptedLog(int32 ControllerId, FUniqu
 	UE_LOG(LogTemp, Log, TEXT("SESSION_LOBBY_NAME: %s"),
 		*SessionName);
 	UE_LOG(LogTemp, Log, TEXT("SearchResult.Session.OwningUserId: %s"),
-		*SearchResult.Session.OwningUserId.Get()->ToString());
+		*SearchResult.Session.OwningUserId->ToDebugString());
 	UE_LOG(LogTemp, Log, TEXT("SearchResult.Session.OwningUserName: %s"),
-		*SearchResult.Session.OwningUserName);
+		UTF8_TO_TCHAR(*SearchResult.Session.OwningUserName));
 	UE_LOG(LogTemp, Log, TEXT("SearchResult.Session.SessionInfo: %s"),
-		*SearchResult.Session.SessionInfo.Get()->ToString());
+		UTF8_TO_TCHAR(*SearchResult.Session.SessionInfo.Get()->ToString()));
+}
+
+FString UMultiplayerSessionsSubsystem::StringToUTF8Encoded(FString str)
+{
+	FTCHARToUTF8 UTF8String(*str);
+	TArray<uint8> UTF8Bytes;
+	UTF8Bytes.Append((uint8*)UTF8String.Get(), UTF8String.Length());
+	FString EncodedStr = FBase64::Encode(UTF8Bytes);
+	return EncodedStr;
+}
+
+FString UMultiplayerSessionsSubsystem::UTF8ToStringDecoded(FString str)
+{
+	TArray<uint8> DecodedBytes;
+	FBase64::Decode(str, DecodedBytes);
+	FString DecodedStr = FString(UTF8_TO_TCHAR(DecodedBytes.GetData()));
+	return DecodedStr;
 }
 

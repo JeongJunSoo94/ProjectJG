@@ -181,7 +181,7 @@ void UMenuUserWidget::RefreshButtonClicked()
 	WB_Matche->Refresh->SetIsEnabled(false);
 	if (MultiplayerSessionsSubsystem)
 	{
-		MultiplayerSessionsSubsystem->FindSessions(20);
+		MultiplayerSessionsSubsystem->FindSessions(100);
 	}
 }
 
@@ -195,8 +195,8 @@ void UMenuUserWidget::HostButtonClicked()
 		{
 			if(WB_Matche->SessionLobbyName =="")
 			{
-				SessionName.Append(PlayerController->GetPlayerState<APlayerState>()->GetPlayerName());
-				SessionName.Append("'s Room");
+				//SessionName.Append(PlayerController->GetPlayerState<APlayerState>()->GetPlayerName());
+				SessionName.Append("Room");
 			}
 			else
 			{
@@ -252,6 +252,7 @@ bool UMenuUserWidget::GetSearchResultsInfo(int32 Index, FString& OwningUserName,
 	if (MultiplayerSessionsSubsystem->GetSearchResults().Num() > Index)
 	{
 		MultiplayerSessionsSubsystem->GetSearchResults()[Index].Session.SessionSettings.Get(FName("SESSION_LOBBY_NAME"), OwningUserName);
+		OwningUserName = MultiplayerSessionsSubsystem->UTF8ToStringDecoded(OwningUserName);
 		if(OwningUserName=="")
 			OwningUserName = MultiplayerSessionsSubsystem->GetSearchResults()[Index].Session.OwningUserName;
 
@@ -262,3 +263,19 @@ bool UMenuUserWidget::GetSearchResultsInfo(int32 Index, FString& OwningUserName,
 	}
 	return false;
 }
+
+//bool UMenuUserWidget::GetCurrentSessionInfo(int32 Index, FString& OwningUserName, int32& NumOpenPublicConnections, int32& NumPublicConnections, FString& PingInMs)
+//{
+//	if (MultiplayerSessionsSubsystem->GetSearchResults().Num() > Index)
+//	{
+//		MultiplayerSessionsSubsystem->GetSearchResults()[Index].Session.SessionSettings.Get(FName("SESSION_LOBBY_NAME"), OwningUserName);
+//		if (OwningUserName == "")
+//			OwningUserName = MultiplayerSessionsSubsystem->GetSearchResults()[Index].Session.OwningUserName;
+//
+//		NumOpenPublicConnections = MultiplayerSessionsSubsystem->GetSearchResults()[Index].Session.NumOpenPublicConnections;
+//		NumPublicConnections = MultiplayerSessionsSubsystem->GetSearchResults()[Index].Session.SessionSettings.NumPublicConnections;
+//		PingInMs = FString::FromInt(MultiplayerSessionsSubsystem->GetSearchResults()[Index].PingInMs);
+//		return true;
+//	}
+//	return false;
+//}
